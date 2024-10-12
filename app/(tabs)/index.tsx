@@ -1,14 +1,37 @@
-import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router'; 
+import CustomButton from '@/components/CustomButton'; 
 
 export default function HomePageView() {
+  const router = useRouter(); // Initialize the router
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home Page</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+
+      <Text style={styles.welcomeText}>Welcome,</Text>
+      <Text style={styles.usernameText}>Dummy Name</Text>
+
+      {/* Button Section */}
+      <CustomButton 
+        title="Scan QR Code" 
+        color="#4285F4" 
+        onPress={() => router.push('/scanQRCode')} 
+      />
+      <CustomButton 
+        title="View Chemicals" 
+        color="#4285F4" 
+        onPress={() => router.push('/viewChemicals')}
+      />
+      <CustomButton 
+        title="Add Chemical" 
+        color="#4285F4" 
+        onPress={() => router.push('/addChemical')} 
+      />
+      <CustomButton 
+        title="My Account" 
+        color="#4285F4" 
+        onPress={() => router.push('/profile')} 
+      />
     </View>
   );
 }
@@ -16,16 +39,20 @@ export default function HomePageView() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5', 
   },
-  title: {
-    fontSize: 20,
+  welcomeText: {
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#4285F4', 
+    marginBottom: 5,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  usernameText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: 'black', 
+    marginBottom: 40,
   },
 });
