@@ -21,7 +21,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarStyle: {
+          backgroundColor: '#4285F4', 
+        },
+        tabBarActiveTintColor: 'black', 
+        tabBarInactiveTintColor: 'white', 
         headerShown: useClientOnlyValue(false, true),
       }}
     >
@@ -40,7 +44,7 @@ export default function TabLayout() {
         name="viewChemicals"
         options={{
           title: 'View Chemical',
-          tabBarIcon: ({ color }) => <TabBarIcon name="eye" color={color} />, 
+          tabBarIcon: ({ color }) => <TabBarIcon name="eye" color={color} />,
         }}
       />
 
@@ -51,18 +55,16 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+            <Pressable>
+              {({ pressed }) => (
+                <FontAwesome
+                  name="info-circle"
+                  size={25}
+                  color={Colors[colorScheme ?? 'light'].text}
+                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                />
+              )}
+            </Pressable>
           ),
         }}
       />
