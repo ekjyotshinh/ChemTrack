@@ -4,3 +4,4 @@
 - Rahul Gupta
 - Ekjyot Shinh
 - Ajaydeep Singh
+- Katy Chan
