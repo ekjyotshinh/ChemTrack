@@ -5,3 +5,4 @@
 - Ekjyot Shinh
 - Ajaydeep Singh
 - Katy Chan
+- Mari Moslehi
