@@ -7,3 +7,4 @@
 - Katy Chan
 - Mari Moslehi
 - Harmanjot Singh
+- Romin Akoliya
