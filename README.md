@@ -6,3 +6,4 @@
 - Ajaydeep Singh
 - Katy Chan
 - Mari Moslehi
+- Harmanjot Singh
