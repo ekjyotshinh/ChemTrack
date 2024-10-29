@@ -6,6 +6,11 @@ import { Pressable } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import QRCodeIcon from '@/assets/icons/QRCodeIcon'; 
+import UserIcon from '@/assets/icons/UserIcon'; 
+import PlusIcon from '@/assets/icons/PlusIcon'; 
+import EyeIcon from '@/assets/icons/EyeIcon'; 
+import HomeIcon from '@/assets/icons/HomeIcon'; 
 
 // TabBarIcon component for displaying icons in the bottom tabs
 function TabBarIcon(props: {
@@ -17,6 +22,11 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const tabBarStyle = {
+    backgroundColor: colorScheme === 'dark' ? '#333' : '#4285F4',
+  };
+  const activeTintColor = colorScheme === 'dark' ? 'black' : 'black';
+  const inactiveTintColor = colorScheme === 'dark' ? '#ccc' : 'white';
 
   return (
     <Tabs
@@ -34,8 +44,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="scanQRCode"
         options={{
-          title: 'Scan QR Code',
-          tabBarIcon: ({ color }) => <TabBarIcon name="qrcode" color={color} />,
+          title: 'Scan',
+          tabBarIcon: ({ focused }) => (
+            <QRCodeIcon
+              width={48}
+              height={45}
+              color={focused ? 'black' : 'white'}
+            />
+          ),
         }}
       />
 
@@ -43,8 +59,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="viewChemicals"
         options={{
-          title: 'View Chemical',
-          tabBarIcon: ({ color }) => <TabBarIcon name="eye" color={color} />,
+          title: 'View',
+          tabBarIcon: ({ focused }) => (
+            <EyeIcon
+              width={51}
+              height={58}
+              color={focused ? 'black' : 'white'}
+            />
+          ),
         }}
       />
 
@@ -53,18 +75,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerRight: () => (
-            <Pressable>
-              {({ pressed }) => (
-                <FontAwesome
-                  name="info-circle"
-                  size={25}
-                  color={Colors[colorScheme ?? 'light'].text}
-                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                />
-              )}
-            </Pressable>
+          tabBarIcon: ({ focused }) => (
+            <HomeIcon
+              width={40}
+              height={40}
+              color={focused ? 'black' : 'white'}
+            />
           ),
         }}
       />
@@ -73,8 +89,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="addChemical"
         options={{
-          title: 'Add Chemical',
-          tabBarIcon: ({ color }) => <TabBarIcon name="plus-circle" color={color} />,
+          title: 'Add',
+          tabBarIcon: ({ focused }) => (
+            <PlusIcon
+              width={50}
+              height={50}
+              color={focused ? 'black' : 'white'}
+            />
+          ),
         }}
       />
 
@@ -82,8 +104,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          title: 'Account',
+          tabBarIcon: ({ focused }) => (
+            <UserIcon
+              width={42}
+              height={39}
+              color={focused ? 'black' : 'white'}
+            />
+          ),
         }}
       />
     </Tabs>
