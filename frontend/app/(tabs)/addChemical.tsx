@@ -1,16 +1,18 @@
 import CustomButton from '@/components/CustomButton';
 import CustomTextInput from '@/components/CustomTextInput';
+import Header from '@/components/Header';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 export default function ViewChemicals() {
   const [text, setText] = useState<string>('')
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add Chemical</Text>
-      <CustomTextInput headerText='Name' setText={setText}/>
+      <Header headerText='Add Chemical' />
+      <CustomTextInput headerText='Name' setText={setText} />
 
+      {/* Button to test text input */}
       <CustomButton title={'Test'} onPress={() => {console.log(text)}} width={75}/>
     </View>
   );
@@ -21,9 +23,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    marginHorizontal: '8%'
   },
 });
