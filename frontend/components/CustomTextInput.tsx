@@ -5,12 +5,13 @@ import { StyleSheet, TextInput, Text, View } from 'react-native';
 interface TextProps {
     headerText: string,
     setText: React.Dispatch<React.SetStateAction<string>>,
+    inputWidth?: number,
 }
 
-export default function CustomTextInput({headerText, setText } : TextProps) {
-
+export default function CustomTextInput({headerText, setText, inputWidth } : TextProps) {
     return (
-        <View style={styles.container}>
+        // If input width is provided use that, otherwise just make it 100%
+        <View style={[styles.container, { width: inputWidth || '100%' }]}>
             <Text style={styles.header}>{headerText}</Text>
             <TextInput style={styles.input} onChangeText={(value) => {setText(value)}}/>
         </View>
@@ -20,7 +21,6 @@ export default function CustomTextInput({headerText, setText } : TextProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        flexDirection: 'column',
     },
     header: {
         fontWeight: 'bold',
@@ -37,6 +37,6 @@ const styles = StyleSheet.create({
         borderColor: '#BFBFBF',
         backgroundColor: '#FFFFFF',
         fontSize: 15,
-        width: 340,
+        width: '100%',
     },
 });
