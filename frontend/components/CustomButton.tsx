@@ -9,7 +9,7 @@ interface ButtonProps {
   iconPosition?: 'left' | 'right'; // Position of the icon
 }
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function CustomButton({
   title,
@@ -21,7 +21,7 @@ export default function CustomButton({
 }: ButtonProps) {
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: color || '#007AFF', width: (width / 100) * screenWidth }]}
+      style={[styles.button, { backgroundColor: color || '#007AFF', width: (width / 100) * screenWidth, height: (6.8 / 100) * screenHeight, }]}
       onPress={onPress}
     >
       {icon && iconPosition === 'left' && (
