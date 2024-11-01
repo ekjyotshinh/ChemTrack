@@ -13,9 +13,9 @@ export default function Header({ headerText } : headerProps) {
     return (
         <View style={styles.container}>
             <Text style={styles.header}>
-                <span style={styles.span}>
+                <Text style={styles.span}>
                     {list[0] + ' '}
-                </span>
+                </Text>
                 {list[1]}
             </Text>
         </View>
