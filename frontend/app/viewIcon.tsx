@@ -24,6 +24,7 @@ import SortIcon from '@/assets/icons/SortIcon';
 import UploadIcon from '@/assets/icons/UploadIcon';
 import UserIcon from '@/assets/icons/UserIcon';
 import ViewDocIcon from '@/assets/icons/ViewDocIcon';
+import SaveIcon from '@/assets/icons/SaveIcon';
 
 const IconsPage = () => {
     const icons = [
@@ -50,6 +51,7 @@ const IconsPage = () => {
         { component: <UploadIcon width={24} height={24} color="black" />, name: 'Upload Icon' },
         { component: <UserIcon width={24} height={24} color="black" />, name: 'User Icon' },
         { component: <ViewDocIcon width={24} height={24} color="black" />, name: 'View Document Icon' },
+        { component: <SaveIcon width={24} height={24} color="black" />, name: 'Save Icon' },
     ];
 
     return (
