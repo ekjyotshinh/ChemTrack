@@ -8,8 +8,13 @@ import { View, StyleSheet, ScrollView, Text, TextInput } from 'react-native';
 
 export default function ViewChemicals() {
   const [name, setName] = useState<string>('')
+
+  // stuff for shifting focus and keeping track of CAS number inputs
   const [casParts, setCasParts] = useState<string[]>(['', '', ''])
-  const casRefs: RefObject<TextInput>[] = [useRef<TextInput>(null), useRef<TextInput>(null), useRef<TextInput>(null)]
+  const casRefs: RefObject<TextInput>[] = [
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null)]
 
   const Divider = () => {
     return (
@@ -17,17 +22,44 @@ export default function ViewChemicals() {
     )
   }
 
-  const onCasChange = (value : string, index : number, maxLength : number) => {
+  // for when we need to shift focus to another section for CAS number
+  const onCasChange = (value: string, index: number, maxLength: number) => {
     const newCasParts = [...casParts]
     newCasParts[index] = value
     setCasParts(newCasParts)
 
     if (value.length === maxLength && index < casParts.length - 1) {
-      if (casRefs[index + 1].current) {
-        casRefs[index + 1].current?.focus()
-      }
+      casRefs[index + 1].current?.focus()
     }
   }
+
+  const onCasKeyPress = (e: any, index: number) => {
+    if (e.nativeEvent.key == 'Backspace' && casParts[index] == '' && index > 0) {
+      casRefs[index - 1].current?.focus()
+    }
+  }
+
+  const onCasSubmit = (index : number) => {
+    if (index < casParts.length - 1) {
+      casRefs[index + 1].current?.focus()
+    } else {
+      console.log(casParts)
+    }
+  }
+
+  const CasTextBox = (index: number, width: number, maxLength: number, isNext: boolean) => (
+    <CustomTextBox
+      keyboardType='numeric'
+      onChangeText={(value: string) => onCasChange(value, index, maxLength)}
+      ref={casRefs[index]}
+      width={width}
+      isCenter={true}
+      maxLength={maxLength}
+      onKeyPress={(e: any) => {onCasKeyPress(e, index)}}
+      returnKeyType={isNext ? 'next' : 'done'}
+      onSubmitEditing={() => {onCasSubmit(index)}}
+    />
+  )
 
   return (
     <View style={styles.container}>
@@ -44,36 +76,11 @@ export default function ViewChemicals() {
           {/* CAS Number */}
           <CustomTextHeader headerText='CAS Number' />
           <View style={styles.cas}>
-            <CustomTextBox
-              keyboardType='numeric'
-              onChangeText={(value: string) => onCasChange(value, 0, 7)}
-              ref={casRefs[0]}
-              width={135}
-              isCenter={true}
-              maxLength={7}
-            />
-
+            {CasTextBox(0, 135, 7, true)}
             <Divider />
-
-            <CustomTextBox
-              keyboardType='numeric'
-              onChangeText={(value: string) => onCasChange(value, 1, 2)}
-              ref={casRefs[1]}
-              width={75}
-              isCenter={true}
-              maxLength={2}
-              />
-
+            {CasTextBox(1, 75, 2, true)}
             <Divider />
-
-            <CustomTextBox
-              keyboardType='numeric'
-              onChangeText={(value: string) => onCasChange(value, 2, 1)}
-              ref={casRefs[2]}
-              width={40}
-              isCenter={true}
-              maxLength={1}
-              />
+            {CasTextBox(2, 40, 1, false)}
 
           </View>
 
