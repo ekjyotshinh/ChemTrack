@@ -33,12 +33,14 @@ export default function ViewChemicals() {
     }
   }
 
+  // handle backspace, shift focus to previous textbox
   const onCasKeyPress = (e: any, index: number) => {
     if (e.nativeEvent.key == 'Backspace' && casParts[index] == '' && index > 0) {
       casRefs[index - 1].current?.focus()
     }
   }
 
+  // handle next button, shift to next textbox, or if last textbox do nothing
   const onCasSubmit = (index : number) => {
     if (index < casParts.length - 1) {
       casRefs[index + 1].current?.focus()
@@ -47,6 +49,7 @@ export default function ViewChemicals() {
     }
   }
 
+  // helper function for the CAS number text box
   const CasTextBox = (index: number, width: number, maxLength: number, isNext: boolean) => (
     <CustomTextBox
       keyboardType='numeric'
