@@ -1,19 +1,21 @@
 import React from 'react';
-import { StyleSheet, TextInput, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import CustomTextBox from './inputField/CustomTextBox';
+import CustomTextHeader from './inputField/CustomTextHeader';
 
-// Pass the setter function from useState and the header string
+// Pass onChange function and the header string
 interface TextProps {
     headerText: string,
-    setText: React.Dispatch<React.SetStateAction<string>>,
+    onChangeText: (text: string) => void,
     inputWidth?: number,
 }
 
-export default function CustomTextInput({headerText, setText, inputWidth } : TextProps) {
+export default function CustomTextInput({headerText, onChangeText, inputWidth } : TextProps) {
     return (
         // If input width is provided use that, otherwise just make it 100%
         <View style={[styles.container, { width: inputWidth || '100%' }]}>
-            <Text style={styles.header}>{headerText}</Text>
-            <TextInput style={styles.input} onChangeText={(value) => {setText(value)}}/>
+            <CustomTextHeader headerText={headerText} />
+            <CustomTextBox onChangeText={onChangeText} />
         </View>
     );
 }
@@ -21,22 +23,5 @@ export default function CustomTextInput({headerText, setText, inputWidth } : Tex
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    header: {
-        fontWeight: 'bold',
-        fontSize: 18,
-        textAlign: 'left',
-        padding: 0,
-        marginBottom: 3
-    },
-    input: {
-        height: 40,
-        marginTop: 0,
-        borderWidth: 1,
-        paddingLeft: 15,
-        borderColor: '#BFBFBF',
-        backgroundColor: '#FFFFFF',
-        fontSize: 15,
-        width: '100%',
     },
 });
