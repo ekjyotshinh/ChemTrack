@@ -6,10 +6,9 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 import UploadIcon from '@/assets/icons/UploadIcon';
-import ResetIcon from '@/assets/icons/ResetIcon';
-import ArrowbackIcon from '@/assets/icons/ArrowbackIcon';
 import ReturnIcon from '@/assets/icons/ReturnIcon';
 import SaveIcon from '@/assets/icons/SaveIcon';
+import DateInput from '@/components/inputFields/DateInput';
 
 export default function ViewChemicals() {
   const [name, setName] = useState<string>('')
@@ -17,6 +16,8 @@ export default function ViewChemicals() {
   const [shelf, setShelf] = useState<string>('')
   const [cabinet, setCabinet] = useState<string>('')
   const [casParts, setCasParts] = useState<string[]>(['', '', ''])
+  const [purchaseDate, setPurchaseDate] = useState<Date>()
+  const [expirationDate, setExpirationDate] = useState<Date>()
 
   return (
     <View style={styles.container}>
@@ -33,6 +34,12 @@ export default function ViewChemicals() {
           {/* CAS Number */ }
           <CustomTextHeader headerText='CAS Number' />
           <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
+
+          {/* Purchase and Expiration Dates */}
+          <View style={styles.row}>
+            <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={154} headerText={'Purchase Date'} />
+            <DateInput date={expirationDate} setDate={setExpirationDate} inputWidth={154} headerText={'Expiration Date'} />
+          </View>
 
           {/* Room, cabinet, shelf number */}
           <View style={styles.row}>
