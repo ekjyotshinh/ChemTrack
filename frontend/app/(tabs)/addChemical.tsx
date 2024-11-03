@@ -3,7 +3,7 @@ import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Header from '@/components/Header';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Text, TextInput } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 
 export default function ViewChemicals() {
@@ -31,9 +31,25 @@ export default function ViewChemicals() {
 
           {/* Room, cabinet, shelf number */}
           <View style={styles.row}>
-            <HeaderTextInput headerText={'Room'} onChangeText={(value : string) => setRoom(value)} inputWidth={111} />
-            <HeaderTextInput headerText={'Shelf'} onChangeText={(value : string) => setCabinet(value)} inputWidth={88} />
-            <HeaderTextInput headerText={'Cabinet'} onChangeText={(value : string) => setShelf(value)} inputWidth={88} />
+            <HeaderTextInput 
+              headerText={'Room'}
+              onChangeText={(value : string) => setRoom(value)}
+              inputWidth={111}
+            />
+
+            <HeaderTextInput 
+              headerText={'Cabinet'}
+              onChangeText={(value : string) => setCabinet(value)}
+              inputWidth={88}
+              isNumeric={true} 
+            />
+
+            <HeaderTextInput 
+              headerText={'Shelf'}
+              onChangeText={(value : string) => setShelf(value)}
+              inputWidth={88}
+              isNumeric={true} 
+            /> 
           </View>
 
           {/* Button to test text input */}
