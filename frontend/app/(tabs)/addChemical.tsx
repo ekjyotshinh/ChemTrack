@@ -5,6 +5,11 @@ import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
+import UploadIcon from '@/assets/icons/UploadIcon';
+import ResetIcon from '@/assets/icons/ResetIcon';
+import ArrowbackIcon from '@/assets/icons/ArrowbackIcon';
+import ReturnIcon from '@/assets/icons/ReturnIcon';
+import SaveIcon from '@/assets/icons/SaveIcon';
 
 export default function ViewChemicals() {
   const [name, setName] = useState<string>('')
@@ -36,14 +41,12 @@ export default function ViewChemicals() {
               onChangeText={(value : string) => setRoom(value)}
               inputWidth={111}
             />
-
             <HeaderTextInput 
               headerText={'Cabinet'}
               onChangeText={(value : string) => setCabinet(value)}
               inputWidth={88}
               isNumeric={true} 
             />
-
             <HeaderTextInput 
               headerText={'Shelf'}
               onChangeText={(value : string) => setShelf(value)}
@@ -52,8 +55,35 @@ export default function ViewChemicals() {
             /> 
           </View>
 
-          {/* Button to test text input */}
-          <CustomButton title={'Test'} onPress={() => { console.log(JSON.stringify(casParts)) }} width={80} />
+          <CustomTextHeader headerText={'SDS'} />
+          <CustomButton
+            title={'Upload'}
+            onPress={() => { console.log('Clicked SDS upload!') }}
+            width={84}
+            icon = {<UploadIcon width={24} height={24} />}
+            iconPosition="left"
+            color='white'
+            textColor='black'
+          />
+
+          <CustomButton
+            title={'Save Chemical'}
+            onPress={() => { console.log('Clicked save!') }}
+            width={84}
+            icon = {<SaveIcon width={24} height={24} color='none'/>}
+            iconPosition="left"
+          />
+
+          <CustomButton
+            title={'Clear'}
+            onPress={() => { console.log('Clicked clear!') }}
+            width={84}
+            icon = {<ReturnIcon width={24} height={24} />}
+            iconPosition="left"
+            color='#FF0035'
+            textColor='white'
+          />
+
         </View>
       </ScrollView>
     </View>
