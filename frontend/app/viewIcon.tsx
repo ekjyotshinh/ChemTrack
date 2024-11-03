@@ -25,6 +25,7 @@ import UploadIcon from '@/assets/icons/UploadIcon';
 import UserIcon from '@/assets/icons/UserIcon';
 import ViewDocIcon from '@/assets/icons/ViewDocIcon';
 import SaveIcon from '@/assets/icons/SaveIcon';
+import CalendarIcon from '@/assets/icons/CalendarIcon';
 
 const IconsPage = () => {
     const icons = [
@@ -52,6 +53,7 @@ const IconsPage = () => {
         { component: <UserIcon width={24} height={24} color="black" />, name: 'User Icon' },
         { component: <ViewDocIcon width={24} height={24} color="black" />, name: 'View Document Icon' },
         { component: <SaveIcon width={24} height={24} color="black" />, name: 'Save Icon' },
+        { component: <CalendarIcon width={24} height={24} color="black" />, name: 'Calendar Icon' },
     ];
 
     return (
