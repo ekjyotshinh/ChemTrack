@@ -2,7 +2,7 @@ import CustomButton from '@/components/CustomButton';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Header from '@/components/Header';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 import UploadIcon from '@/assets/icons/UploadIcon';
@@ -28,6 +28,20 @@ export default function ViewChemicals() {
 
   const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity]
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
+  const allInputs: any = [...stringInputs, ...dateInputs, ...casParts]
+
+  // check if all fields have been added or not
+  useEffect(() => {
+    const areStringsComplete: boolean = stringInputs.every(string => string.trim() !== '')
+    const areDatesComplete: boolean = dateInputs.every(date => date !== undefined)
+    const isCasComplete: boolean = casParts.every(string => string.trim() !== '')
+
+    if (areStringsComplete && areDatesComplete && isCasComplete) {
+      setIsFilled(true)
+    } else {
+      setIsFilled(false)
+    }
+  }, allInputs)
 
   const [uploaded, setUploaded] = useState<boolean>(false)
 
@@ -55,7 +69,25 @@ export default function ViewChemicals() {
   ]
 
   const onSave = () => { 
-    console.log('Clicked save!')
+    if (isFilled) {
+      console.log('Clicked save!')
+    } else {
+      console.log('Please fill in all fields!')
+    }
+  }
+
+  const onClear = () => {
+    console.log('Clicked clear!')
+    setName('')
+    setRoom('')
+    setShelf('')
+    setCabinet('')
+    setSchool('')
+    setStatus('')
+    setQuantity('')
+    setCasParts(['', '', ''])
+    setPurchaseDate(undefined)
+    setExpirationDate(undefined)
   }
 
   const onUpload = () => {
@@ -72,6 +104,7 @@ export default function ViewChemicals() {
           {/* Name */}
           <HeaderTextInput
             headerText='Name'
+            value={name}
             onChangeText={(value: string) => { setName(value) }}
           />
 
@@ -113,18 +146,21 @@ export default function ViewChemicals() {
               headerText={'Room'}
               onChangeText={(value: string) => setRoom(value)}
               inputWidth={111}
+              value={room}
             />
             <HeaderTextInput
               headerText={'Cabinet'}
               onChangeText={(value: string) => setCabinet(value)}
               inputWidth={88}
               isNumeric={true}
+              value={cabinet}
             />
             <HeaderTextInput
               headerText={'Shelf'}
               onChangeText={(value: string) => setShelf(value)}
               inputWidth={88}
               isNumeric={true}
+              value={shelf}
             />
           </View>
 
@@ -158,7 +194,7 @@ export default function ViewChemicals() {
 
           <CustomButton
             title={'Clear'}
-            onPress={() => { console.log('Clicked clear!') }}
+            onPress={onClear}
             width={84}
             icon={<ReturnIcon width={24} height={24} />}
             iconPosition="left"

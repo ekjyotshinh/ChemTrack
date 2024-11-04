@@ -6,12 +6,13 @@ import CustomTextHeader from './CustomTextHeader';
 // Pass onChange function and the header string
 interface TextProps {
     headerText: string,
+    value: string,
     onChangeText: (text: string) => void,
     inputWidth?: number,
     isNumeric?: boolean,
 }
 
-export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric }: TextProps) {
+export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, value }: TextProps) {
     return (
         // If input width is provided use that, otherwise just make it 100%
         <View style={{ width: inputWidth || '100%' }}>
@@ -25,11 +26,12 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
                         style={styles.input}
                         keyboardType='numeric'
                         onChangeText={onChangeText}
+                        value={value}
                     />
                 </View> 
             // Otherwise show normal textbox
             : 
-                <CustomTextBox onChangeText={onChangeText} />
+                <CustomTextBox onChangeText={onChangeText} value={value} />
             }
         </View>
     );

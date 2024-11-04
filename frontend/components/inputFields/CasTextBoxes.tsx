@@ -61,6 +61,7 @@ export default function CasTextBoxes({ casParts, setCasParts }: CasProps) {
             isCenter={true}
             maxLength={maxLength}
             onKeyPress={(e: any) => { onCasKeyPress(e, index) }}
+            value={casParts[index]}
 
             // keyboard has next option to go to next field
             returnKeyType={isNext ? 'next' : 'done'}
