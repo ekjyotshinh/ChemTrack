@@ -1,10 +1,15 @@
 import React from 'react';
-import { View, ScrollView, Button, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, Modal, Pressable } from 'react-native';
+import { Alert, View, ScrollView, Button, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, Modal, Pressable } from 'react-native';
 
 export default function ViewChemicals() {
   const [name, setName] = React.useState(users[0].name);
   const [email, setEmail] = React.useState(users[0].email);
   const [initials, setInitials] = React.useState('');
+
+  // Variables for Modal PopUp
+  const [confirmPress, setConfirmPress] = React.useState(false);
+  const openPopUp = () => setConfirmPress(true);
+  const closePopUp = () => setConfirmPress(false);
 
   //Function to get initials of user
   const getInitals = (someName: string) => {
@@ -107,13 +112,34 @@ export default function ViewChemicals() {
 
           {/*Log Out button */}
           <View>
-            <TouchableOpacity style={styles.logOutButton}>
+            <TouchableOpacity style={styles.logOutButton}
+              onPress={openPopUp}>
               <Text style={styles.logOutButtonText}>Log Out</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
 
+      {/*Testing Modal model with borrowed styling */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={confirmPress}
+        onRequestClose={() => {
+          Alert.alert('Popup has been closed.');
+          setConfirmPress(!confirmPress);
+        }}>
+        <View style={styles.modalContainer}>
+          <View style={styles.popup}>
+            <Text >Button Works!</Text>
+            <Pressable
+              style={styles.closePopUpButton}
+              onPress={closePopUp}>
+              <Text style={styles.popUpText}>Hide PopUp</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
     </View>
   );
@@ -263,6 +289,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
 
     shadowColor: 'silver',
+
     shadowRadius: .8,
     shadowOpacity: 1,
     shadowOffset:
@@ -270,10 +297,43 @@ const styles = StyleSheet.create({
       height: 1,
       width: 1,
     },
+
   },
   logOutButtonText: {
     color: 'white',
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    paddingTop: 130,
+  },
+  popup: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: 'black',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  popUpText: {
+    textAlign: 'center',
+
+  },
+  closePopUpButton: {
+    backgroundColor: '#4285F4',
+    paddingHorizontal: 100,
+    paddingVertical: 20,
+    borderRadius: 8,
+    margin: 10,
+    width: Dimensions.get('screen').width - 55,
+    alignSelf: 'center',
   },
 });
