@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         zIndex: 1,
-        backgroundColor: '#F2F2F2'
+        backgroundColor: '#F9F9F9'
     },
     span: {
         color: '#0F82FF',
