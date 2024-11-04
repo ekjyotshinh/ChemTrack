@@ -36,7 +36,8 @@ export default function TabLayout() {
         },
         tabBarActiveTintColor: 'black', 
         tabBarInactiveTintColor: 'white', 
-        headerShown: useClientOnlyValue(false, true),
+        tabBarHideOnKeyboard: true,
+        headerShown: false,
       }}
     >
 
