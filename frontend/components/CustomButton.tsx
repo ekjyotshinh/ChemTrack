@@ -3,6 +3,7 @@ import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent, Dimensions, 
 interface ButtonProps {
   title: string;
   color?: string; // Optional color prop
+  textColor?: string; // Optional text color prop
   onPress: (event: GestureResponderEvent) => void;
   width: number; // Width prop
   icon?: React.ReactNode; // Icon as a React Node
@@ -15,6 +16,7 @@ export default function CustomButton({
   title,
   onPress,
   color,
+  textColor,
   width,
   icon,
   iconPosition = 'left', // Default icon position
@@ -30,7 +32,7 @@ export default function CustomButton({
         </View>
       )}
       
-      <Text style={styles.buttonText}>{title}</Text>
+      <Text style={[styles.buttonText, {color: textColor || 'white'}]}>{title}</Text>
       
       {icon && iconPosition === 'right' && (
         <View style={[styles.iconContainer, { right: 10 }]}>
@@ -52,7 +54,6 @@ const styles = StyleSheet.create({
     position: 'relative', 
   },
   buttonText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center', // Ensure text stays centered

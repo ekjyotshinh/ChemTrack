@@ -45,7 +45,7 @@ export default function HomePageView() {
       <CustomButton 
         title="My Account" 
         color="#4285F4" 
-        onPress={() => router.push('/profile')} 
+        onPress={() => router.push('/profile/profile')} 
         width={82.6} 
         icon={<UserIcon width = {24} height = {24}/>} 
         iconPosition="left" 
