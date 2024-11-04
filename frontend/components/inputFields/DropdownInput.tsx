@@ -12,10 +12,25 @@ interface DropdownProps {
 }
 
 export default function DropdownInput({ data, value, setValue } : DropdownProps) {
+    const [textColor, setTextColor] = useState<string>('black')
+
+    const onChange = (item : any) => {
+        setValue(item.value)
+        if (item.label === 'On-site' || item.label === 'Fair') {
+            setTextColor('#0F82FF')
+        } else if (item.label === 'Good') {
+            setTextColor('#05F140')
+        } else if (item.label == 'Low' || item.label == 'Off-site') {
+            setTextColor('#FF0035')
+        } else {
+            setTextColor('black')
+        }
+    }
+
     return (
         <Dropdown
             style={styles.container}
-            selectedTextStyle={styles.selectedTextStyle}
+            selectedTextStyle={[styles.selectedTextStyle, {color: textColor}]}
             iconStyle={styles.iconStyle}
             iconColor='#BFBFBF'
             maxHeight={150}
@@ -25,7 +40,7 @@ export default function DropdownInput({ data, value, setValue } : DropdownProps)
             labelField='label' 
             valueField='value' 
             onChange={item => {
-                setValue(item.value)
+                onChange(item)
             }} 
         />
     )

@@ -26,9 +26,16 @@ export default function ViewChemicals() {
   const [purchaseDate, setPurchaseDate] = useState<Date>()
   const [expirationDate, setExpirationDate] = useState<Date>()
 
+  const [uploaded, setUploaded] = useState<boolean>(false)
+
+  // will be used later for updating the text to match file name
+  const [uploadText, setUploadText] = useState<string>('')
+
+  const [isFilled, setIsFilled] = useState<boolean>(false)
+
   const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity]
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
-  const allInputs: any = [...stringInputs, ...dateInputs, ...casParts]
+  const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded]
 
   // check if all fields have been added or not
   useEffect(() => {
@@ -36,19 +43,12 @@ export default function ViewChemicals() {
     const areDatesComplete: boolean = dateInputs.every(date => date !== undefined)
     const isCasComplete: boolean = casParts.every(string => string.trim() !== '')
 
-    if (areStringsComplete && areDatesComplete && isCasComplete) {
+    if (areStringsComplete && areDatesComplete && isCasComplete && uploaded) {
       setIsFilled(true)
     } else {
       setIsFilled(false)
     }
   }, allInputs)
-
-  const [uploaded, setUploaded] = useState<boolean>(false)
-
-  // will be used later for updating the text to match file name
-  const [uploadText, setUploadText] = useState<string>('')
-
-  const [isFilled, setIsFilled] = useState<boolean>(false)
   
   const schools = [
     { label: 'Encina High School', value: '1' },
@@ -88,6 +88,7 @@ export default function ViewChemicals() {
     setCasParts(['', '', ''])
     setPurchaseDate(undefined)
     setExpirationDate(undefined)
+    setUploaded(false)
   }
 
   const onUpload = () => {
