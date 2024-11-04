@@ -102,7 +102,7 @@ export default function TabLayout() {
 
       {/* Profile Tab */}
       <Tabs.Screen
-        name="profile"
+        name="profile/profile"
         options={{
           title: 'Account',
           tabBarIcon: ({ focused }) => (
@@ -112,6 +112,15 @@ export default function TabLayout() {
               color={focused ? 'black' : 'white'}
             />
           ),
+        }}
+      />
+
+      {/* Hidden User Page Tab */}
+      <Tabs.Screen
+        name="profile/userPage"
+        options={{
+          title: 'User Page',
+          tabBarButton: () => null, // This hides the tab from the bottom navigation
         }}
       />
     </Tabs>
