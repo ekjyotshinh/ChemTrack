@@ -1,8 +1,9 @@
-import RNDateTimePicker from '@react-native-community/datetimepicker'
 import React, { useState } from 'react'
-import { TouchableOpacity, View, StyleSheet, Text } from 'react-native'
+import { TouchableOpacity, View, StyleSheet, Text, Platform } from 'react-native'
 import CustomTextHeader from './CustomTextHeader'
 import CalendarIcon from '@/assets/icons/CalendarIcon'
+import DateTimePickerModal from 'react-native-modal-datetime-picker'
+import RNDateTimePicker from '@react-native-community/datetimepicker'
 
 interface DateProps {
     date: Date | undefined,
@@ -13,6 +14,7 @@ interface DateProps {
 
 export default function DateInput({ date, setDate, headerText, inputWidth }: DateProps) {
     const [show, setShow] = useState<boolean>(false)
+    const isAndroid = Platform.OS === 'android'
 
     const onChange = (newDate: Date | undefined) => {
         setShow(!show)
@@ -25,16 +27,33 @@ export default function DateInput({ date, setDate, headerText, inputWidth }: Dat
                 <TouchableOpacity style={styles.btn} onPress={() => { setShow(!show) }}>
                     <View style={styles.content}>
                         {/* Format the date into a string */}
-                        <Text style={{ textAlignVertical: 'center' }}>{date?.toISOString().split('T')[0]}</Text>
+                        <Text style={{ textAlignVertical: 'center' }}>
+                            {date?.toISOString().split('T')[0]}
+                        </Text>
                         <CalendarIcon color='#BFBFBF' />
                     </View>
                 </TouchableOpacity>
-                {show && <RNDateTimePicker
-                    value={new Date()}
-                    mode="date"
-                    display={'spinner'}
-                    onChange={(e, newDate) => { onChange(newDate) }}
-                />}
+
+                {
+                    // use RNDateTimePicker for Android since spinner is nice
+                    isAndroid ? show && <RNDateTimePicker
+                        // use current date is user hasn't entered anything yet
+                        // otherwise, default to user input
+                        value={date ?? new Date()}
+                        mode="date"
+                        display={'spinner'}
+                        onChange={(e: any, newDate: Date | undefined) => { onChange(newDate) }}
+                    /> : 
+                    // on iOS use DateTimePickerModal becauase date selection looks better on 
+                    // iOS than with RNDateTimePicker
+                    <DateTimePickerModal
+                        date={date ?? new Date()}
+                        isVisible={show}
+                        mode='date'
+                        onConfirm={onChange}
+                        onCancel={() => { setShow(!show) }}
+                    />
+                }
             </View>
         </View>
     )

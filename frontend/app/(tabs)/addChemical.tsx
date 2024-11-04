@@ -31,9 +31,11 @@ export default function ViewChemicals() {
             onChangeText={(value: string) => { setName(value) }}
           />
 
-          {/* CAS Number */ }
-          <CustomTextHeader headerText='CAS Number' />
-          <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
+          {/* CAS Number */}
+          <View style={{ marginTop: 10 }}>
+            <CustomTextHeader headerText='CAS Number' />
+            <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
+          </View>
 
           {/* Purchase and Expiration Dates */}
           <View style={styles.row}>
@@ -43,41 +45,45 @@ export default function ViewChemicals() {
 
           {/* Room, cabinet, shelf number */}
           <View style={styles.row}>
-            <HeaderTextInput 
+            <HeaderTextInput
               headerText={'Room'}
-              onChangeText={(value : string) => setRoom(value)}
+              onChangeText={(value: string) => setRoom(value)}
               inputWidth={111}
             />
-            <HeaderTextInput 
+            <HeaderTextInput
               headerText={'Cabinet'}
-              onChangeText={(value : string) => setCabinet(value)}
+              onChangeText={(value: string) => setCabinet(value)}
               inputWidth={88}
-              isNumeric={true} 
+              isNumeric={true}
             />
-            <HeaderTextInput 
+            <HeaderTextInput
               headerText={'Shelf'}
-              onChangeText={(value : string) => setShelf(value)}
+              onChangeText={(value: string) => setShelf(value)}
               inputWidth={88}
-              isNumeric={true} 
-            /> 
+              isNumeric={true}
+            />
           </View>
 
-          <CustomTextHeader headerText={'SDS'} />
-          <CustomButton
-            title={'Upload'}
-            onPress={() => { console.log('Clicked SDS upload!') }}
-            width={84}
-            icon = {<UploadIcon width={24} height={24} />}
-            iconPosition="left"
-            color='white'
-            textColor='black'
-          />
+          {/* SDS button */}
+          <View style={{ marginTop: 10 }}>
+            <CustomTextHeader headerText={'SDS'} />
+            <CustomButton
+              title={'Upload'}
+              onPress={() => { console.log('Clicked SDS upload!') }}
+              width={84}
+              icon={<UploadIcon width={24} height={24} />}
+              iconPosition="left"
+              color='white'
+              textColor='black'
+            />
+          </View>
 
+          {/* Save and clear buttons */}
           <CustomButton
             title={'Save Chemical'}
             onPress={() => { console.log('Clicked save!') }}
             width={84}
-            icon = {<SaveIcon width={24} height={24} color='none'/>}
+            icon={<SaveIcon width={24} height={24} color='none' />}
             iconPosition="left"
           />
 
@@ -85,7 +91,7 @@ export default function ViewChemicals() {
             title={'Clear'}
             onPress={() => { console.log('Clicked clear!') }}
             width={84}
-            icon = {<ReturnIcon width={24} height={24} />}
+            icon={<ReturnIcon width={24} height={24} />}
             iconPosition="left"
             color='#FF0035'
             textColor='white'
@@ -112,6 +118,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   row: {
+    marginTop: 10,
     display: 'flex',
     flexDirection: 'row',
     width: '100%',

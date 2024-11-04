@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     },
     hashtag: {
         color: '#BFBFBF',
-        textAlignVertical: 'center',
+        alignSelf: 'center',
         fontSize: 18,
         fontWeight: 'bold',
         paddingLeft: 7,
@@ -56,6 +56,5 @@ const styles = StyleSheet.create({
     input: {
         fontSize: 15,
         width: 55,
-        // backgroundColor: 'red'
     }
 });
