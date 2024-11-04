@@ -1,5 +1,10 @@
 import React from 'react';
 import { Alert, View, ScrollView, Button, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, Modal, Pressable } from 'react-native';
+import CustomButton from '@/components/CustomButton'; 
+import AddUserIcon from '@/assets/icons/AddUserIcon';
+import BellIcon from '@/assets/icons/BellIcon';
+import ResetIcon from '@/assets/icons/ResetIcon';
+import LoginIcon from '@/assets/icons/LoginIcon';
 
 export default function ViewChemicals() {
   const [name, setName] = React.useState(users[0].name);
@@ -84,39 +89,40 @@ export default function ViewChemicals() {
 
         <View style={styles.buttonContainer}>
 
-          {/*Invite User button */}
-          <View>
-            <TouchableOpacity style={styles.functionButtons}>
-              <TouchableOpacity><Text style={styles.functionButtonsText}>Invite User</Text></TouchableOpacity>
+          <CustomButton 
+            title="Invite User" 
+            color="#4285F4" 
+            onPress={() => Alert.alert('Invite User pressed')} 
+            width={90} 
+            icon={<AddUserIcon width={24} height={24} color="black"/>}
+            iconPosition='left'
+          />
+          <CustomButton 
+            title="Notifications" 
+            color="#4285F4" 
+            onPress={() => Alert.alert('Notifications pressed')} 
+            width={90} 
+            icon={<BellIcon width={24} height={24} color="black"/>}
+            iconPosition='left'
+          />
+          <CustomButton 
+            title="Reset Password" 
+            color="#4285F4" 
+            onPress={() => Alert.alert('Reset Password pressed')} 
+            width={90} 
+            icon={<ResetIcon width={24} height={24} color="black"/>}
+            iconPosition='left'
+          />
+          <CustomButton 
+            title="Log Out" 
+            color="red" 
+            onPress={openPopUp} 
+            width={90} 
+            icon={<LoginIcon width={24} height={24} color="black"/>}
+            iconPosition='left'
+          />
+    
 
-            </TouchableOpacity>
-          </View>
-
-
-          {/*Notifications button */}
-          <View>
-            <TouchableOpacity style={styles.functionButtons}>
-              <Text style={styles.functionButtonsText}>Notifications</Text>
-
-            </TouchableOpacity>
-          </View>
-
-
-          {/*Reset Password button */}
-          <View>
-            <TouchableOpacity style={styles.functionButtons}>
-              <Text style={styles.functionButtonsText}>Reset Password</Text>
-            </TouchableOpacity>
-          </View>
-
-
-          {/*Log Out button */}
-          <View>
-            <TouchableOpacity style={styles.logOutButton}
-              onPress={openPopUp}>
-              <Text style={styles.logOutButtonText}>Log Out</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </ScrollView>
 
