@@ -10,6 +10,7 @@ import ReturnIcon from '@/assets/icons/ReturnIcon';
 import SaveIcon from '@/assets/icons/SaveIcon';
 import DateInput from '@/components/inputFields/DateInput';
 import DropdownInput from '@/components/inputFields/DropdownInput';
+import ResetIcon from '@/assets/icons/ResetIcon';
 
 export default function ViewChemicals() {
   const [name, setName] = useState<string>('')
@@ -27,6 +28,13 @@ export default function ViewChemicals() {
 
   const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity]
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
+
+  const [uploaded, setUploaded] = useState<boolean>(false)
+
+  // will be used later for updating the text to match file name
+  const [uploadText, setUploadText] = useState<string>('')
+
+  const [isFilled, setIsFilled] = useState<boolean>(false)
   
   const schools = [
     { label: 'Encina High School', value: '1' },
@@ -46,8 +54,13 @@ export default function ViewChemicals() {
     { label: 'Low', value: '3' },
   ]
 
-  const onSave = () => {
+  const onSave = () => { 
     console.log('Clicked save!')
+  }
+
+  const onUpload = () => {
+    console.log('Clicked SDS upload!')
+    setUploaded(!uploaded)
   }
 
   return (
@@ -116,25 +129,30 @@ export default function ViewChemicals() {
           </View>
 
           {/* SDS button */}
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: 10, marginBottom: 10 }}>
             <CustomTextHeader headerText={'SDS'} />
             <CustomButton
-              title={'Upload'}
-              onPress={() => { console.log('Clicked SDS upload!') }}
+              title={ uploaded ? 'placeholder_sds.pdf' : 'Upload'}
+              onPress={onUpload}
               width={84}
-              icon={<UploadIcon width={24} height={24} />}
+              icon={ uploaded ?
+                <ResetIcon width={24} height={24} color='white' /> :
+                <UploadIcon width={24} height={24} />
+              }
               iconPosition="left"
-              color='white'
-              textColor='black'
+              color={ uploaded ? 'black' : 'white'}
+              textColor={ uploaded ? 'white' : 'black'}
             />
           </View>
 
           {/* Save and clear buttons */}
           <CustomButton
             title={'Save Chemical'}
+            textColor={isFilled ? 'white' : '#BFBFBF'}
+            color={isFilled ? '#0F82FF' : 'white'}
             onPress={onSave}
             width={84}
-            icon={<SaveIcon width={24} height={24} color='none' />}
+            icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : '#BFBFBF'} />}
             iconPosition="left"
           />
 
