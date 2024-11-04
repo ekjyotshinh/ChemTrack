@@ -12,6 +12,11 @@ import {
     ScrollView  
 } from 'react-native';  
 import { MaterialIcons } from '@expo/vector-icons';  
+import CustomButton from '@/components/CustomButton';
+import ReturnIcon from '@/assets/icons/ReturnIcon';
+import SendIcon from '@/assets/icons/SendIcon';
+import AdminUserIcon from '@/assets/icons/AdminUserIcon';
+import MasterUserIcon from '@/assets/icons/MasterUserIcon';
 
 const { width, height } = Dimensions.get('window');  
 
@@ -81,8 +86,10 @@ const InviteUserPage: React.FC = () => {
                                 </View>  
                             </View>  
 
+                            {/* User Type Selection with Icons */}  
                             <View style={styles.inputContainer}>  
                                 <Text style={styles.label}>User Type</Text>  
+
                                 <TouchableOpacity  
                                     style={[  
                                         styles.radioButton,  
@@ -90,11 +97,14 @@ const InviteUserPage: React.FC = () => {
                                     ]}  
                                     onPress={() => setUserType('Master')}  
                                 >  
+                                    <MasterUserIcon width={24} height={24}/>  
                                     <Text style={[  
                                         styles.radioText,  
-                                        userType === 'Master' && styles.selectedRadioText  
+                                        userType === 'Master' && styles.selectedRadioText,  
+                                        styles.centeredText
                                     ]}>Master</Text>  
                                 </TouchableOpacity>  
+
                                 <TouchableOpacity  
                                     style={[  
                                         styles.radioButton,  
@@ -102,33 +112,36 @@ const InviteUserPage: React.FC = () => {
                                     ]}  
                                     onPress={() => setUserType('Admin')}  
                                 >  
+                                    <AdminUserIcon width={24} height={24}/>  
                                     <Text style={[  
                                         styles.radioText,  
-                                        userType === 'Admin' && styles.selectedRadioText  
+                                        userType === 'Admin' && styles.selectedRadioText,  
+                                        styles.centeredText
                                     ]}>Admin</Text>  
                                 </TouchableOpacity>  
-                            </View>  
+                            </View>                             
 
-                            {/* Buttons */}  
+
+
+                            {/* Custom Buttons */}  
                             <View style={styles.buttonContainer}>  
-                                <TouchableOpacity  
-                                    style={[  
-                                        styles.button,  
-                                        styles.sendButton,  
-                                        !email || !school || !userType ? styles.disabledButton : null  
-                                    ]}  
+                                <CustomButton  
+                                    title="Send Invite"  
                                     onPress={handleSendInvite}  
-                                    disabled={!email || !school || !userType}  
-                                >  
-                                    <Text style={styles.buttonText}>Send Invite</Text>  
-                                </TouchableOpacity>  
+                                    color={!email || !school || !userType ? '#A5A5A5' : '#007AFF'}  
+                                    width={90} 
+                                    icon={<SendIcon width={24} height={24} />}  
+                                    iconPosition="left"  
+                                />  
 
-                                <TouchableOpacity  
-                                    style={[styles.button, styles.clearButton]}  
+                                <CustomButton  
+                                    title="Clear"  
                                     onPress={handleClear}  
-                                >  
-                                    <Text style={styles.buttonText}>Clear</Text>  
-                                </TouchableOpacity>  
+                                    color="#FF3B30"  
+                                    width={90} 
+                                    icon={<ReturnIcon width={24} height={24} />}
+                                    iconPosition='left'
+                                />  
                             </View>  
                         </View>  
                     </View>  
@@ -195,7 +208,8 @@ const styles = StyleSheet.create({
         padding: height * 0.02,  
         backgroundColor: '#fff',  
         alignItems: 'center',  
-        marginBottom: height * 0.01,  
+        marginBottom: height * 0.01,
+        flexDirection: 'row',   
     },  
     selectedRadio: {  
         backgroundColor: '#007AFF20',  
@@ -205,6 +219,7 @@ const styles = StyleSheet.create({
         fontSize: Math.min(width * 0.04, 16),  
         fontWeight: '500',  
         color: '#000',  
+        alignItems: 'center',
     },  
     selectedRadioText: {  
         color: '#007AFF',  
@@ -212,6 +227,7 @@ const styles = StyleSheet.create({
     buttonContainer: {  
         marginTop: height * 0.02,  
         gap: height * 0.012,  
+        alignItems: 'center', 
     },  
     button: {  
         borderRadius: 10,  
@@ -232,6 +248,11 @@ const styles = StyleSheet.create({
         fontSize: Math.min(width * 0.04, 16),  
         fontWeight: '600',  
     },  
+    centeredText: {
+    flex: 1, // Take up remaining space
+    textAlign: 'center', // Center text
+    },
+
 });  
 
 export default InviteUserPage;
