@@ -181,7 +181,7 @@ export default function ViewChemicals() {
             />
           </View>
 
-          {/* Save and clear buttons */}
+          {/* Save and Clear buttons */}
           <CustomButton
             title={'Save Chemical'}
             textColor={isFilled ? 'white' : '#BFBFBF'}
@@ -202,6 +202,9 @@ export default function ViewChemicals() {
             textColor='white'
           />
 
+          {/* Extra padding */}
+          <View style={{ height: 40 }}/>
+
         </View>
       </ScrollView>
     </View>
@@ -213,7 +216,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F9F9F9'
+    backgroundColor: '#F9F9F9',
   },
   innerContainer: {
     marginTop: 150,
