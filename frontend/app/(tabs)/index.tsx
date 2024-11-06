@@ -20,7 +20,6 @@ export default function HomePageView() {
       {/* Button Section */}
       <CustomButton 
         title="Scan QR Code" 
-        color="#4285F4" 
         onPress={() => router.push('/scanQRCode')} 
         width={82.6} 
         icon={<QRCodeIcon width={24} height={24} />}
@@ -28,7 +27,6 @@ export default function HomePageView() {
       />
       <CustomButton 
         title="View Chemicals" 
-        color="#4285F4" 
         onPress={() => router.push('/viewChemicals')} 
         width={82.6}
         icon = {<EyeIcon width={24} height={24} />}
@@ -36,7 +34,6 @@ export default function HomePageView() {
       />
       <CustomButton 
         title="Add Chemical" 
-        color="#4285F4" 
         onPress={() => router.push('/addChemical')} 
         width={82.6} 
         icon = {<PlusIcon width={24} height={24} />}
@@ -44,7 +41,6 @@ export default function HomePageView() {
       />
       <CustomButton 
         title="My Account" 
-        color="#4285F4" 
         onPress={() => router.push('/profile/profile')} 
         width={82.6} 
         icon={<UserIcon width = {24} height = {24}/>} 
@@ -70,7 +66,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 50,
     fontWeight: 'bold',
-    color: '#4285F4', 
+    color: '#0F82FF', 
     marginBottom: 10,
   },
   usernameText: {

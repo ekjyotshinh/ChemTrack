@@ -52,6 +52,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center', 
     position: 'relative', 
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+    elevation: 2, 
   },
   buttonText: {
     fontSize: 16,
