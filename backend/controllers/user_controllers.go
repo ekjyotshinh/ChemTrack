@@ -36,7 +36,9 @@ func AddUser(c *gin.Context) {
 		Last     string `json:"last"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
-		Born     int    `json:"born"`
+		School   string `json:"school"`
+		IsAdmin  bool   `json:"is_admin"`  // Flag for admin
+		IsMaster bool   `json:"is_master"` // Flag for master
 	}
 
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -57,7 +59,9 @@ func AddUser(c *gin.Context) {
 		"last":     user.Last,
 		"email":    user.Email,
 		"password": hashedPassword, // Store hashed password
-		"born":     user.Born,
+		"school":   user.School,
+		"is_admin": user.IsAdmin,  
+		"is_master":user.IsMaster,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user"})
