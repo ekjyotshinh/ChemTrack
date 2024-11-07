@@ -1,16 +1,14 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import { Tabs } from 'expo-router';
 
 import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import QRCodeIcon from '@/assets/icons/QRCodeIcon'; 
-import UserIcon from '@/assets/icons/UserIcon'; 
-import PlusIcon from '@/assets/icons/PlusIcon'; 
-import EyeIcon from '@/assets/icons/EyeIcon'; 
-import HomeIcon from '@/assets/icons/HomeIcon'; 
+import NavProfile from '@/assets/icons/navbar/NavProfile';
+import NavAdd from '@/assets/icons/navbar/NavAdd';
+import NavHome from '@/assets/icons/navbar/NavHome';
+import NavView from '@/assets/icons/navbar/NavView';
+import NavScan from '@/assets/icons/navbar/NavScan';
+import { Platform } from 'react-native';
 
 // TabBarIcon component for displaying icons in the bottom tabs
 function TabBarIcon(props: {
@@ -21,19 +19,18 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const tabBarStyle = {
-    backgroundColor: colorScheme === 'dark' ? '#333' : '#4285F4',
-  };
-  const activeTintColor = colorScheme === 'dark' ? 'black' : 'black';
-  const inactiveTintColor = colorScheme === 'dark' ? '#ccc' : 'white';
+  const isAndroid = Platform.OS === 'android'
 
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#4285F4', 
+          backgroundColor: '#0F82FF',
+          paddingBottom: isAndroid ? 10 : 25,
+          height: isAndroid ? 70 : 85,
+          paddingTop: 10
         },
+
         tabBarActiveTintColor: 'black', 
         tabBarInactiveTintColor: 'white', 
         tabBarHideOnKeyboard: true,
@@ -47,9 +44,7 @@ export default function TabLayout() {
         options={{
           title: 'Scan',
           tabBarIcon: ({ focused }) => (
-            <QRCodeIcon
-              width={48}
-              height={45}
+            <NavScan
               color={focused ? 'black' : 'white'}
             />
           ),
@@ -62,9 +57,7 @@ export default function TabLayout() {
         options={{
           title: 'View',
           tabBarIcon: ({ focused }) => (
-            <EyeIcon
-              width={51}
-              height={58}
+            <NavView
               color={focused ? 'black' : 'white'}
             />
           ),
@@ -77,9 +70,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ focused }) => (
-            <HomeIcon
-              width={40}
-              height={40}
+            <NavHome
               color={focused ? 'black' : 'white'}
             />
           ),
@@ -92,9 +83,7 @@ export default function TabLayout() {
         options={{
           title: 'Add',
           tabBarIcon: ({ focused }) => (
-            <PlusIcon
-              width={50}
-              height={50}
+            <NavAdd
               color={focused ? 'black' : 'white'}
             />
           ),
@@ -107,9 +96,7 @@ export default function TabLayout() {
         options={{
           title: 'Account',
           tabBarIcon: ({ focused }) => (
-            <UserIcon
-              width={42}
-              height={39}
+            <NavProfile
               color={focused ? 'black' : 'white'}
             />
           ),
