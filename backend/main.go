@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/AggressiveGas/ChemTrack/backend/routes" // #TODO: change this to right repo
+	"github.com/ekjyotshinh/ChemTrack/backend/routes"
 )
 
 func main() {

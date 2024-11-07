@@ -6,7 +6,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/gin-gonic/gin"
-	"github.com/AggressiveGas/ChemTrack/backend/controllers" // #TODO: change this to right repo
+	"github.com/ekjyotshinh/ChemTrack/backend/controllers"
 	"google.golang.org/api/option"
 )
 
@@ -18,7 +18,7 @@ func InitFirestore() {
 	sa := option.WithCredentialsFile("key.json")
 
 	var err error
-	client, err = firestore.NewClient(ctx, "temp-chem-proj", sa)
+	client, err = firestore.NewClient(ctx, "chemtrack-csc", sa)
 	if err != nil {
 		log.Fatalf("Failed to create Firestore client: %v", err)
 	}

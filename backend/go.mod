@@ -1,5 +1,4 @@
-module github.com/AggressiveGas/ChemTrack/backend // #TODO: change this to right repo
-
+module github.com/ekjyotshinh/ChemTrack/backend
 
 go 1.22.3
 
