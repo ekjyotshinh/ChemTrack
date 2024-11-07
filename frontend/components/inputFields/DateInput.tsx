@@ -4,6 +4,7 @@ import CustomTextHeader from './CustomTextHeader'
 import CalendarIcon from '@/assets/icons/CalendarIcon'
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
 import RNDateTimePicker from '@react-native-community/datetimepicker'
+import Colors from '@/constants/Colors'
 
 interface DateProps {
     date: Date | undefined,
@@ -30,7 +31,7 @@ export default function DateInput({ date, setDate, headerText, inputWidth }: Dat
                         <Text style={{ textAlignVertical: 'center' }}>
                             {date?.toISOString().split('T')[0]}
                         </Text>
-                        <CalendarIcon color='#BFBFBF' />
+                        <CalendarIcon color={Colors.grey} />
                     </View>
                 </TouchableOpacity>
 
@@ -64,8 +65,8 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop: 0,
         borderWidth: 1,
-        borderColor: '#BFBFBF',
-        backgroundColor: '#FFFFFF',
+        borderColor: Colors.grey,
+        backgroundColor: Colors.white,
         flex: 1,
         flexDirection: 'row',
     },

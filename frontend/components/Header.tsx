@@ -1,3 +1,4 @@
+import Colors from '@/constants/Colors'
 import React from 'react'
 import { StyleSheet, View, Text} from 'react-native'
 
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9F9F9'
     },
     span: {
-        color: '#0F82FF',
+        color: Colors.blue,
     },
     header: {
         marginBottom: 11,

@@ -25,7 +25,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#0F82FF',
+          backgroundColor: Colors.blue,
           paddingBottom: isAndroid ? 10 : 25,
           height: isAndroid ? 70 : 85,
           paddingTop: 10

@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   editText: {
     color: '#4285F4',
     alignSelf: 'center',
-    fontWeight: 600,
+    fontWeight: '600',
     fontSize: 15,
   },
   inputHeader: {

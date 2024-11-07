@@ -1,6 +1,7 @@
 import React, { RefObject, useRef } from 'react'
 import CustomTextBox from './CustomTextBox'
 import { TextInput, View, StyleSheet } from 'react-native'
+import Colors from '@/constants/Colors'
 
 interface CasProps {
     casParts: string[]
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
     },
     line: {
         height: 2,
-        backgroundColor: '#000000',
+        backgroundColor: Colors.black,
         width: 10,
         alignSelf: 'center',
         borderRadius: 2,

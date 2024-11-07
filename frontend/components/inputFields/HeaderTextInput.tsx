@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TextInput } from 'react-native';
 import CustomTextBox from './CustomTextBox';
 import CustomTextHeader from './CustomTextHeader';
+import Colors from '@/constants/Colors';
 
 // Pass onChange function and the header string
 interface TextProps {
@@ -42,13 +43,13 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop: 0,
         borderWidth: 1,
-        borderColor: '#BFBFBF',
-        backgroundColor: '#FFFFFF',
+        borderColor: Colors.grey,
+        backgroundColor: Colors.white,
         flex: 1,
         flexDirection: 'row'
     },
     hashtag: {
-        color: '#BFBFBF',
+        color: Colors.grey,
         alignSelf: 'center',
         fontSize: 18,
         fontWeight: 'bold',

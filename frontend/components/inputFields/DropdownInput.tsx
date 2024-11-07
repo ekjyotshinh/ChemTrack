@@ -1,3 +1,4 @@
+import Colors from '@/constants/Colors';
 import React, { useState } from 'react'
 import { StyleSheet } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -17,11 +18,11 @@ export default function DropdownInput({ data, value, setValue } : DropdownProps)
     const onChange = (item : any) => {
         setValue(item.value)
         if (item.label === 'On-site' || item.label === 'Fair') {
-            setTextColor('#0F82FF')
+            setTextColor(Colors.blue)
         } else if (item.label === 'Good') {
             setTextColor('#05F140')
         } else if (item.label == 'Low' || item.label == 'Off-site') {
-            setTextColor('#FF0035')
+            setTextColor(Colors.red)
         } else {
             setTextColor('black')
         }
@@ -32,7 +33,7 @@ export default function DropdownInput({ data, value, setValue } : DropdownProps)
             style={styles.container}
             selectedTextStyle={[styles.selectedTextStyle, {color: textColor}]}
             iconStyle={styles.iconStyle}
-            iconColor='#BFBFBF'
+            iconColor={Colors.grey}
             maxHeight={150}
             placeholder={''}
             value={value}
@@ -51,8 +52,8 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop: 0,
         borderWidth: 1,
-        borderColor: '#BFBFBF',
-        backgroundColor: '#FFFFFF',
+        borderColor: Colors.grey,
+        backgroundColor: Colors.white,
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',

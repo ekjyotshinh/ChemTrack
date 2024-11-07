@@ -1,3 +1,4 @@
+import Colors from '@/constants/Colors';
 import React, { forwardRef } from 'react';
 import { StyleSheet, TextInput } from 'react-native';
 
@@ -33,8 +34,8 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop: 0,
         borderWidth: 1,
-        borderColor: '#BFBFBF',
-        backgroundColor: '#FFFFFF',
+        borderColor: Colors.grey,
+        backgroundColor: Colors.white,
         fontSize: 15,
     },
 });

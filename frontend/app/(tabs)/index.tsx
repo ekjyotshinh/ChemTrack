@@ -6,6 +6,7 @@ import QRCodeIcon from '@/assets/icons/QRCodeIcon';
 import UserIcon from '@/assets/icons/UserIcon'; 
 import PlusIcon from '@/assets/icons/PlusIcon'; 
 import EyeIcon from '@/assets/icons/EyeIcon'; 
+import Colors from '@/constants/Colors';
 
 export default function HomePageView() {
   const router = useRouter(); // Initialize the router
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 50,
     fontWeight: 'bold',
-    color: '#0F82FF', 
+    color: Colors.blue, 
     marginBottom: 10,
   },
   usernameText: {

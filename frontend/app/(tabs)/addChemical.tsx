@@ -11,6 +11,7 @@ import SaveIcon from '@/assets/icons/SaveIcon';
 import DateInput from '@/components/inputFields/DateInput';
 import DropdownInput from '@/components/inputFields/DropdownInput';
 import ResetIcon from '@/assets/icons/ResetIcon';
+import Colors from '@/constants/Colors';
 
 export default function ViewChemicals() {
   const [name, setName] = useState<string>('')
@@ -185,11 +186,11 @@ export default function ViewChemicals() {
           {/* Save and Clear buttons */}
           <CustomButton
             title={'Save Chemical'}
-            textColor={isFilled ? 'white' : '#BFBFBF'}
-            color={isFilled ? '#0F82FF' : 'white'}
+            textColor={isFilled ? 'white' : Colors.grey}
+            color={isFilled ? Colors.blue : 'white'}
             onPress={onSave}
             width={84}
-            icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : '#BFBFBF'} />}
+            icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : Colors.grey} />}
             iconPosition="left"
           />
 
@@ -199,7 +200,7 @@ export default function ViewChemicals() {
             width={84}
             icon={<ReturnIcon width={24} height={24} />}
             iconPosition="left"
-            color='#FF0035'
+            color={Colors.red}
             textColor='white'
           />
 
