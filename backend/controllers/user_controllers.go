@@ -106,6 +106,7 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, doc.Data())
 }
 
+// #TODO this is out dated and needs to be changed to reflect the new user model @AggressiveGas
 // UpdateUser updates user details by ID
 func UpdateUser(c *gin.Context) {
 	userID := c.Param("id")

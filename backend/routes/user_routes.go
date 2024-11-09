@@ -28,7 +28,7 @@ func InitFirestore() {
 }
 
 // RegisterRoutes defines and registers all routes
-func RegisterRoutes(router *gin.Engine) {
+func RegisterRoutesUser(router *gin.Engine) {
 	r := router.Group("/api/v1")
 
 	// User routes
