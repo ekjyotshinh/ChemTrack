@@ -86,7 +86,9 @@ func GetUsers(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
 			return
 		}
-		users = append(users, doc.Data())
+		user := doc.Data()
+        user["id"] = doc.Ref.ID // Add the document ID to the chemical data
+		users = append(users, user)
 	}
 
 	c.JSON(http.StatusOK, users)
@@ -102,6 +104,9 @@ func GetUser(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
+	
+	user := doc.Data()
+    user["id"] = doc.Ref.ID // Add the document ID to the chemical data
 
 	c.JSON(http.StatusOK, doc.Data())
 }
