@@ -1,33 +1,31 @@
 package main
 
 import (
-	"log"
+    "log"
 
-	"github.com/swaggo/gin-swagger"
+    "github.com/swaggo/gin-swagger"
     "github.com/swaggo/files"
-	"github.com/gin-gonic/gin"
-	"github.com/ekjyotshinh/ChemTrack/backend/routes"
-	"github.com/ekjyotshinh/ChemTrack/backend/docs"
+    "github.com/gin-gonic/gin"
+    "github.com/ekjyotshinh/ChemTrack/backend/routes"
+    _ "github.com/ekjyotshinh/ChemTrack/backend/docs" // Import generated docs
 )
 
 func main() {
-	// Initialize Firestore
-	routes.InitFirestore()
+    // Initialize Firestore
+    routes.InitFirestore()
 
-	// Create a Gin router
-	router := gin.Default()
+    // Create a Gin router
+    router := gin.Default()
 
-	// Register routes
-	routes.RegisterRoutesUser(router)
-	routes.RegisterRoutesChemical(router)
+    // Register routes
+    routes.RegisterRoutesUser(router)
+    routes.RegisterRoutesChemical(router)
 
-
-	// Swagger route
+    // Swagger route
     router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-
-	// Start the server on port 8080
-	if err := router.Run(":8080"); err != nil {
-		log.Fatalf("Failed to run server: %v", err)
-	}
+    // Start the server on port 8080
+    if err := router.Run(":8080"); err != nil {
+        log.Fatalf("Failed to run server: %v", err)
+    }
 }
