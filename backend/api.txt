@@ -27,5 +27,36 @@ POST /api/v1/users/login  <- login a user
     "password": "securepassword"
 }
 
+GET localhost:8080/api/v1/chemicals/  <- get all chemicals
 
+POST localhost:8080/api/v1/chemicals/  <- create a chemical
+{
+    "name": "Sodium Chloride",
+    "CAS": 7647145,
+    "school": "Encina High School",
+    "purchase_date": "2023-01-15",
+    "expiration_date": "2030-01-15",
+    "status": "On-site",
+    "quantity": "Good",
+    "room": "105B",
+    "cabinet": 2,
+    "shelf": 4
+}
 
+GET localhost:8080/api/v1/chemicals/{id}  <- get a specific chemical by ID
+
+PUT localhost:8080/api/v1/chemicals/{id}  <- update a chemical by ID
+{
+    "name": "Sodium Chloride",
+    "CAS": 7647145,
+    "school": "Encina High School",
+    "purchase_date": "2023-01-15",
+    "expiration_date": "2030-01-15",
+    "status": "On-site",
+    "quantity": "Good",
+    "room": "105B",
+    "cabinet": 2,
+    "shelf": 4
+}
+
+DELETE localhost:8080/api/v1/chemicals/{id}  <- delete a chemical by ID
