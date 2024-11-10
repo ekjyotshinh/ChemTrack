@@ -8,7 +8,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/gin-gonic/gin"
 
-	//"golang.org/x/crypto/bcrypt"
 	"google.golang.org/api/iterator"
 )
 
@@ -73,7 +72,6 @@ func GetChemical(c *gin.Context) {
 
 	chemical := doc.Data()
     chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
-
 	c.JSON(http.StatusOK, chemical)
 }
 
