@@ -44,7 +44,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /chemicals:
+  /api/v1/chemicals/:
     get:
       description: Get a list of all chemicals
       produces:
@@ -97,7 +97,7 @@ paths:
       summary: Add a new chemical
       tags:
       - chemicals
-  /chemicals/{id}:
+  /api/v1/chemicals/{id}:
     delete:
       description: Delete a specific chemical by its ID
       parameters:
@@ -183,7 +183,7 @@ paths:
       summary: Update a chemical by ID
       tags:
       - chemicals
-  /users:
+  /api/v1/users:
     get:
       description: Get a list of all users
       produces:
@@ -236,7 +236,7 @@ paths:
       summary: Add a new user
       tags:
       - users
-  /users/{id}:
+  /api/v1/users/{id}:
     delete:
       description: Delete a specific user by their ID
       parameters:
@@ -320,58 +320,6 @@ paths:
             additionalProperties: true
             type: object
       summary: Update a user by ID
-      tags:
-      - users
-  /users/check-password:
-    post:
-      description: Compare a plain password with its hashed version
-      parameters:
-      - description: Plain password
-        in: body
-        name: password
-        required: true
-        schema:
-          type: string
-      - description: Hashed password
-        in: body
-        name: hash
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: True if passwords match
-          schema:
-            type: boolean
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Check password hash
-      tags:
-      - users
-  /users/hash:
-    post:
-      description: Hash a given password using bcrypt
-      parameters:
-      - description: Password to hash
-        in: body
-        name: password
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Hashed password
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Hash a password
       tags:
       - users
 swagger: "2.0"

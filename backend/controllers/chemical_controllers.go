@@ -37,7 +37,7 @@ type Chemical struct {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /chemicals [post]
+// @Router /api/v1/chemicals/ [post]
 func AddChemical(c *gin.Context) {
 	var chemical Chemical
 
@@ -82,7 +82,7 @@ func AddChemical(c *gin.Context) {
 // @Param id path string true "Chemical ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /chemicals/{id} [get]
+// @Router /api/v1/chemicals/{id} [get]
 func GetChemical(c *gin.Context) {
 	chemicalID := c.Param("id")
 	ctx := context.Background()
@@ -106,7 +106,7 @@ func GetChemical(c *gin.Context) {
 // @Produce json
 // @Success 200 {array} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /chemicals [get]
+// @Router /api/v1/chemicals/ [get]
 func GetChemicals(c *gin.Context) {
 	ctx := context.Background()
 	iter := client.Collection("chemicals").Documents(ctx)
@@ -140,7 +140,7 @@ func GetChemicals(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /chemicals/{id} [put]
+// @Router /api/v1/chemicals/{id} [put]
 func UpdateChemical(c *gin.Context) {
 	chemicalID := c.Param("id")
 	var chemical Chemical
@@ -179,7 +179,7 @@ func UpdateChemical(c *gin.Context) {
 // @Param id path string true "Chemical ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /chemicals/{id} [delete]
+// @Router /api/v1/chemicals/{id} [delete]
 func DeleteChemical(c *gin.Context) {
 	chemicalID := c.Param("id")
 	ctx := context.Background()

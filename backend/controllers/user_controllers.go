@@ -28,28 +28,13 @@ func SetClient(c *firestore.Client) {
 	client = c
 }
 
-// HashPassword godoc
-// @Summary Hash a password
-// @Description Hash a given password using bcrypt
-// @Tags users
-// @Param password body string true "Password to hash"
-// @Success 200 {string} string "Hashed password"
-// @Failure 500 {object} map[string]interface{}
-// @Router /users/hash [post]
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
-// CheckPasswordHash godoc
-// @Summary Check password hash
-// @Description Compare a plain password with its hashed version
-// @Tags users
-// @Param password body string true "Plain password"
-// @Param hash body string true "Hashed password"
-// @Success 200 {boolean} boolean "True if passwords match"
-// @Failure 500 {object} map[string]interface{}
-// @Router /users/check-password [post]
+
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
@@ -65,7 +50,7 @@ func CheckPasswordHash(password, hash string) bool {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /users [post]
+// @Router /api/v1/users [post]
 func AddUser(c *gin.Context) {
 	var user User
 
@@ -105,7 +90,7 @@ func AddUser(c *gin.Context) {
 // @Produce json
 // @Success 200 {array} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /users [get]
+// @Router /api/v1/users [get]
 func GetUsers(c *gin.Context) {
 	ctx := context.Background()
 	iter := client.Collection("users").Documents(ctx)
@@ -136,7 +121,7 @@ func GetUsers(c *gin.Context) {
 // @Param id path string true "User ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
-// @Router /users/{id} [get]
+// @Router /api/v1/users/{id} [get]
 func GetUser(c *gin.Context) {
 	userID := c.Param("id")
 	ctx := context.Background()
@@ -164,7 +149,7 @@ func GetUser(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /users/{id} [put]
+// @Router /api/v1/users/{id} [put]
 func UpdateUser(c *gin.Context) {
 	userID := c.Param("id")
 	var user User
@@ -210,7 +195,7 @@ func UpdateUser(c *gin.Context) {
 // @Param id path string true "User ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /users/{id} [delete]
+// @Router /api/v1/users/{id} [delete]
 func DeleteUser(c *gin.Context) {
 	userID := c.Param("id")
 	ctx := context.Background()

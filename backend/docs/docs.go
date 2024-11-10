@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/chemicals": {
+        "/api/v1/chemicals/": {
             "get": {
                 "description": "Get a list of all chemicals",
                 "produces": [
@@ -93,7 +93,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/chemicals/{id}": {
+        "/api/v1/chemicals/{id}": {
             "get": {
                 "description": "Get a specific chemical by its ID",
                 "produces": [
@@ -219,7 +219,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/api/v1/users": {
             "get": {
                 "description": "Get a list of all users",
                 "produces": [
@@ -297,86 +297,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/check-password": {
-            "post": {
-                "description": "Compare a plain password with its hashed version",
-                "tags": [
-                    "users"
-                ],
-                "summary": "Check password hash",
-                "parameters": [
-                    {
-                        "description": "Plain password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Hashed password",
-                        "name": "hash",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "True if passwords match",
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/users/hash": {
-            "post": {
-                "description": "Hash a given password using bcrypt",
-                "tags": [
-                    "users"
-                ],
-                "summary": "Hash a password",
-                "parameters": [
-                    {
-                        "description": "Password to hash",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Hashed password",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}": {
+        "/api/v1/users/{id}": {
             "get": {
                 "description": "Get a specific user by their ID",
                 "produces": [
