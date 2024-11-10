@@ -21,6 +21,7 @@ func main() {
     routes.RegisterRoutesUser(router)
     routes.RegisterRoutesChemical(router)
 
+	// Swagger Documentation: http://localhost:8080/swagger/index.html
     // Swagger route
     router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
