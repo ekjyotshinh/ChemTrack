@@ -15,7 +15,7 @@ export default function SignUpPage2() {
   // Function to handle the "Create Account" button press
   const handleCreateAccountPress = () => {
     Alert.alert("Create Account button pressed!");  // Notify the user of button press
-    router.push('/profile');          // Navigate to the updated next signup page
+    router.push('/profile/profile');          // Navigate to the updated next signup page
   };
 
   // Function to handle the "Back" button press
