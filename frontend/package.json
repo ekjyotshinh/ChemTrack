@@ -13,13 +13,14 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-community/datetimepicker": "8.0.1",
     "@react-native-picker/picker": "^2.9.0",
     "@react-navigation/native": "^6.0.2",
     "expo": "~51.0.28",
     "expo-blur": "^13.0.2",
-    "expo-font": "~12.0.9",
+    "expo-font": "~12.0.10",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.23",
     "expo-splash-screen": "~0.27.5",
