@@ -2,20 +2,69 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+//import { API_URL } from '@env';
+
 
 // Define the SignUpPage2 component
 export default function SignUpPage2() {
+
+
   // State variables for first name, last name
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const router = useRouter();  // Initialize router for navigation
-
+  const{email, password, selectedSchool} = useLocalSearchParams();
+const API_URL="http://10.0.0.24:8080"
   // Function to handle the "Create Account" button press
-  const handleCreateAccountPress = () => {
-    Alert.alert("Create Account button pressed!");  // Notify the user of button press
-    router.push('/profile/profile');          // Navigate to the updated next signup page
+  const handleCreateAccountPress = async () => {
+    console.log(API_URL); // Logs the value of API_URL from .env
+//  // call to the backend to authenticate
+//  POST localhost:8080/api/v1/users/  <- create a user//
+//  "first": "John",
+//  "last": "Doe",
+//  "email": "john@example.com",
+//  "password": "password123",  
+//  "school": "Echnia High School",
+//  "is_admin": false,
+//  "is_master": true//
+
+    const url = API_URL+"/api/v1/users"
+    const userData = {
+      first : firstName,
+      last : lastName,
+      email : email,
+      password : password,
+      school : selectedSchool,
+      is_admin : false,
+      is_master : false
+    }
+    try{
+      
+      const res = await fetch(url,{
+        method:"POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body:JSON.stringify(userData),
+
+      });
+      if(res.ok){
+        //const responseData = await Response.json();
+        Alert.alert("Create Account button pressed!");
+        console.log("user created")
+        router.push('/profile/profile');    
+      } else{
+        console.log("error");
+      }
+    }catch(error){
+      console.log("error with transaction")
+      router.push('/signupPage1');    
+    };
+
+      // Notify the user of button press
+       // Navigate to the updated next signup page
   };
 
   // Function to handle the "Back" button press
@@ -41,7 +90,7 @@ export default function SignUpPage2() {
           placeholder="Enter your first name"
           value={firstName}
           onChangeText={setFirstName}
-          keyboardType="first-name"
+          //keyboardType="first-name"
         />
 
         <Text style={styles.label}>Last Name</Text>
@@ -50,7 +99,7 @@ export default function SignUpPage2() {
           placeholder="Enter your last name"
           value={lastName}
           onChangeText={setLastName}
-          keyboardType="last-name"
+          //keyboardType="last-name"
         />
 
 

@@ -16,7 +16,10 @@ export default function SignUpPage() {
   // Function to handle the "Next" button press
   const handleNextPress = () => {
     Alert.alert("Next button pressed!");  // Notify the user of button press
-    router.push('/signupPage2');          // Navigate to the updated next signup page
+    router.push({
+      pathname:'/signupPage2',          // Navigate to the updated next signup page
+      params : {email : email,password : password,selectedSchool : selectedSchool},
+    });
   };
 
   // Function to handle the "Back" button press
