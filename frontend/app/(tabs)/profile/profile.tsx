@@ -5,6 +5,9 @@ import AddUserIcon from '@/assets/icons/AddUserIcon';
 import BellIcon from '@/assets/icons/BellIcon';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import LoginIcon from '@/assets/icons/LoginIcon';
+import Colors from '@/constants/Colors';
+import Header from '@/components/Header';
+import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 
 export default function ViewChemicals() {
   const [name, setName] = React.useState(users[0].name);
@@ -44,81 +47,66 @@ export default function ViewChemicals() {
   return (
 
     <View style={styles.container}>
-      <Text style={styles.title}>My <Text style={styles.titleSecondWord}>Account</Text></Text>
+      <Header headerText={'My Account'} />
 
+      <ScrollView style={styles.scrollContainer}>
 
-      <View style={styles.avatarContainer}>
-        <View style={styles.avatarImage}>
-          <Text style={styles.avatarText}> {defaultAvatar()}</Text>
-
-        </View>
-      </View>
-
-      <View>
-        <TouchableOpacity>
-
-          <Text style={styles.editText}>Edit</Text>
-
-        </TouchableOpacity>
-      </View>
-
-
-      <ScrollView>
-        <View >
-          <Text style={styles.inputHeader}>Name</Text>
-          <TextInput style={styles.inputBox}
-            onChangeText={name => setName(name)}
-
-            placeholderTextColor='black'
-            placeholder={name}
-            value={name}
-          />
-
+        <View style={styles.avatarContainer}>
+          <View style={styles.avatarImage}>
+            <Text style={styles.avatarText}> {defaultAvatar()}</Text>
+          </View>
         </View>
 
         <View>
-          <Text style={styles.inputHeader}>Email</Text>
-          <TextInput style={styles.inputBox}
-            onChangeText={setEmail}
-            placeholderTextColor='black'
-            placeholder={email}
-            value={email}
-          />
-
+          <TouchableOpacity>
+            <Text style={styles.editText}>Edit</Text>
+          </TouchableOpacity>
         </View>
+
+        <View style={{alignItems: 'center'}}>
+          <HeaderTextInput onChangeText={name => setName(name)} headerText={'Name'} value={name} inputWidth={Dimensions.get('screen').width - 50} />
+          <View style={{ height: 10 }}/>
+          <HeaderTextInput onChangeText={email => setEmail(email)} headerText={'Email'} value={email} inputWidth={Dimensions.get('screen').width - 50} />
+        </View>
+
+        <View style={{ height: 20 }}/>
 
         <View style={styles.buttonContainer}>
 
           <CustomButton 
             title="Invite User" 
-            color="#4285F4" 
+            color={Colors.white}
+            textColor={Colors.black} 
             onPress={() => Alert.alert('Invite User pressed')} 
             width={90} 
-            icon={<AddUserIcon width={24} height={24} color="black"/>}
+            icon={<AddUserIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
           <CustomButton 
             title="Notifications" 
-            color="#4285F4" 
+            color={Colors.white}
+            textColor={Colors.black} 
             onPress={() => Alert.alert('Notifications pressed')} 
             width={90} 
-            icon={<BellIcon width={24} height={24} color="black"/>}
+            icon={<BellIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
           <CustomButton 
             title="Reset Password" 
-            color="#4285F4" 
+            color={Colors.white}
+            textColor={Colors.black} 
             onPress={() => Alert.alert('Reset Password pressed')} 
             width={90} 
-            icon={<ResetIcon width={24} height={24} color="black"/>}
+            icon={<ResetIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
           <CustomButton 
             title="Log Out" 
-            color="red" 
+            color={Colors.red}
+            textColor={Colors.white}
             onPress={openPopUp} 
             width={90} 
-            icon={<LoginIcon width={24} height={24} color="black"/>}
+            icon={<LoginIcon width={24} height={24} color={Colors.white}/>}
             iconPosition='left'
           />
     
@@ -146,7 +134,7 @@ export default function ViewChemicals() {
           </View>
         </View>
       </Modal>
-
+      <View style={{ height: 40 }}/>
     </View>
   );
 }
@@ -185,11 +173,13 @@ let users: { name: string, email: string, password: string }[] = [
 {/*StyleSheet */ }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    marginTop: 150,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-
+    backgroundColor: Colors.offwhite,
   },
   title: {
     fontSize: 28,
@@ -218,7 +208,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 5,
 
-    shadowColor: 'grey',
+    shadowColor: Colors.grey,
     shadowRadius: 0.5,
     shadowOpacity: 2,
     shadowOffset:
