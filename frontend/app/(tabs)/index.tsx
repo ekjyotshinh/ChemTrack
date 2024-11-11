@@ -6,15 +6,19 @@ import QRCodeIcon from '@/assets/icons/QRCodeIcon';
 import UserIcon from '@/assets/icons/UserIcon'; 
 import PlusIcon from '@/assets/icons/PlusIcon'; 
 import EyeIcon from '@/assets/icons/EyeIcon'; 
+import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
 
 export default function HomePageView() {
   const router = useRouter(); // Initialize the router
+  const { userInfo } = useUser(); // Get the username from context
 
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
         <Text style={styles.welcomeText}>Welcome,</Text>
-        <Text style={styles.usernameText}>Dummy Name</Text>
+        <Text style={styles.usernameText}>
+          {userInfo && userInfo.name ? userInfo.name : ''} {/* Check if userInfo and userInfo.name are valid */}
+        </Text>
       </View>
 
       {/* Button Section */}

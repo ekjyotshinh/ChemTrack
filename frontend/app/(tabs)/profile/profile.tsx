@@ -1,16 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert, View, ScrollView, Button, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, Modal, Pressable } from 'react-native';
 import CustomButton from '@/components/CustomButton'; 
 import AddUserIcon from '@/assets/icons/AddUserIcon';
 import BellIcon from '@/assets/icons/BellIcon';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import LoginIcon from '@/assets/icons/LoginIcon';
+import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
 
 export default function ViewChemicals() {
-  const [name, setName] = React.useState(users[0].name);
-  const [email, setEmail] = React.useState(users[0].email);
-  const [initials, setInitials] = React.useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [initials, setInitials] = useState('');
+  const router = useRouter();  // Initialize router for navigation
+  const { userInfo } = useUser(); // Get the username from context
 
+  useEffect(() => {
+    if (userInfo) {
+      setName(userInfo.name);
+      setEmail(userInfo.email);
+    }
+  }, [userInfo]);
   // Variables for Modal PopUp
   const [confirmPress, setConfirmPress] = React.useState(false);
   const openPopUp = () => setConfirmPress(true);
@@ -32,7 +42,7 @@ export default function ViewChemicals() {
     const [initials, setIntials] = React.useState('');
 
     //return setInitials(getInitals(users[0].name));
-    return getInitals(users[0].name);
+    return getInitals(userInfo.name);
   };
 
   const buttonPopUp = () => {
@@ -92,7 +102,7 @@ export default function ViewChemicals() {
           <CustomButton 
             title="Invite User" 
             color="#4285F4" 
-            onPress={() => Alert.alert('Invite User pressed')} 
+            onPress={() => router.push('/profile/userPage')} 
             width={90} 
             icon={<AddUserIcon width={24} height={24} color="black"/>}
             iconPosition='left'
