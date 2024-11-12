@@ -1,73 +1,79 @@
 // Import necessary libraries and components
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
+
 import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-//import { API_URL } from '@env';
+import { useUser } from '@/contexts/UserContext'; // Import the hook
 
 
 // Define the SignUpPage2 component
 export default function SignUpPage2() {
-
-
-  // State variables for first name, last name
+  const API_URL = "http://IP_ADDRESS:8080"; // Update with your backend IP address and port
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const router = useRouter();  // Initialize router for navigation
-  const{email, password, selectedSchool} = useLocalSearchParams();
-const API_URL="http://IP:8080"
-  // Function to handle the "Create Account" button press
-  const handleCreateAccountPress = async () => {
-    console.log(API_URL); // Logs the value of API_URL from .env
-//  // call to the backend to authenticate
-//  POST localhost:8080/api/v1/users/  <- create a user//
-//  "first": "John",
-//  "last": "Doe",
-//  "email": "john@example.com",
-//  "password": "password123",  
-//  "school": "Echnia High School",
-//  "is_admin": false,
-//  "is_master": true//
+  const router = useRouter();
+  const { email, password, selectedSchool } = useLocalSearchParams();
 
-    const url = API_URL+"/api/v1/users"
+  // Ensure you're extracting the actual string values by calling the functions
+  const emailValue = Array.isArray(email) ? email[0] : email;  // Handle the case if email is an array
+  const passwordValue = Array.isArray(password) ? password[0] : password;  // Handle the case if password is an array
+  const selectedSchoolValue = Array.isArray(selectedSchool) ? selectedSchool[0] : selectedSchool;  // Handle the case if selectedSchool is an array
+
+  // Log the values to check them
+  console.log('Email:', emailValue);
+  console.log('Password:', passwordValue);
+  console.log('Selected School:', selectedSchoolValue);
+
+  const { updateUserInfo } = useUser(); // Use the updateUserInfo function from context
+
+  // Handle Create Account button press
+  const handleCreateAccountPress = async () => {
+    console.log(API_URL); // Log the API_URL for debugging
+
+    const url = `${API_URL}/api/v1/users`;
     const userData = {
-      first : firstName,
-      last : lastName,
-      email : email,
-      password : password,
-      school : selectedSchool,
-      is_admin : false,
-      is_master : false
-    }
-    try{
-      
-      const res = await fetch(url,{
-        method:"POST",
+      first: firstName,
+      last: lastName,
+      email: emailValue,  // Use the extracted email value here
+      password: passwordValue,  // Use the extracted password value here
+      school: selectedSchoolValue,  // Use the extracted selected school here
+      is_admin: false,
+      is_master: false,
+    };
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
-        body:JSON.stringify(userData),
-
+        body: JSON.stringify(userData),
       });
-      if(res.ok){
-        //const responseData = await Response.json();
-        Alert.alert("Create Account button pressed!");
-        console.log("user created")
-        router.push('/profile/profile');    
-      } else{
-        console.log("error");
-      }
-    }catch(error){
-      console.log("error with transaction")
-      router.push('/signupPage1');    
-    };
 
-      // Notify the user of button press
-       // Navigate to the updated next signup page
+      if (res.ok) {
+        Alert.alert("Account Created Successfully!");
+        // After successfully creating the user, update context and navigate
+        updateUserInfo({
+          name: `${firstName} ${lastName}`,
+          email: emailValue,  
+          is_admin: false,
+          is_master: false,
+          school: selectedSchoolValue, 
+        });
+        router.push('/');
+      } else {
+        Alert.alert("Error creating Account!");
+        router.push('/signupPage1');
+      }
+    } catch (error) {
+      Alert.alert("Error creating Account!");
+      router.push('/signupPage1'); // Navigate back to the first signup page on error
+    }
   };
 
-  // Function to handle the "Back" button press
+  // Handle Back button press
   const handleBackPress = () => {
     router.push('/signupPage1');                // Navigate back to the login page
   };
