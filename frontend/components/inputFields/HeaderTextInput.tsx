@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TextInput } from 'react-native';
 import CustomTextBox from './CustomTextBox';
 import CustomTextHeader from './CustomTextHeader';
 import Colors from '@/constants/Colors';
+import TextInter from '../TextInter';
 
 // Pass onChange function and the header string
 interface TextProps {
@@ -22,7 +23,7 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
             // If numeric, then only allow numeric input and show #
             isNumeric ?
                 <View style={styles.container}>
-                    <Text style={styles.hashtag}>{'#'}</Text>
+                    <TextInter style={styles.hashtag}>{'#'}</TextInter>
                     <TextInput
                         style={styles.input}
                         keyboardType='numeric'

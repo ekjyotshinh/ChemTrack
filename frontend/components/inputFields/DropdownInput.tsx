@@ -59,9 +59,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingLeft: 15,
+        fontFamily: 'Inter_400Regular'
     },
       selectedTextStyle: {
         fontSize: 15,
+        fontFamily: 'Inter_400Regular'
       },
       iconStyle: {
         width: 30,

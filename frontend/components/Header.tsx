@@ -1,6 +1,8 @@
 import Colors from '@/constants/Colors'
 import React from 'react'
 import { StyleSheet, View, Text} from 'react-native'
+import TextInter from './TextInter'
+import Size from '@/constants/Size'
 
 interface headerProps {
     headerText: string
@@ -13,12 +15,12 @@ export default function Header({ headerText } : headerProps) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>
-                <Text style={styles.span}>
+            <TextInter style={styles.header}>
+                <TextInter style={styles.span}>
                     {list[0] + ' '}
-                </Text>
+                </TextInter>
                 {list[1]}
-            </Text>
+            </TextInter>
         </View>
     )
 }
@@ -31,16 +33,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-end',
         width: '100%',
-        paddingTop: 86,
+        height: Size.height(117),
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         zIndex: 1,
-        backgroundColor: '#F9F9F9'
+        backgroundColor: Colors.offwhite
     },
     span: {
         color: Colors.blue,
+        fontWeight: 'bold'
     },
     header: {
         marginBottom: 11,
@@ -48,6 +51,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         // make sure this matches margin for
         // the screen so the text lines up
-        marginHorizontal: '8%',
+        marginHorizontal: Size.height(33),
     }
 });

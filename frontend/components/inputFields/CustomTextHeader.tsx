@@ -1,5 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text } from 'react-native'
+import TextInter from '../TextInter'
 
 interface HeaderProps {
     headerText: string,
@@ -7,7 +8,7 @@ interface HeaderProps {
 
 export default function CustomTextHeader({ headerText }: HeaderProps) {
     return (
-        <Text style={styles.header}>{headerText}</Text>
+        <TextInter style={styles.header}>{headerText}</TextInter>
     )
 }
 

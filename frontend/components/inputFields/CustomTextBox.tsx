@@ -20,7 +20,8 @@ const CustomTextBox = forwardRef<TextInput, TextProps>(
                     styles.input,
                     { width: width },
                     { textAlign: isCenter ? 'center' : 'left' },
-                    { paddingLeft: isCenter ? 0 : 15 }
+                    { paddingLeft: isCenter ? 0 : 15 },
+                    { fontFamily: 'Inter_400Regular'}
                 ]}
                 onChangeText={onChangeText}
                 ref={ref}
