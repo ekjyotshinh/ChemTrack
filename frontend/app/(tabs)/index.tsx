@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router'; 
 import CustomButton from '@/components/CustomButton'; 
-import Svg, { Path } from 'react-native-svg'; 
 import QRCodeIcon from '@/assets/icons/QRCodeIcon'; 
 import UserIcon from '@/assets/icons/UserIcon'; 
 import PlusIcon from '@/assets/icons/PlusIcon'; 
 import EyeIcon from '@/assets/icons/EyeIcon'; 
 import Colors from '@/constants/Colors';
+import TextInter from '@/components/TextInter';
 
 export default function HomePageView() {
   const router = useRouter(); // Initialize the router
@@ -14,36 +14,36 @@ export default function HomePageView() {
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={styles.welcomeText}>Welcome,</Text>
-        <Text style={styles.usernameText}>Dummy Name</Text>
+        <TextInter style={styles.welcomeText}>Welcome,</TextInter>
+        <TextInter style={styles.usernameText}>Dummy Name</TextInter>
       </View>
 
       {/* Button Section */}
       <CustomButton 
         title="Scan QR Code" 
         onPress={() => router.push('/scanQRCode')} 
-        width={82.6} 
+        width={337} 
         icon={<QRCodeIcon width={24} height={24} />}
         iconPosition='left'
       />
       <CustomButton 
         title="View Chemicals" 
         onPress={() => router.push('/viewChemicals')} 
-        width={82.6}
+        width={337}
         icon = {<EyeIcon width={24} height={24} />}
         iconPosition="left"
       />
       <CustomButton 
         title="Add Chemical" 
         onPress={() => router.push('/addChemical')} 
-        width={82.6} 
+        width={337} 
         icon = {<PlusIcon width={24} height={24} />}
         iconPosition="left" 
       />
       <CustomButton 
         title="My Account" 
         onPress={() => router.push('/profile/profile')} 
-        width={82.6} 
+        width={337} 
         icon={<UserIcon width = {24} height = {24}/>} 
         iconPosition="left" 
       />
