@@ -16,7 +16,7 @@ export default function SignUpPage2() {
   const [lastName, setLastName] = useState('');
   const router = useRouter();  // Initialize router for navigation
   const{email, password, selectedSchool} = useLocalSearchParams();
-const API_URL="http://10.0.0.24:8080"
+const API_URL="http://IP:8080"
   // Function to handle the "Create Account" button press
   const handleCreateAccountPress = async () => {
     console.log(API_URL); // Logs the value of API_URL from .env
