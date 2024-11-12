@@ -209,7 +209,7 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }
 
-// Login authenticates a user by email and password
+// Login authenticates a user by email and password and return the user data
 func Login(c *gin.Context) {
 	var loginDetails struct {
 		Email    string `json:"email"`
@@ -242,5 +242,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	// Return user info upon successful login
+	response := gin.H{
+		"first":   user["first"],
+		"last":    user["last"],
+		"email":   user["email"],
+		"school":  user["school"],
+		"is_admin": user["is_admin"],
+		"is_master": user["is_master"],
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": response})
 }
