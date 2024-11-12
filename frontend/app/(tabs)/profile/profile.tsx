@@ -8,6 +8,8 @@ import LoginIcon from '@/assets/icons/LoginIcon';
 import Colors from '@/constants/Colors';
 import Header from '@/components/Header';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
+import Size from '@/constants/Size';
+import TextInter from '@/components/TextInter';
 
 export default function ViewChemicals() {
   const [name, setName] = React.useState(users[0].name);
@@ -51,9 +53,10 @@ export default function ViewChemicals() {
 
       <ScrollView style={styles.scrollContainer}>
 
+        <View style={{marginTop: Size.height(136)}}>
         <View style={styles.avatarContainer}>
           <View style={styles.avatarImage}>
-            <Text style={styles.avatarText}> {defaultAvatar()}</Text>
+            <TextInter style={styles.avatarText}> {defaultAvatar()}</TextInter>
           </View>
         </View>
 
@@ -64,12 +67,12 @@ export default function ViewChemicals() {
         </View>
 
         <View style={{alignItems: 'center'}}>
-          <HeaderTextInput onChangeText={name => setName(name)} headerText={'Name'} value={name} inputWidth={Dimensions.get('screen').width - 50} />
-          <View style={{ height: 10 }}/>
-          <HeaderTextInput onChangeText={email => setEmail(email)} headerText={'Email'} value={email} inputWidth={Dimensions.get('screen').width - 50} />
+          <HeaderTextInput onChangeText={name => setName(name)} headerText={'Name'} value={name} inputWidth={Size.width(340)} />
+          <View style={{ height: Size.height(10) }}/>
+          <HeaderTextInput onChangeText={email => setEmail(email)} headerText={'Email'} value={email} inputWidth={Size.width(340)} />
         </View>
 
-        <View style={{ height: 20 }}/>
+        <View style={{ height: Size.height(40) }}/>
 
         <View style={styles.buttonContainer}>
 
@@ -78,7 +81,7 @@ export default function ViewChemicals() {
             color={Colors.white}
             textColor={Colors.black} 
             onPress={() => Alert.alert('Invite User pressed')} 
-            width={90} 
+            width={337} 
             icon={<AddUserIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
@@ -87,7 +90,7 @@ export default function ViewChemicals() {
             color={Colors.white}
             textColor={Colors.black} 
             onPress={() => Alert.alert('Notifications pressed')} 
-            width={90} 
+            width={337} 
             icon={<BellIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
@@ -96,7 +99,7 @@ export default function ViewChemicals() {
             color={Colors.white}
             textColor={Colors.black} 
             onPress={() => Alert.alert('Reset Password pressed')} 
-            width={90} 
+            width={337} 
             icon={<ResetIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
@@ -105,12 +108,14 @@ export default function ViewChemicals() {
             color={Colors.red}
             textColor={Colors.white}
             onPress={openPopUp} 
-            width={90} 
+            width={337} 
             icon={<LoginIcon width={24} height={24} color={Colors.white}/>}
             iconPosition='left'
           />
     
 
+        </View>
+        <View style={{ height: Size.height(30) }}/>
         </View>
       </ScrollView>
 
@@ -134,7 +139,6 @@ export default function ViewChemicals() {
           </View>
         </View>
       </Modal>
-      <View style={{ height: 40 }}/>
     </View>
   );
 }
@@ -174,12 +178,13 @@ let users: { name: string, email: string, password: string }[] = [
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    marginTop: 150,
+    width: '100%',
   },
   container: {
     flex: 1,
     justifyContent: 'center',
     backgroundColor: Colors.offwhite,
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
@@ -199,13 +204,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   avatarImage: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    alignSelf: 'center',
+    width: Size.width(132),
+    height: Size.width(132),
+    borderRadius: 100,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
+    alignItems: 'center',
     margin: 5,
 
     shadowColor: Colors.grey,
@@ -219,8 +223,12 @@ const styles = StyleSheet.create({
 
   },
   avatarText: {
-    fontSize: 28,
+    fontSize: 45,
     fontWeight: 'bold',
+    textAlign: 'center',
+    backgroundColor: Colors.white,
+    // It's not lining up for some reason but this padding evens it out
+    paddingRight: 10,
   },
   editText: {
     color: '#4285F4',
@@ -248,7 +256,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   buttonContainer: {
-    padding: 22,
+    alignItems: 'center',
   },
 
   functionButtons: {
