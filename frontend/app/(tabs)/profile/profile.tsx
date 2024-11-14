@@ -66,11 +66,25 @@ export default function ViewChemicals() {
           </TouchableOpacity>
         </View>
 
-        <View style={{alignItems: 'center'}}>
-          <HeaderTextInput onChangeText={name => setName(name)} headerText={'Name'} value={name} inputWidth={Size.width(340)} />
-          <View style={{ height: Size.height(10) }}/>
-          <HeaderTextInput onChangeText={email => setEmail(email)} headerText={'Email'} value={email} inputWidth={Size.width(340)} />
-        </View>
+          <View style={{ alignItems: 'center' }}>
+            <HeaderTextInput
+              onChangeText={name => setName(name)}
+              headerText={'Name'}
+              value={name}
+              hasIcon={true}
+              inputWidth={Size.width(340)} />
+
+            <View style={{ height: Size.height(10) }} />
+
+            <HeaderTextInput
+              onChangeText={email => setEmail(email)}
+              headerText={'Email'}
+              hasIcon={true}
+              value={email}
+              inputWidth={Size.width(340)}
+              keyboardType='email-address'
+              autoCapitalize='none' />
+          </View>
 
         <View style={{ height: Size.height(40) }}/>
 
