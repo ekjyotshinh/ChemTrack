@@ -51,6 +51,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         // make sure this matches margin for
         // the screen so the text lines up
-        marginHorizontal: Size.height(33),
+        marginHorizontal: Size.width(33),
     }
 });

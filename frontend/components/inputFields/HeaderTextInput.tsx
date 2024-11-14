@@ -12,9 +12,11 @@ interface TextProps {
     onChangeText: (text: string) => void,
     inputWidth?: number,
     isNumeric?: boolean,
+    hasIcon?: boolean,
+    [key: string]: any, // allows any additional TextInput props
 }
 
-export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, value }: TextProps) {
+export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, ...props }: TextProps) {
     return (
         // If input width is provided use that, otherwise just make it 100%
         <View style={{ width: inputWidth || '100%' }}>
@@ -33,7 +35,7 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
                 </View> 
             // Otherwise show normal textbox
             : 
-                <CustomTextBox onChangeText={onChangeText} value={value} />
+                <CustomTextBox {...props} onChangeText={onChangeText} hasIcon={hasIcon} value={value} />
             }
         </View>
     );
