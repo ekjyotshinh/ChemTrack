@@ -7,15 +7,20 @@ import PlusIcon from '@/assets/icons/PlusIcon';
 import EyeIcon from '@/assets/icons/EyeIcon'; 
 import Colors from '@/constants/Colors';
 import TextInter from '@/components/TextInter';
+import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
 
 export default function HomePageView() {
   const router = useRouter(); // Initialize the router
+  const { userInfo } = useUser(); // Get the username from context
 
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
         <TextInter style={styles.welcomeText}>Welcome,</TextInter>
-        <TextInter style={styles.usernameText}>Dummy Name</TextInter>
+        <TextInter style={styles.usernameText}>
+          {/* Check if userInfo and userInfo.name are valid */}
+          {userInfo && userInfo.name ? userInfo.name : 'Temp Name'}
+        </TextInter>
       </View>
 
       {/* Button Section */}

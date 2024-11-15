@@ -2,19 +2,67 @@ import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
+import { useUser } from '@/contexts/UserContext'; // Import the hook
 
 export default function LoginPage() {
+  const API_URL = "http://10.0.0.24:8080"; // Update with your backend IP address and port
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
+  const { updateUserInfo } = useUser(); // Use the updateUserInfo function from context
+
   const handleLogin = async () => {
-    if (email === 'dummy@dummy.com' && password === 'pass123') {
-      router.replace('/(tabs)');
-    } else {
-      Alert.alert('Invalid credentials');
+  if (!email || !password) {
+    Alert.alert('Please enter both email and password');
+    return;
+  }
+  
+  const url = `${API_URL}/api/v1/login`;
+
+  try {
+    // API call to authenticate the user
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    // Check if response status is OK (200-299)
+    if (!response.ok) {
+      const data = await response.json();
+      Alert.alert(data.error || 'Invalid credentials');
+      return;
     }
-  };
+
+    // Parse the response data
+    const data = await response.json();
+    console.log(data); // Log the complete response for debugging
+
+    // Successfully logged in, update context with user info
+    updateUserInfo({
+      name: `${data.user.first} ${data.user.last}`,  // Using `first` and `last` from the user object
+      email: data.user.email,  // Using `email` from the user object
+      is_admin: data.user.is_admin,  // Using `is_admin` from the user object
+      is_master: data.user.is_master,  // Using `is_master` from the user object
+      school: data.user.school,  // Ensure `school` exists in the response, if not, adjust as needed
+    });
+
+    // Successfully logged in, redirect to the main page
+    router.replace('/(tabs)');
+
+    // Optionally, store user info for future use (e.g., AsyncStorage)
+    console.log('User info:', data);
+
+  } catch (error) {
+    // Handle network or other errors
+    console.error('Login error:', error);
+    Alert.alert('Something went wrong, please try again later');
+  }
+};
+
 
   return (
     <View style={styles.container}>
@@ -50,7 +98,7 @@ export default function LoginPage() {
       icon = {<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="white"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  className="icon icon-tabler icons-tabler-outline icon-tabler-login"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M21 12h-13l3 -3" /><path d="M11 15l-3 -3" /></svg>}
       />
         {/* Link to the login page */}
-      <Text onPress={() => router.push('/signup')} style={styles.link}>
+      <Text onPress={() => router.push('/signupPage1')} style={styles.link}>
         Don't have an account? Sign-up
       </Text>
     </View>

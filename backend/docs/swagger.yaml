@@ -1,0 +1,325 @@
+definitions:
+  controllers.Chemical:
+    properties:
+      CAS:
+        type: integer
+      cabinet:
+        type: integer
+      expiration_date:
+        type: string
+      name:
+        type: string
+      purchase_date:
+        type: string
+      quantity:
+        type: string
+      room:
+        type: string
+      school:
+        type: string
+      shelf:
+        type: integer
+      status:
+        type: string
+    type: object
+  controllers.User:
+    properties:
+      email:
+        type: string
+      first:
+        type: string
+      is_admin:
+        description: Flag for admin
+        type: boolean
+      is_master:
+        description: Flag for master
+        type: boolean
+      last:
+        type: string
+      password:
+        type: string
+      school:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/chemicals/:
+    get:
+      description: Get a list of all chemicals
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all chemicals
+      tags:
+      - chemicals
+    post:
+      consumes:
+      - application/json
+      description: Add a new chemical to the database
+      parameters:
+      - description: Chemical data
+        in: body
+        name: chemical
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.Chemical'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a new chemical
+      tags:
+      - chemicals
+  /api/v1/chemicals/{id}:
+    delete:
+      description: Delete a specific chemical by its ID
+      parameters:
+      - description: Chemical ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a chemical by ID
+      tags:
+      - chemicals
+    get:
+      description: Get a specific chemical by its ID
+      parameters:
+      - description: Chemical ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a chemical by ID
+      tags:
+      - chemicals
+    put:
+      consumes:
+      - application/json
+      description: Update a specific chemical by its ID
+      parameters:
+      - description: Chemical ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Chemical data
+        in: body
+        name: chemical
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.Chemical'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a chemical by ID
+      tags:
+      - chemicals
+  /api/v1/users:
+    get:
+      description: Get a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Add a new user to the database with a hashed password
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a new user
+      tags:
+      - users
+  /api/v1/users/{id}:
+    delete:
+      description: Delete a specific user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a user by ID
+      tags:
+      - users
+    get:
+      description: Get a specific user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update a specific user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a user by ID
+      tags:
+      - users
+swagger: "2.0"
