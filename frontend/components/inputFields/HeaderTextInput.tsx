@@ -4,6 +4,7 @@ import CustomTextBox from './CustomTextBox';
 import CustomTextHeader from './CustomTextHeader';
 import Colors from '@/constants/Colors';
 import TextInter from '../TextInter';
+import Size from '@/constants/Size';
 
 // Pass onChange function and the header string
 interface TextProps {
@@ -19,7 +20,7 @@ interface TextProps {
 export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, ...props }: TextProps) {
     return (
         // If input width is provided use that, otherwise just make it 100%
-        <View style={{ width: inputWidth || '100%' }}>
+        <View style={{ flex: 1, width: inputWidth || '100%' }}>
             <CustomTextHeader headerText={headerText} />
             {
             // If numeric, then only allow numeric input and show #
@@ -43,7 +44,7 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
 
 const styles = StyleSheet.create({
     container: {
-        height: 40,
+        height: Size.height(40),
         marginTop: 0,
         borderWidth: 1,
         borderColor: Colors.grey,
