@@ -20,7 +20,7 @@ interface TextProps {
 export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, ...props }: TextProps) {
     return (
         // If input width is provided use that, otherwise just make it 100%
-        <View style={{ flex: 1, width: inputWidth || '100%' }}>
+        <View style={{ width: inputWidth || '100%' }}>
             <CustomTextHeader headerText={headerText} />
             {
             // If numeric, then only allow numeric input and show #
