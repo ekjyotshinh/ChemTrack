@@ -21,6 +21,7 @@ import {
   Inter_800ExtraBold, 
   Inter_900Black 
 } from '@expo-google-fonts/inter';
+import { ScrollView } from 'react-native';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -78,6 +79,7 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

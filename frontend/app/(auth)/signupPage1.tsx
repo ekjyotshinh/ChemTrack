@@ -1,24 +1,38 @@
 // Import necessary libraries and components
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Dimensions, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
+import Size from '@/constants/Size';
+import Colors from '@/constants/Colors';
+import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
+import DropdownInput from '@/components/inputFields/DropdownInput';
+import CustomButton from '@/components/CustomButton';
+import BlueHeader from '@/components/BlueHeader';
 
 // Define the SignUpPage component
 export default function SignUpPage() {
   // State variables for email, password, and selected school
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedSchool, setSelectedSchool] = useState('Encina High School');
+  const [selectedSchool, setSelectedSchool] = useState('');
   const router = useRouter();  // Initialize router for navigation
+
+  // Temp array of hardcoded schools
+  const schools = [
+    { label: 'Encina High School', value: '1' },
+    { label: 'Sacramento High School', value: '2' },
+    { label: 'Foothill High School', value: '3' },
+    { label: 'Grant Union High School', value: '4' },
+  ]
 
   // Function to handle the "Next" button press
   const handleNextPress = () => {
     Alert.alert("Next button pressed!");  // Notify the user of button press
     router.push({
-      pathname:'/signupPage2',          // Navigate to the updated next signup page
-      params : {email : email,password : password,selectedSchool : selectedSchool},
+      pathname: '/signupPage2',          // Navigate to the updated next signup page
+      params: { email: email, password: password, selectedSchool: selectedSchool },
     });
   };
 
@@ -30,48 +44,55 @@ export default function SignUpPage() {
   return (
     <View style={styles.container}>
       {/* Top bar with a "Back" button and title */}
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.topBarText}>Sign Up</Text>
-      </View>
+      <BlueHeader headerText={'Sign Up'} onPress={handleBackPress} />
+      <ScrollView style={{ width: '100%' }}>
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ height: Size.height(15) }} />
+          {/* Form fields for email, password, and school selection */}
+          <View style={styles.formContainer}>
 
-      {/* Form fields for email, password, and school selection */}
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
+            <HeaderTextInput
+              onChangeText={email => setEmail(email)}
+              headerText={'Email'}
+              value={email}
+              keyboardType='email-address'
+              autoCapitalize='none'
+              hasIcon={true}
+            />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+            <View style={{ height: Size.height(10) }} />
+            <HeaderTextInput
+              headerText={'Password'}
+              value={password}
+              onChangeText={(password) => { setPassword(password) }}
+              secureTextEntry={true}
+              autoCapitalize='none'
+              hasIcon={true}
+            />
+            <View style={{ height: Size.height(10) }} />
 
-        <Text style={styles.label}>School</Text>
-        <Picker
-          selectedValue={selectedSchool}
-          onValueChange={(itemValue) => setSelectedSchool(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Encina High School" value="Encina High School" />
-        </Picker>
-      </View>
+            <CustomTextHeader headerText='School' />
+            <DropdownInput data={schools} value={selectedSchool} setValue={setSelectedSchool} />
 
-      {/* "Next" button to proceed to the next signup page */}
-      <TouchableOpacity onPress={handleNextPress} style={styles.nextButton}>
-        <Text style={styles.nextButtonText}>Next</Text>
-        <Ionicons name="arrow-forward" size={24} color="white" style={styles.nextButtonIcon} />
-      </TouchableOpacity>
+          </View>
+          <View style={{ height: Size.height(300) }} />
+          {/* "Next" button to proceed to the next signup page */}
+          <CustomButton
+            iconPosition='right'
+            title='Next'
+            color={(!email && !password && !selectedSchool) ? Colors.white : Colors.blue}
+            textColor={(!email && !password && !selectedSchool) ? Colors.grey : Colors.white}
+            icon={
+              <Ionicons
+                name="arrow-forward"
+                size={24}
+                color={(!email && !password && !selectedSchool) ? Colors.grey : Colors.white}
+              />}
+            onPress={handleNextPress}
+            width={337}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -82,8 +103,9 @@ const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'flex-start',
+    backgroundColor: Colors.offwhite,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   topBar: {
     position: 'absolute',
@@ -110,8 +132,8 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    paddingHorizontal: width * 0.08,
-    marginTop: 120,
+    paddingHorizontal: Size.width(33),
+    marginTop: Size.width(120),
     width: '100%',
   },
   label: {

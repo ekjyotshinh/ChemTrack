@@ -1,11 +1,16 @@
 // Import necessary libraries and components
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Dimensions, ScrollView } from 'react-native';
 
 import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUser } from '@/contexts/UserContext'; // Import the hook
+import BlueHeader from '@/components/BlueHeader';
+import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
+import Size from '@/constants/Size';
+import CustomButton from '@/components/CustomButton';
+import Colors from '@/constants/Colors';
 
 
 // Define the SignUpPage2 component
@@ -57,10 +62,10 @@ export default function SignUpPage2() {
         // After successfully creating the user, update context and navigate
         updateUserInfo({
           name: `${firstName} ${lastName}`,
-          email: emailValue,  
+          email: emailValue,
           is_admin: false,
           is_master: false,
-          school: selectedSchoolValue, 
+          school: selectedSchoolValue,
         });
         router.push('/');
       } else {
@@ -79,44 +84,52 @@ export default function SignUpPage2() {
   };
 
   return (
+
     <View style={styles.container}>
       {/* Top bar with a "Back" button and title */}
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.topBarText}>Sign Up</Text>
-      </View>
+      <BlueHeader headerText={'Sign Up'} onPress={handleBackPress} />
+      <ScrollView style={{ width: '100%' }}>
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ height: Size.height(15) }} />
+          {/* Form fields for email, password, and school selection */}
+          <View style={styles.formContainer}>
+            <HeaderTextInput
+              value={firstName}
+              onChangeText={(first) => { setFirstName(first) }}
+              headerText={'First Name'}
+              hasIcon={true}
+            />
 
-      {/* Form fields for email, password, and school selection */}
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>First Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your first name"
-          value={firstName}
-          onChangeText={setFirstName}
-          //keyboardType="first-name"
-        />
+            <View style={{ height: Size.height(10) }} />
 
-        <Text style={styles.label}>Last Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your last name"
-          value={lastName}
-          onChangeText={setLastName}
-          //keyboardType="last-name"
-        />
+            <HeaderTextInput
+              value={lastName}
+              onChangeText={(last) => { setLastName(last) }}
+              headerText={'Last Name'}
+              hasIcon={true}
+            />
+          </View>
 
+          <View style={{ height: Size.height(377) }} />
 
-        
-      </View>
+          {/* "Create Account" button to proceed to the next signup page */}
+          <CustomButton
+            iconPosition='right'
+            title='Create Account'
+            color={(!firstName && !lastName) ? Colors.white : Colors.blue}
+            textColor={(!firstName && !lastName) ? Colors.grey : Colors.white}
+            icon={
+              <Ionicons
+                name="checkmark"
+                size={24}
+                color={(!firstName && !lastName) ? Colors.grey : Colors.white}
+              />}
+            onPress={handleCreateAccountPress}
+            width={337}
+          />
 
-      {/* "Create Account" button to proceed to the next signup page */}
-      <TouchableOpacity onPress={handleCreateAccountPress} style={styles.createAccountButton}>
-        <Text style={styles.createAccountButtonText}>Create Account</Text>
-        <Ionicons name="checkmark" size={24} color="white" style={styles.createAccountButtonIcon} />
-      </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -199,7 +212,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-   createAccountButtonIcon: {
+  createAccountButtonIcon: {
     position: 'absolute',
     right: width * 0.08,  // Adjust icon position based on screen width for responsiveness
   },
