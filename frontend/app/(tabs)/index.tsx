@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router'; 
 import CustomButton from '@/components/CustomButton'; 
-import Svg, { Path } from 'react-native-svg'; 
 import QRCodeIcon from '@/assets/icons/QRCodeIcon'; 
 import UserIcon from '@/assets/icons/UserIcon'; 
 import PlusIcon from '@/assets/icons/PlusIcon'; 
 import EyeIcon from '@/assets/icons/EyeIcon'; 
+import Colors from '@/constants/Colors';
+import TextInter from '@/components/TextInter';
 import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
 
 export default function HomePageView() {
@@ -15,42 +16,39 @@ export default function HomePageView() {
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={styles.welcomeText}>Welcome,</Text>
-        <Text style={styles.usernameText}>
-          {userInfo && userInfo.name ? userInfo.name : ''} {/* Check if userInfo and userInfo.name are valid */}
-        </Text>
+        <TextInter style={styles.welcomeText}>Welcome,</TextInter>
+        <TextInter style={styles.usernameText}>
+          {/* Check if userInfo and userInfo.name are valid */}
+          {userInfo && userInfo.name ? userInfo.name : 'Temp Name'}
+        </TextInter>
       </View>
 
       {/* Button Section */}
       <CustomButton 
         title="Scan QR Code" 
-        color="#4285F4" 
         onPress={() => router.push('/scanQRCode')} 
-        width={82.6} 
+        width={337} 
         icon={<QRCodeIcon width={24} height={24} />}
         iconPosition='left'
       />
       <CustomButton 
         title="View Chemicals" 
-        color="#4285F4" 
         onPress={() => router.push('/viewChemicals')} 
-        width={82.6}
+        width={337}
         icon = {<EyeIcon width={24} height={24} />}
         iconPosition="left"
       />
       <CustomButton 
         title="Add Chemical" 
-        color="#4285F4" 
         onPress={() => router.push('/addChemical')} 
-        width={82.6} 
+        width={337} 
         icon = {<PlusIcon width={24} height={24} />}
         iconPosition="left" 
       />
       <CustomButton 
         title="My Account" 
-        color="#4285F4" 
         onPress={() => router.push('/profile/profile')} 
-        width={82.6} 
+        width={337} 
         icon={<UserIcon width = {24} height = {24}/>} 
         iconPosition="left" 
       />
@@ -74,7 +72,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 50,
     fontWeight: 'bold',
-    color: '#4285F4', 
+    color: Colors.blue, 
     marginBottom: 10,
   },
   usernameText: {

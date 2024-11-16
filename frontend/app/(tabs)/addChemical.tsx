@@ -11,6 +11,8 @@ import SaveIcon from '@/assets/icons/SaveIcon';
 import DateInput from '@/components/inputFields/DateInput';
 import DropdownInput from '@/components/inputFields/DropdownInput';
 import ResetIcon from '@/assets/icons/ResetIcon';
+import Colors from '@/constants/Colors';
+import Size from '@/constants/Size';
 
 export default function ViewChemicals() {
   const [name, setName] = useState<string>('')
@@ -110,25 +112,25 @@ export default function ViewChemicals() {
           />
 
           {/* CAS Number */}
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: Size.width(10) }}>
             <CustomTextHeader headerText='CAS Number' />
             <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
           </View>
 
           {/* Purchase and Expiration Dates */}
           <View style={styles.row}>
-            <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={154} headerText={'Purchase Date'} />
-            <DateInput date={expirationDate} setDate={setExpirationDate} inputWidth={154} headerText={'Expiration Date'} />
+            <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={Size.width(154)} headerText={'Purchase Date'} />
+            <DateInput date={expirationDate} setDate={setExpirationDate} inputWidth={Size.width(154)} headerText={'Expiration Date'} />
           </View>
 
           {/* Status and Quality */}
           <View style={styles.row}>
-            <View style={{width: 154}}>
+            <View style={{width: Size.width(154)}}>
               <CustomTextHeader headerText='Status' />
               <DropdownInput data={statuses} value={status} setValue={setStatus}/>
             </View>
 
-            <View style={{width: 154}}>
+            <View style={{width: Size.width(154)}}>
               <CustomTextHeader headerText='Quantity' />
               <DropdownInput data={quantities} value={quantity} setValue={setQuantity} />
             </View>
@@ -146,20 +148,20 @@ export default function ViewChemicals() {
             <HeaderTextInput
               headerText={'Room'}
               onChangeText={(value: string) => setRoom(value)}
-              inputWidth={111}
+              inputWidth={Size.width(111)}
               value={room}
             />
             <HeaderTextInput
               headerText={'Cabinet'}
               onChangeText={(value: string) => setCabinet(value)}
-              inputWidth={88}
+              inputWidth={Size.width(88)}
               isNumeric={true}
               value={cabinet}
             />
             <HeaderTextInput
               headerText={'Shelf'}
               onChangeText={(value: string) => setShelf(value)}
-              inputWidth={88}
+              inputWidth={Size.width(88)}
               isNumeric={true}
               value={shelf}
             />
@@ -168,10 +170,11 @@ export default function ViewChemicals() {
           {/* SDS button */}
           <View style={{ marginTop: 10, marginBottom: 10 }}>
             <CustomTextHeader headerText={'SDS'} />
+            <View style={{alignItems: 'center'}}>
             <CustomButton
               title={ uploaded ? 'placeholder_sds.pdf' : 'Upload'}
               onPress={onUpload}
-              width={84}
+              width={337}
               icon={ uploaded ?
                 <ResetIcon width={24} height={24} color='white' /> :
                 <UploadIcon width={24} height={24} />
@@ -180,28 +183,31 @@ export default function ViewChemicals() {
               color={ uploaded ? 'black' : 'white'}
               textColor={ uploaded ? 'white' : 'black'}
             />
+            </View>
           </View>
-
+          
+          <View style={{alignItems: 'center'}}>
           {/* Save and Clear buttons */}
-          <CustomButton
-            title={'Save Chemical'}
-            textColor={isFilled ? 'white' : '#BFBFBF'}
-            color={isFilled ? '#0F82FF' : 'white'}
-            onPress={onSave}
-            width={84}
-            icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : '#BFBFBF'} />}
-            iconPosition="left"
-          />
+            <CustomButton
+              title={'Save Chemical'}
+              textColor={isFilled ? 'white' : Colors.grey}
+              color={isFilled ? Colors.blue : 'white'}
+              onPress={onSave}
+              width={337}
+              icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : Colors.grey} />}
+              iconPosition="left"
+            />
 
-          <CustomButton
-            title={'Clear'}
-            onPress={onClear}
-            width={84}
-            icon={<ReturnIcon width={24} height={24} />}
-            iconPosition="left"
-            color='#FF0035'
-            textColor='white'
-          />
+            <CustomButton
+              title={'Clear'}
+              onPress={onClear}
+              width={337}
+              icon={<ReturnIcon width={24} height={24} />}
+              iconPosition="left"
+              color={Colors.red}
+              textColor='white'
+            />
+          </View>
 
           {/* Extra padding */}
           <View style={{ height: 40 }}/>
@@ -217,17 +223,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F9F9F9',
+    backgroundColor: Colors.offwhite,
   },
   innerContainer: {
-    marginTop: 150,
-    marginHorizontal: '8%',
+    marginTop: Size.height(136),
+    marginHorizontal: Size.width(33),
   },
   scroll: {
     width: '100%',
   },
   row: {
-    marginTop: 10,
+    marginTop: Size.width(10),
     display: 'flex',
     flexDirection: 'row',
     width: '100%',

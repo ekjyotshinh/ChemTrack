@@ -1,4 +1,6 @@
 import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent, Dimensions, View } from 'react-native';
+import TextInter from './TextInter';
+import Size from '@/constants/Size';
 
 interface ButtonProps {
   title: string;
@@ -23,19 +25,19 @@ export default function CustomButton({
 }: ButtonProps) {
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: color || '#007AFF', width: (width / 100) * screenWidth, height: (6.8 / 100) * screenHeight, }]}
+      style={[styles.button, { backgroundColor: color || '#007AFF', width: Size.width(width), height: Size.height(59), }]}
       onPress={onPress}
     >
       {icon && iconPosition === 'left' && (
-        <View style={[styles.iconContainer, { left: 10 }]}>
+        <View style={[styles.iconContainer, { left: Size.width(24) }]}>
           {icon}
         </View>
       )}
       
-      <Text style={[styles.buttonText, {color: textColor || 'white'}]}>{title}</Text>
+      <TextInter style={[styles.buttonText, {color: textColor || 'white'}]}>{title}</TextInter>
       
       {icon && iconPosition === 'right' && (
-        <View style={[styles.iconContainer, { right: 10 }]}>
+        <View style={[styles.iconContainer, { right: Size.width(24) }]}>
           {icon}
         </View>
       )}
@@ -45,13 +47,18 @@ export default function CustomButton({
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 15,
+    paddingVertical: Size.height(15),
     borderRadius: 10,
-    marginVertical: 10,
+    marginVertical: Size.height(10),
     flexDirection: 'row', 
     justifyContent: 'center',
     alignItems: 'center', 
     position: 'relative', 
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+    elevation: 2, 
   },
   buttonText: {
     fontSize: 16,

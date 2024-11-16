@@ -2,6 +2,9 @@ import React from 'react';
 import { StyleSheet, View, Text, TextInput } from 'react-native';
 import CustomTextBox from './CustomTextBox';
 import CustomTextHeader from './CustomTextHeader';
+import Colors from '@/constants/Colors';
+import TextInter from '../TextInter';
+import Size from '@/constants/Size';
 
 // Pass onChange function and the header string
 interface TextProps {
@@ -10,9 +13,11 @@ interface TextProps {
     onChangeText: (text: string) => void,
     inputWidth?: number,
     isNumeric?: boolean,
+    hasIcon?: boolean,
+    [key: string]: any, // allows any additional TextInput props
 }
 
-export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, value }: TextProps) {
+export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, ...props }: TextProps) {
     return (
         // If input width is provided use that, otherwise just make it 100%
         <View style={{ width: inputWidth || '100%' }}>
@@ -21,7 +26,7 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
             // If numeric, then only allow numeric input and show #
             isNumeric ?
                 <View style={styles.container}>
-                    <Text style={styles.hashtag}>{'#'}</Text>
+                    <TextInter style={styles.hashtag}>{'#'}</TextInter>
                     <TextInput
                         style={styles.input}
                         keyboardType='numeric'
@@ -31,7 +36,7 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
                 </View> 
             // Otherwise show normal textbox
             : 
-                <CustomTextBox onChangeText={onChangeText} value={value} />
+                <CustomTextBox {...props} onChangeText={onChangeText} hasIcon={hasIcon} value={value} />
             }
         </View>
     );
@@ -39,16 +44,16 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
 
 const styles = StyleSheet.create({
     container: {
-        height: 40,
+        height: Size.height(40),
         marginTop: 0,
         borderWidth: 1,
-        borderColor: '#BFBFBF',
-        backgroundColor: '#FFFFFF',
+        borderColor: Colors.grey,
+        backgroundColor: Colors.white,
         flex: 1,
         flexDirection: 'row'
     },
     hashtag: {
-        color: '#BFBFBF',
+        color: Colors.grey,
         alignSelf: 'center',
         fontSize: 18,
         fontWeight: 'bold',

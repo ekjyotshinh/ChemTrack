@@ -5,6 +5,11 @@ import AddUserIcon from '@/assets/icons/AddUserIcon';
 import BellIcon from '@/assets/icons/BellIcon';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import LoginIcon from '@/assets/icons/LoginIcon';
+import Colors from '@/constants/Colors';
+import Header from '@/components/Header';
+import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
+import Size from '@/constants/Size';
+import TextInter from '@/components/TextInter';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
 
@@ -54,85 +59,87 @@ export default function ViewChemicals() {
   return (
 
     <View style={styles.container}>
-      <Text style={styles.title}>My <Text style={styles.titleSecondWord}>Account</Text></Text>
+      <Header headerText={'My Account'} />
 
+      <ScrollView style={styles.scrollContainer}>
 
-      <View style={styles.avatarContainer}>
-        <View style={styles.avatarImage}>
-          <Text style={styles.avatarText}> {defaultAvatar()}</Text>
-
-        </View>
-      </View>
-
-      <View>
-        <TouchableOpacity>
-
-          <Text style={styles.editText}>Edit</Text>
-
-        </TouchableOpacity>
-      </View>
-
-
-      <ScrollView>
-        <View >
-          <Text style={styles.inputHeader}>Name</Text>
-          <TextInput style={styles.inputBox}
-            onChangeText={name => setName(name)}
-
-            placeholderTextColor='black'
-            placeholder={name}
-            value={name}
-          />
-
+        <View style={{marginTop: Size.height(136)}}>
+        <View style={styles.avatarContainer}>
+          <View style={styles.avatarImage}>
+            <TextInter style={styles.avatarText}> {defaultAvatar()}</TextInter>
+          </View>
         </View>
 
         <View>
-          <Text style={styles.inputHeader}>Email</Text>
-          <TextInput style={styles.inputBox}
-            onChangeText={setEmail}
-            placeholderTextColor='black'
-            placeholder={email}
-            value={email}
-          />
-
+          <TouchableOpacity>
+            <Text style={styles.editText}>Edit</Text>
+          </TouchableOpacity>
         </View>
+
+          <View style={{ alignItems: 'center' }}>
+            <HeaderTextInput
+              onChangeText={name => setName(name)}
+              headerText={'Name'}
+              value={name}
+              hasIcon={true}
+              inputWidth={Size.width(340)} />
+
+            <View style={{ height: Size.height(10) }} />
+
+            <HeaderTextInput
+              onChangeText={email => setEmail(email)}
+              headerText={'Email'}
+              hasIcon={true}
+              value={email}
+              inputWidth={Size.width(340)}
+              keyboardType='email-address'
+              autoCapitalize='none' />
+          </View>
+
+        <View style={{ height: Size.height(40) }}/>
 
         <View style={styles.buttonContainer}>
 
           <CustomButton 
             title="Invite User" 
-            color="#4285F4" 
+            color={Colors.white}
+            textColor={Colors.black} 
             onPress={() => router.push('/profile/userPage')} 
-            width={90} 
-            icon={<AddUserIcon width={24} height={24} color="black"/>}
+            width={337} 
+            icon={<AddUserIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
           <CustomButton 
             title="Notifications" 
-            color="#4285F4" 
+            color={Colors.white}
+            textColor={Colors.black} 
             onPress={() => Alert.alert('Notifications pressed')} 
-            width={90} 
-            icon={<BellIcon width={24} height={24} color="black"/>}
+            width={337} 
+            icon={<BellIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
           <CustomButton 
             title="Reset Password" 
-            color="#4285F4" 
+            color={Colors.white}
+            textColor={Colors.black} 
             onPress={() => Alert.alert('Reset Password pressed')} 
-            width={90} 
-            icon={<ResetIcon width={24} height={24} color="black"/>}
+            width={337} 
+            icon={<ResetIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
           />
           <CustomButton 
             title="Log Out" 
-            color="red" 
+            color={Colors.red}
+            textColor={Colors.white}
             onPress={openPopUp} 
-            width={90} 
-            icon={<LoginIcon width={24} height={24} color="black"/>}
+            width={337} 
+            icon={<LoginIcon width={24} height={24} color={Colors.white}/>}
             iconPosition='left'
           />
     
 
+        </View>
+        <View style={{ height: Size.height(30) }}/>
         </View>
       </ScrollView>
 
@@ -156,7 +163,6 @@ export default function ViewChemicals() {
           </View>
         </View>
       </Modal>
-
     </View>
   );
 }
@@ -195,11 +201,14 @@ let users: { name: string, email: string, password: string }[] = [
 {/*StyleSheet */ }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    width: '100%',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-
+    backgroundColor: Colors.offwhite,
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
@@ -219,16 +228,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   avatarImage: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    alignSelf: 'center',
+    width: Size.width(132),
+    height: Size.width(132),
+    borderRadius: 100,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
+    alignItems: 'center',
     margin: 5,
 
-    shadowColor: 'grey',
+    shadowColor: Colors.grey,
     shadowRadius: 0.5,
     shadowOpacity: 2,
     shadowOffset:
@@ -239,13 +247,17 @@ const styles = StyleSheet.create({
 
   },
   avatarText: {
-    fontSize: 28,
+    fontSize: 45,
     fontWeight: 'bold',
+    textAlign: 'center',
+    backgroundColor: Colors.white,
+    // It's not lining up for some reason but this padding evens it out
+    paddingRight: 10,
   },
   editText: {
     color: '#4285F4',
     alignSelf: 'center',
-    fontWeight: 600,
+    fontWeight: '600',
     fontSize: 15,
   },
   inputHeader: {
@@ -268,7 +280,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   buttonContainer: {
-    padding: 22,
+    alignItems: 'center',
   },
 
   functionButtons: {
