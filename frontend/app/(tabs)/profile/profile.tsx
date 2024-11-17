@@ -122,7 +122,7 @@ export default function ViewChemicals() {
             title="Reset Password" 
             color={Colors.white}
             textColor={Colors.black} 
-            onPress={() => Alert.alert('Reset Password pressed')} 
+            onPress={() => router.push('/profile/resetPassword')} 
             width={337} 
             icon={<ResetIcon width={24} height={24} color={Colors.black}/>}
             iconPosition='left'
