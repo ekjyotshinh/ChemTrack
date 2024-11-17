@@ -53,7 +53,9 @@ export default function LoginPage() {
         is_admin: data.user.is_admin,  // Using `is_admin` from the user object
         is_master: data.user.is_master,  // Using `is_master` from the user object
         school: data.user.school,  // Ensure `school` exists in the response, if not, adjust as needed
+        id: data.user.id,
       });
+      // add another field to retrieve the id
 
       // Successfully logged in, redirect to the main page
       router.replace('/(tabs)');

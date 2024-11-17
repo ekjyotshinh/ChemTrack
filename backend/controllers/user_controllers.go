@@ -67,20 +67,25 @@ func AddUser(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	_, _, err = client.Collection("users").Add(ctx, map[string]interface{}{
-		"first":    user.First,
-		"last":     user.Last,
-		"email":    user.Email,
-		"password": hashedPassword, // Store hashed password
-		"school":   user.School,
-		"is_admin": user.IsAdmin,
+	doc, _, err := client.Collection("users").Add(ctx, map[string]interface{}{
+		"first":     user.First,
+		"last":      user.Last,
+		"email":     user.Email,
+		"password":  hashedPassword, // Store hashed password securely
+		"school":    user.School,
+		"is_admin":  user.IsAdmin,
 		"is_master": user.IsMaster,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "User added successfully"})
+
+	// Return user info upon successful addition
+	response := gin.H{
+		"id": doc.ID, // Firestore-generated document ID
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "User added successfully", "user": response})
 }
 
 // GetUsers godoc
@@ -224,6 +229,7 @@ func Login(c *gin.Context) {
 	ctx := context.Background()
 	iter := client.Collection("users").Where("email", "==", loginDetails.Email).Documents(ctx)
 	var user map[string]interface{}
+	var userID string
 
 	// Find the user by email
 	for {
@@ -233,6 +239,7 @@ func Login(c *gin.Context) {
 			return
 		}
 		user = doc.Data()
+		userID = doc.Ref.ID
 		break
 	}
 
@@ -250,6 +257,7 @@ func Login(c *gin.Context) {
 		"school":  user["school"],
 		"is_admin": user["is_admin"],
 		"is_master": user["is_master"],
+		"id":		 userID,
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": response})

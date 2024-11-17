@@ -14,12 +14,12 @@ interface TextProps {
     inputWidth?: number,
     isNumeric?: boolean,
     hasIcon?: boolean,
+    disabled?: boolean; 
     [key: string]: any, // allows any additional TextInput props
 }
 
-export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, ...props }: TextProps) {
+export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, disabled = false, ...props }: TextProps) {
     return (
-        // If input width is provided use that, otherwise just make it 100%
         <View style={{ width: inputWidth || '100%' }}>
             <CustomTextHeader headerText={headerText} />
             {
@@ -32,16 +32,17 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
                         keyboardType='numeric'
                         onChangeText={onChangeText}
                         value={value}
+                        editable={!disabled} // Control editability
                     />
                 </View> 
             // Otherwise show normal textbox
             : 
-                <CustomTextBox {...props} onChangeText={onChangeText} hasIcon={hasIcon} value={value} />
+            
+                <CustomTextBox {...props} onChangeText={onChangeText} hasIcon={hasIcon} value={value} editable={!disabled} />
             }
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         height: Size.height(40),

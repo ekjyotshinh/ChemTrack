@@ -15,7 +15,7 @@ import Colors from '@/constants/Colors';
 
 // Define the SignUpPage2 component
 export default function SignUpPage2() {
-  const API_URL = "http://IP_ADDRESS:8080"; // Update with your backend IP address and port
+  const API_URL = "http://10.0.0.24:8080";  // Update with your backend IP address and port
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const router = useRouter();
@@ -60,12 +60,15 @@ export default function SignUpPage2() {
       if (res.ok) {
         Alert.alert("Account Created Successfully!");
         // After successfully creating the user, update context and navigate
+        const data = await res.json();
+        console.log(data); // Log the complete response for debugging
         updateUserInfo({
           name: `${firstName} ${lastName}`,
           email: emailValue,
           is_admin: false,
           is_master: false,
           school: selectedSchoolValue,
+          id: data.user.id,
         });
         router.push('/');
       } else {

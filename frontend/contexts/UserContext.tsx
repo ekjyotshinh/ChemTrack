@@ -7,6 +7,7 @@ interface UserInfo {
   is_admin: boolean;
   is_master: boolean;
   school: string;
+  id: string;
 }
 
 // Create a Context with a default empty user object
@@ -20,6 +21,7 @@ const UserContext = createContext<{
     is_admin: false,
     is_master: false,
     school: '',
+    id: '',
   },
   updateUserInfo: () => {},
 });
@@ -41,6 +43,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     is_admin: false,
     is_master: false,
     school: '',
+    id: '',
   });
 
   const updateUserInfo = (newUserInfo: UserInfo) => {

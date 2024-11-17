@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, View, ScrollView, Button, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, Modal, Pressable } from 'react-native';
 import CustomButton from '@/components/CustomButton'; 
+import EditIcon from '@/assets/icons/EditIcon';
 import AddUserIcon from '@/assets/icons/AddUserIcon';
 import BellIcon from '@/assets/icons/BellIcon';
 import ResetIcon from '@/assets/icons/ResetIcon';
@@ -18,7 +19,54 @@ export default function ViewChemicals() {
   const [email, setEmail] = useState('');
   const [initials, setInitials] = useState('');
   const router = useRouter();  // Initialize router for navigation
-  const { userInfo } = useUser(); // Get the username from context
+  const { userInfo, updateUserInfo } = useUser(); // Get the username from context
+  const [isEditing, setIsEditing] = useState(false)
+
+  const API_URL = "http://10.0.0.24:8080"; // Update with your backend IP address and port
+
+    const updateInfo = async (someName: string, someEmail:string) => {
+    console.log(someName);
+    console.log(someEmail);
+    // PUT localhost:8080/api/v1/users/ByNZ27VPYpepQei5jL2u
+    const fullName = someName.split(' ');
+    const firstName = fullName[0];
+    const lastName = fullName[fullName.length - 1];
+    try {
+      // calling the backend api to update it in the database
+      const url = `${API_URL}/api/v1/users/${userInfo.id}`;
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          first: firstName,
+          last: lastName,
+          email: someEmail,
+        })
+      })
+      const data = await response.json();
+
+      // updating the name in the frontend
+      updateUserInfo({
+        name: firstName + " " + lastName,
+        email: someEmail,
+        is_admin: userInfo.is_admin,
+        is_master: userInfo.is_master,
+        school: userInfo.school,
+        id: userInfo.id,
+      });
+      setIsEditing(false)
+      Alert.alert("Your Info Updated!");
+      console.log('info updated')
+      console.log('Log userInfo name: ', userInfo.name);
+      //return userInfo.name;
+    } catch (error) {
+      Alert.alert("Error in updating the information.");
+      console.error(error)
+    }
+  }
 
   useEffect(() => {
     if (userInfo) {
@@ -82,7 +130,8 @@ export default function ViewChemicals() {
               headerText={'Name'}
               value={name}
               hasIcon={true}
-              inputWidth={Size.width(340)} />
+              inputWidth={Size.width(340)}
+              disabled = {!isEditing ? true : false} />
 
             <View style={{ height: Size.height(10) }} />
 
@@ -93,12 +142,23 @@ export default function ViewChemicals() {
               value={email}
               inputWidth={Size.width(340)}
               keyboardType='email-address'
-              autoCapitalize='none' />
+              autoCapitalize='none' 
+              disabled = {!isEditing ? true : false} />
           </View>
 
         <View style={{ height: Size.height(40) }}/>
 
         <View style={styles.buttonContainer}>
+
+          <CustomButton 
+            title = {!isEditing ? "Update Info" : "Finish Updating"} 
+            color={Colors.white}
+            textColor={Colors.black} 
+            onPress={() => {isEditing ? updateInfo(name.toString(),email.toString()): setIsEditing(true)}} 
+            width={337} 
+            icon={<EditIcon width={24} height={24} color={Colors.black}/>}
+            iconPosition='left'
+          />
 
           <CustomButton 
             title="Invite User" 
