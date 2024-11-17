@@ -24,7 +24,7 @@ export default function ResetPassword() {
       Alert.alert(  
         'Success',  
         'If an account exists with this email, you will receive password reset instructions.',  
-        [{ text: 'OK', onPress: () => router.back() }]  
+        [{ text: 'OK', onPress: () => router.push('/profile/profile') }]  
       );  
     } catch (error) {  
       Alert.alert('Error', 'Something went wrong. Please try again.');  
@@ -68,7 +68,7 @@ export default function ResetPassword() {
               title="Back"  
               color={Colors.white}  
               textColor={Colors.black}  
-              onPress={() => router.back()}  
+              onPress={() => router.push('/profile/profile')}  
               width={337}  
               iconPosition='left'  
             />  
