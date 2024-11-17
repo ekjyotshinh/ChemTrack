@@ -60,12 +60,15 @@ export default function SignUpPage2() {
       if (res.ok) {
         Alert.alert("Account Created Successfully!");
         // After successfully creating the user, update context and navigate
+        const data = await res.json();
+        console.log(data);
         updateUserInfo({
           name: `${firstName} ${lastName}`,
           email: emailValue,
           is_admin: false,
           is_master: false,
           school: selectedSchoolValue,
+          id: data.user.id,
         });
         router.push('/');
       } else {

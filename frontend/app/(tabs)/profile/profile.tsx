@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, View, ScrollView, Button, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, Modal, Pressable } from 'react-native';
-import CustomButton from '@/components/CustomButton'; 
+import CustomButton from '@/components/CustomButton';
 import AddUserIcon from '@/assets/icons/AddUserIcon';
 import BellIcon from '@/assets/icons/BellIcon';
+import EditIcon from '@/assets/icons/EditIcon';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import LoginIcon from '@/assets/icons/LoginIcon';
 import Colors from '@/constants/Colors';
@@ -18,14 +19,17 @@ export default function ViewChemicals() {
   const [email, setEmail] = useState('');
   const [initials, setInitials] = useState('');
   const router = useRouter();  // Initialize router for navigation
-  const { userInfo } = useUser(); // Get the username from context
+  const { userInfo, updateUserInfo } = useUser(); // Get the username from context
+  const [isEditing, setIsEditing] = useState(false);
 
+  const API_URL = "http://10.0.0.24:8080"; // Update with your backend API address and port
   useEffect(() => {
     if (userInfo) {
       setName(userInfo.name);
       setEmail(userInfo.email);
     }
   }, [userInfo]);
+
   // Variables for Modal PopUp
   const [confirmPress, setConfirmPress] = React.useState(false);
   const openPopUp = () => setConfirmPress(true);
@@ -45,14 +49,49 @@ export default function ViewChemicals() {
   // Function to set the avatar as initials
   const defaultAvatar = () => {
     const [initials, setIntials] = React.useState('');
-
-    //return setInitials(getInitals(users[0].name));
     return getInitals(userInfo.name);
   };
 
-  const buttonPopUp = () => {
-
-  };
+  // PUT API to update name and email
+  const updateInfo = async (someName: string, someEmail: string) => {
+    console.log(someName);
+    console.log(someEmail);
+    const fullName = someName.split(' ');
+    const firstName = fullName[0];
+    const lastName = fullName[fullName.length - 1];
+    try {
+      // Calling the backend API to update it in the database
+      const url = `${API_URL}/api/v1/users/${userInfo.id}`;
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          first: firstName,
+          last: lastName,
+          email: someEmail,
+        })
+      })
+      const data = await response.json();
+      // Updating the name and email in the frontend
+      updateUserInfo({
+        name: firstName + " " + lastName,
+        email: someEmail,
+        is_admin: userInfo.is_admin,
+        is_master: userInfo.is_master,
+        school: userInfo.school,
+        id: userInfo.id,
+      });
+      setIsEditing(false) // Change the text boxes to uneditable
+      Alert.alert("Your Info Updated!");
+      console.log('info updated')
+      console.log('Log userInfo name: ', userInfo.name);
+    } catch (error) {
+      Alert.alert("Error in updating the information.");
+      console.error(error)
+    }
+  }
 
 
 
@@ -63,18 +102,18 @@ export default function ViewChemicals() {
 
       <ScrollView style={styles.scrollContainer}>
 
-        <View style={{marginTop: Size.height(136)}}>
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatarImage}>
-            <TextInter style={styles.avatarText}> {defaultAvatar()}</TextInter>
+        <View style={{ marginTop: Size.height(136) }}>
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatarImage}>
+              <TextInter style={styles.avatarText}> {defaultAvatar()}</TextInter>
+            </View>
           </View>
-        </View>
 
-        <View>
-          <TouchableOpacity>
-            <Text style={styles.editText}>Edit</Text>
-          </TouchableOpacity>
-        </View>
+          <View>
+            <TouchableOpacity>
+              <Text style={styles.editText}>Edit</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={{ alignItems: 'center' }}>
             <HeaderTextInput
@@ -82,7 +121,9 @@ export default function ViewChemicals() {
               headerText={'Name'}
               value={name}
               hasIcon={true}
-              inputWidth={Size.width(340)} />
+              inputWidth={Size.width(340)}
+              disabled={!isEditing ? true : false}
+            />
 
             <View style={{ height: Size.height(10) }} />
 
@@ -93,53 +134,64 @@ export default function ViewChemicals() {
               value={email}
               inputWidth={Size.width(340)}
               keyboardType='email-address'
-              autoCapitalize='none' />
+              autoCapitalize='none'
+              disabled={!isEditing ? true : false}
+            />
           </View>
 
-        <View style={{ height: Size.height(40) }}/>
+          <View style={{ height: Size.height(40) }} />
 
-        <View style={styles.buttonContainer}>
+          <View style={styles.buttonContainer}>
 
-          <CustomButton 
-            title="Invite User" 
-            color={Colors.white}
-            textColor={Colors.black} 
-            onPress={() => router.push('/profile/userPage')} 
-            width={337} 
-            icon={<AddUserIcon width={24} height={24} color={Colors.black}/>}
-            iconPosition='left'
-          />
-          <CustomButton 
-            title="Notifications" 
-            color={Colors.white}
-            textColor={Colors.black} 
-            onPress={() => Alert.alert('Notifications pressed')} 
-            width={337} 
-            icon={<BellIcon width={24} height={24} color={Colors.black}/>}
-            iconPosition='left'
-          />
-          <CustomButton 
-            title="Reset Password" 
-            color={Colors.white}
-            textColor={Colors.black} 
-            onPress={() => Alert.alert('Reset Password pressed')} 
-            width={337} 
-            icon={<ResetIcon width={24} height={24} color={Colors.black}/>}
-            iconPosition='left'
-          />
-          <CustomButton 
-            title="Log Out" 
-            color={Colors.red}
-            textColor={Colors.white}
-            onPress={openPopUp} 
-            width={337} 
-            icon={<LoginIcon width={24} height={24} color={Colors.white}/>}
-            iconPosition='left'
-          />
-    
+            <CustomButton
+              title={!isEditing ? "Update Info" : "Finish Updating"}
+              color={Colors.white}
+              textColor={Colors.black}
+              onPress={() => { isEditing ? updateInfo(name.toString(), email.toString()) : setIsEditing(true) }}
+              width={337}
+              icon={<EditIcon width={24} height={24} color={Colors.black} />}
+              iconPosition='left'
+            />
+            <CustomButton
+              title="Invite User"
+              color={Colors.white}
+              textColor={Colors.black}
+              onPress={() => router.push('/profile/userPage')}
+              width={337}
+              icon={<AddUserIcon width={24} height={24} color={Colors.black} />}
+              iconPosition='left'
+            />
+            <CustomButton
+              title="Notifications"
+              color={Colors.white}
+              textColor={Colors.black}
+              onPress={() => Alert.alert('Notifications pressed')}
+              width={337}
+              icon={<BellIcon width={24} height={24} color={Colors.black} />}
+              iconPosition='left'
+            />
+            <CustomButton
+              title="Reset Password"
+              color={Colors.white}
+              textColor={Colors.black}
+              onPress={() => Alert.alert('Reset Password pressed')}
+              width={337}
+              icon={<ResetIcon width={24} height={24} color={Colors.black} />}
+              iconPosition='left'
+            />
+            <CustomButton
+              title="Log Out"
+              color={Colors.red}
+              textColor={Colors.white}
+              onPress={openPopUp}
+              width={337}
+              icon={<LoginIcon width={24} height={24} color={Colors.white} />}
+              iconPosition='left'
+            />
 
-        </View>
-        <View style={{ height: Size.height(30) }}/>
+
+          </View>
+          <View style={{ height: Size.height(30) }} />
         </View>
       </ScrollView>
 

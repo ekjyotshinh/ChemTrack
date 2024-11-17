@@ -14,29 +14,30 @@ interface TextProps {
     inputWidth?: number,
     isNumeric?: boolean,
     hasIcon?: boolean,
+    disabled?: boolean,
     [key: string]: any, // allows any additional TextInput props
 }
 
-export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, ...props }: TextProps) {
+export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, disabled = false, ...props }: TextProps) {
     return (
         // If input width is provided use that, otherwise just make it 100%
         <View style={{ width: inputWidth || '100%' }}>
             <CustomTextHeader headerText={headerText} />
             {
-            // If numeric, then only allow numeric input and show #
-            isNumeric ?
-                <View style={styles.container}>
-                    <TextInter style={styles.hashtag}>{'#'}</TextInter>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType='numeric'
-                        onChangeText={onChangeText}
-                        value={value}
-                    />
-                </View> 
-            // Otherwise show normal textbox
-            : 
-                <CustomTextBox {...props} onChangeText={onChangeText} hasIcon={hasIcon} value={value} />
+                // If numeric, then only allow numeric input and show #
+                isNumeric ?
+                    <View style={styles.container}>
+                        <TextInter style={styles.hashtag}>{'#'}</TextInter>
+                        <TextInput
+                            style={styles.input}
+                            keyboardType='numeric'
+                            onChangeText={onChangeText}
+                            value={value}
+                        />
+                    </View>
+                    // Otherwise show normal textbox
+                    :
+                    <CustomTextBox {...props} onChangeText={onChangeText} hasIcon={hasIcon} value={value} editable={!disabled} />
             }
         </View>
     );
