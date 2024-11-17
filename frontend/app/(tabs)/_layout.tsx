@@ -111,6 +111,15 @@ export default function TabLayout() {
           tabBarButton: () => null, // This hides the tab from the bottom navigation
         }}
       />
+
+      {/* Hidden Reset Password Tab */}
+      <Tabs.Screen
+        name="profile/resetPassword"
+        options={{
+          title: 'Reset Password',
+          tabBarButton: () => null, // This hides the tab from the bottom navigation
+        }}
+      />
     </Tabs>
   );
 }
