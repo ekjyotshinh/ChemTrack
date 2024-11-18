@@ -3,31 +3,37 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal 
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
-
-
+import AscendingSortIcon from '@/assets/icons/AscendingSortIcon';
+import DescendingSortIcon from '@/assets/icons/DescendingSortIcon';
+import CustomButton from '@/components/CustomButton';
+import Colors from '@/constants/Colors';
 
 export default function ViewChemicals() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [sortModalVisible, setSortModalVisible] = useState(false); // Added for Sort By Modal
+  const [sortOption, setSortOption] = useState('Chemical Name'); // Added for sorting logic
+  const [sortOrder, setSortOrder] = useState('Ascending'); // Added for sorting logic
   const router = useRouter();
 
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
+  const openSortModal = () => setSortModalVisible(true);
+  const closeSortModal = () => setSortModalVisible(false);
+
   const searchIconSvg = `
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path fill-rule="evenodd" clip-rule="evenodd" d="M10.5 3.75C6.77208 3.75 3.75 6.77208 3.75 10.5C3.75 14.2279 6.77208 17.25 10.5 17.25C12.3642 17.25 14.0506 16.4953 15.273 15.273C16.4953 14.0506 17.25 12.3642 17.25 10.5C17.25 6.77208 14.2279 3.75 10.5 3.75ZM2.25 10.5C2.25 5.94365 5.94365 2.25 10.5 2.25C15.0563 2.25 18.75 5.94365 18.75 10.5C18.75 12.5078 18.032 14.3491 16.8399 15.7793L21.5303 20.4697C21.8232 20.7626 21.8232 21.2374 21.5303 21.5303C21.2374 21.8232 20.7626 21.8232 20.4697 21.5303L15.7793 16.8399C14.3491 18.032 12.5078 18.75 10.5 18.75C5.94365 18.75 2.25 15.0563 2.25 10.5Z" fill="white"/>
   </svg>
 `;
-
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>View <Text style={styles.headerHighlight}>Chemicals</Text></Text>
+      <Text style={styles.headerText}>
+        View <Text style={styles.headerHighlight}>Chemicals</Text>
+        </Text>
       
       {/* Search Button */}
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Chemical name..."
-        />
+        <TextInput style={styles.searchInput} placeholder="Chemical name..." />
         <TouchableOpacity style={styles.searchButton}>
           <SvgXml xml={searchIconSvg} width={24} height={24} />
         </TouchableOpacity>
@@ -38,9 +44,11 @@ export default function ViewChemicals() {
         <TouchableOpacity style={styles.filterButton}>
           <Text style={styles.buttonText}>Filter By</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sortButton}>
-          <Text style={styles.buttonText}>Sort By</Text>
-        </TouchableOpacity>
+
+       {/* SORT BY BUTTON */}
+        <TouchableOpacity style={styles.sortButton} onPress={openSortModal}> 
+          <Text style={styles.buttonText}>Sort By</Text> 
+            </TouchableOpacity>
       </View>
 
       {/* Chemicals List */}
@@ -65,8 +73,7 @@ export default function ViewChemicals() {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={closeModal}
-      >
+        onRequestClose={closeModal}>
         <BlurView intensity={50} style={stylesPopup.blurContainer}>
           <View style={stylesPopup.modalView}>
             <TouchableOpacity style={stylesPopup.closeButton} onPress={closeModal}>
@@ -107,10 +114,63 @@ export default function ViewChemicals() {
           </View>
         </BlurView>
       </Modal>
+
+      {/* Sort Modal */}
+      <Modal animationType="slide" transparent={true} visible={sortModalVisible} onRequestClose={closeSortModal}>
+        <View style={stylesSort.modalContainer}>
+          <View style={stylesSort.modalView}>
+            <TouchableOpacity onPress={closeSortModal} style={stylesSort.closeButton}>
+              <Text style={stylesSort.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+            <Text style={stylesSort.modalHeader}>Sort Options</Text>
+              
+            {/* Dropdown for Sorting Options */}
+            <View style={stylesSort.dropdownContainer}>
+              {['Chemical Name', 'Purchase Date', 'Expiration Date', 'School Name', 'Quantity', 'Recent'].map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    setSortOption(option); // Set the selected sort option
+                    //closeSortModal(); // Close the modal after selection
+                  }}
+                  style={[
+                    stylesSort.option,
+                    sortOption === option && stylesSort.selectedOption, // Highlight selected option
+                  ]}
+                >
+                  <Text style={stylesSort.optionText}>{option}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+                
+            {/* Sorting Order Buttons */}
+            <View style={stylesSort.orderButtons}>
+              <CustomButton
+                title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Ascending" : "New -> Old"}
+                color={sortOrder === 'Ascending' ? Colors.blue : Colors.white}
+                textColor={sortOrder === 'Ascending' ? Colors.white : Colors.black}
+                onPress={() => setSortOrder('Ascending')}
+                width={180} // Adjust width as needed
+                icon={<AscendingSortIcon width={24} height={24} color={sortOrder === 'Ascending' ? Colors.white : Colors.black} />}
+                iconPosition="right"
+              />
+              <CustomButton
+                title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Descending" : "Old -> New"}
+                color={sortOrder === 'Descending' ? Colors.blue : Colors.white}
+                textColor={sortOrder === 'Descending' ? Colors.white : Colors.black}
+                onPress={() => setSortOrder('Descending')}
+                width={180} // Adjust width as needed
+                icon={<DescendingSortIcon width={24} height={24} color={sortOrder === 'Descending' ? Colors.white : Colors.black} />}
+                iconPosition="right"
+              />
+            </View>     
+                
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
-
 
 // Example data for chemicals
 const chemicalsData = [
@@ -121,6 +181,8 @@ const chemicalsData = [
     purchased: '2023-01-15',
     expires: '2030-01-15',
     location: 'Shelf #4',
+    schoolName: 'Encina High School',
+    quantity: 50,
     isExpired: false,
   },
   {
@@ -130,6 +192,8 @@ const chemicalsData = [
     purchased: '2022-09-10',
     expires: '2027-09-10',
     location: 'Shelf #3',
+    schoolName: 'Riverdale Academy',
+    quantity: 20,
     isExpired: false,
   },
   {
@@ -139,6 +203,8 @@ const chemicalsData = [
     purchased: '2021-10-05',
     expires: '2024-10-05',
     location: 'Shelf #5',
+    schoolName: 'Encina High School',
+    quantity: 100,
     isExpired: true,
   },
   {
@@ -148,9 +214,12 @@ const chemicalsData = [
     purchased: '2022-03-05',
     expires: '2025-03-05',
     location: 'Shelf #5',
+    schoolName: 'Riverdale Academy',
+    quantity: 75,
     isExpired: false,
   },
 ];
+
 
 const styles = StyleSheet.create({
   container: {
@@ -329,5 +398,92 @@ const stylesPopup = StyleSheet.create({
   editButtonText: {
     color: 'white',
     fontSize: 16,
+  },
+});
+
+const stylesSort = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dim background
+  },
+  modalView: {
+    backgroundColor: 'white',
+    borderRadius: 15, // Rounded corners
+    padding: 20,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5, // Shadow for Android
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: '#888',
+  },
+  modalHeader: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#4285F4',
+    textAlign: 'center',
+  },
+  dropdownContainer: {
+    width: '100%',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+  },
+  option: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    width: '100%',
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  selectedOption: {
+    backgroundColor: '#E3F2FD', // Highlighted option background
+  },
+  orderButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    width: '100%',
+  },
+  orderButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#4285F4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white', // Default background
+  },
+  activeOrderButton: {
+    backgroundColor: '#4285F4', // Active button background
+  },
+  orderButtonText: {
+    fontSize: 16,
+    color: '#4285F4', // Default text color
+  },
+  activeOrderButtonText: {
+    color: 'white', // Active button text color
   },
 });
