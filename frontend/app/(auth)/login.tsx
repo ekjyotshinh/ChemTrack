@@ -10,7 +10,7 @@ import Size from '@/constants/Size';
 import Colors from '@/constants/Colors';
 
 export default function LoginPage() {
-  const API_URL = "http://10.0.0.24:8080"; // Update with your backend IP address and port
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();

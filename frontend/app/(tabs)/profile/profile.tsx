@@ -8,6 +8,7 @@ import {
   Modal,
   Pressable,
   TouchableOpacity,
+  GestureResponderEvent,
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import AddUserIcon from '@/assets/icons/AddUserIcon';
@@ -31,7 +32,7 @@ export default function ViewChemicals() {
 
   const router = useRouter();
   const { userInfo, updateUserInfo } = useUser();
-  const API_URL = 'http://10.0.0.24:8080';
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
   // Initialize name and email from user info
   useEffect(() => {
@@ -184,12 +185,21 @@ export default function ViewChemicals() {
         <View style={styles.modalContainer}>
           <View style={styles.popup}>
             <Text>Are you sure you want to log out?</Text>
+
+            <Pressable
+              style={styles.closePopUpButton}
+              onPress={() => router.replace('/(auth)/login')}
+            >
+            <Text style={styles.popUpText}>Yes</Text>
+            </Pressable>
+
             <Pressable
               style={styles.closePopUpButton}
               onPress={() => setConfirmModalVisible(false)}
             >
               <Text style={styles.popUpText}>Cancel</Text>
             </Pressable>
+            
           </View>
         </View>
       </Modal>
@@ -253,7 +263,7 @@ const styles = StyleSheet.create({
   closePopUpButton: {
     marginTop: 20,
     padding: 10,
-    backgroundColor: '#4285F4',
+    backgroundColor: Colors.blue,
     borderRadius: 5,
   },
   popUpText: {

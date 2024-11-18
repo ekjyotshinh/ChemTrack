@@ -15,7 +15,7 @@ import Colors from '@/constants/Colors';
 
 // Define the SignUpPage2 component
 export default function SignUpPage2() {
-  const API_URL = "http://IP_ADDRESS:8080"; // Update with your backend IP address and port
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const router = useRouter();
