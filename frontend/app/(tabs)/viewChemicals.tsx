@@ -229,7 +229,7 @@ export default function ViewChemicals() {
       </Modal>
       
       {/* View SDS Bottom Sheet component */}
-      <BottomSheet
+      {/*<BottomSheet
         index={isSDSBottomSheetOpen ? 0 : -1}
         snapPoints={['30%', '50%']}
         backgroundStyle={stylesSDS.bottomSheetBackground}
@@ -242,7 +242,7 @@ export default function ViewChemicals() {
             <Text style={stylesSDS.downloadButtonText}>Download</Text>
           </TouchableOpacity>
         </View>
-      </BottomSheet>
+      </BottomSheet>*/}
     </View>
   );
 }
