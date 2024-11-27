@@ -1,4 +1,9 @@
+<p align="center">
+   <img src="./assets/banner.png"/>
+</p>
+
 # ChemTrack
+A chemical inventory manager with QR code scanning built for schools.
 
 ## Table of Contents
 - [Introduction](#introduction)
