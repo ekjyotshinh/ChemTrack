@@ -92,7 +92,7 @@ ChemTrack is a project designed to manage chemical inventories. It includes a ba
 3. Follow the instructions in the terminal to run the app on an emulator, simulator, or physical device.
 
 ## API Endpoints
-Refer to the ```http://localhost:8080/swagger/index.html#/``` for a list of available API endpoints and their usage.
+Refer to the ```http://localhost:8080/swagger/index.html#/``` when running the backend for a list of available API endpoints and their usage.
 
 
 <img src="./assets/Animation.gif" alt="Swagger API Gif"/>
