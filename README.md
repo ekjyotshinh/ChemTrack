@@ -15,6 +15,8 @@ A chemical inventory manager with QR code scanning built for schools.
 - [Running the Project](#running-the-project)
   - [Backend](#running-the-backend)
   - [Frontend](#running-the-frontend)
+- [Testing](#Testing-(To-Do))
+- [Deployment](#Deployment-(To-Do))
 
 ## Introduction
 ChemTrack is a project designed to manage chemical inventories. It includes a backend API built with Go and a frontend application built with React Native and Expo.
@@ -91,9 +93,9 @@ ChemTrack is a project designed to manage chemical inventories. It includes a ba
     ```
 3. Follow the instructions in the terminal to run the app on an emulator, simulator, or physical device.
 
-## Testing -- To Do
+## Testing (To Do)
 
-## Deployment -- To Do
+## Deployment (To Do)
 1. Requirements
    
 2. Steps for Deployment
