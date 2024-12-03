@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -9,17 +9,38 @@ import DescendingSortIcon from '@/assets/icons/DescendingSortIcon';
 import CustomButton from '@/components/CustomButton';
 import Accordion from 'react-native-collapsible/Accordion'; // Add Accordion component
 import Colors from '@/constants/Colors';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ViewChemicals() {
+
+// Define the type for the chemical data
+interface Chemical {
+  id: string;
+  name: string;
+  CAS: string;
+  purchase_date: string;
+  expiration_date: string;
+  school: string;
+  room: string;
+  cabinet: string;
+  shelf: string;
+}
+
+
   const [modalVisible, setModalVisible] = useState(false);
   const [sortModalVisible, setSortModalVisible] = useState(false); // Added for Sort By Modal
   const [sortOption, setSortOption] = useState('Chemical Name'); // Added for sorting logic
   const [sortOrder, setSortOrder] = useState('Ascending'); // Added for sorting logic
   const [filtersVisible, setFiltersVisible] = useState(false); // State for controlling filter modal
   const [expanded, setExpanded] = useState<number[]>([]);
+  const [chemicalsData, setChemicalsData] = useState([]);
+  const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
   const router = useRouter();
 
-  const openModal = () => setModalVisible(true);
+  const openModal = (chemical: Chemical) => {
+    setSelectedChemical(chemical); // Set the selected chemical
+    setModalVisible(true); // Open the modal
+  };
   const closeModal = () => setModalVisible(false);
   const openSortModal = () => setSortModalVisible(true);
   const closeSortModal = () => setSortModalVisible(false);
@@ -30,6 +51,28 @@ export default function ViewChemicals() {
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
+  };
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchChemicals(); // Fetch the chemicals whenever the page is in focus
+    }, [])
+  );
+
+  const fetchChemicals = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/chemicals/`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch chemicals');
+      }
+      const data = await response.json();
+      setChemicalsData(data);
+      console.log(data)
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const searchIconSvg = `
@@ -75,17 +118,17 @@ export default function ViewChemicals() {
 
       {/* Chemicals List */}
       <ScrollView style={styles.chemicalsList}>
-        {chemicalsData.map((chemical, index) => (
+        {chemicalsData.map((chemical : Chemical, index) => (
           <TouchableOpacity
             key={index}
             style={styles.chemicalItem}
-            onPress={openModal} //Route to the Popup Modal
+            onPress={() => openModal(chemical)} // Pass the selected chemical to openModal
           >
             <Text style={styles.chemicalName}>{chemical.name}</Text>
-            <Text style={styles.chemicalCAS}>CAS: {chemical.cas}</Text>
-            <Text>Purchased: {chemical.purchased}</Text>
-            <Text>Expires: <Text style={chemical.isExpired ? styles.expiredText : null}>{chemical.expires}</Text></Text>
-            <Text>Location: {chemical.location}</Text>
+            <Text style={styles.chemicalCAS}>CAS: {chemical.CAS || 'N/A'}</Text>
+            <Text>Purchased: {chemical.purchase_date || 'Unknown'}</Text>
+            <Text>Expires: {chemical.expiration_date || 'Unknown'}</Text>
+            <Text>School: {chemical.school || 'Unknown'}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -103,39 +146,45 @@ export default function ViewChemicals() {
             </TouchableOpacity>
             <ScrollView contentContainerStyle={stylesPopup.modalContent}>
               {/* Chemical Details */}
-              <Text style={stylesPopup.chemicalName}>Sodium Chloride</Text>
-              <Text style={stylesPopup.chemicalId}>ID: 21978</Text>
-              <Text style={stylesPopup.chemicalCAS}>CAS: 7647-14-5</Text>
+              {selectedChemical && (
+                <>
+                  <Text style={stylesPopup.chemicalName}>{selectedChemical.name}</Text>
+                  <Text style={stylesPopup.chemicalId}>ID: {selectedChemical.id || 'Unknown'}</Text>
+                  <Text style={stylesPopup.chemicalCAS}>CAS: {selectedChemical.CAS || 'N/A'}</Text>
               
-              {/* QR Code Placeholder */}
-              <View style={stylesPopup.qrCodePlaceholder}>
-                <Text style={stylesPopup.qrCodeText}>QR Code</Text>
-              </View>
-
-              {/* Chemical Details */}
-              <Text>Purchase Date: 2023-01-15</Text>
-              <Text>Expiration Date: 2030-01-15</Text>
-              <Text>School: Encina High School</Text>
-              <Text>Room: 105B</Text>
-              <Text>Cabinet: #2</Text>
-              <Text>Shelf: #4</Text>
-              <Text>Status: <Text style={stylesPopup.onSiteStatus}>On-site</Text></Text>
-              <Text>Quantity: <Text style={stylesPopup.quantityGood}>Good</Text></Text>
-
-              {/* Buttons */}
-              <TouchableOpacity style={stylesPopup.actionButton}>
-                <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
-                <Text style={stylesPopup.actionButtonText}>View SDS</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={stylesPopup.editButton} /*onPress={() => router.push('/edit-chemical')}*/> {/* Route to the Edit Chemical Page */}
-                <Text style={stylesPopup.editButtonText}>Edit Information</Text>
-              </TouchableOpacity>
+                  {/* QR Code Placeholder */}
+                  <View style={stylesPopup.qrCodePlaceholder}>
+                    <Text style={stylesPopup.qrCodeText}>QR Code</Text>
+                  </View>
+              
+                  {/* Chemical Details */}
+                  <Text>Purchase Date: {selectedChemical.purchase_date || 'Unknown'}</Text>
+                  <Text>Expiration Date: {selectedChemical.expiration_date || 'Unknown'}</Text>
+                  <Text>School: {selectedChemical.school || 'Unknown'}</Text>
+                  <Text>Room: {selectedChemical.room || 'Unknown'}</Text>
+                  <Text>Cabinet: {selectedChemical.cabinet || 'Unknown'}</Text>
+                  <Text>Shelf: {selectedChemical.shelf || 'Unknown'}</Text>
+              
+                  <Text>Status: <Text style={stylesPopup.onSiteStatus}>On-site</Text></Text>
+                  <Text>Quantity: <Text style={stylesPopup.quantityGood}>Good</Text></Text>
+              
+                  {/* Buttons */}
+                  <TouchableOpacity style={stylesPopup.actionButton}>
+                    <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
+                    <Text style={stylesPopup.actionButtonText}>View SDS</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={stylesPopup.editButton}>
+                    <Text style={stylesPopup.editButtonText}>Edit Information</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </ScrollView>
           </View>
         </BlurView>
       </Modal>
+
 
       {/* Sort Modal */}
       <Modal animationType="slide" transparent={true} visible={sortModalVisible} onRequestClose={closeSortModal}>
@@ -164,6 +213,7 @@ export default function ViewChemicals() {
                 </TouchableOpacity>
               ))}
             </View>
+
                 
             {/* Sorting Order Buttons */}
             <View style={stylesSort.orderButtons}>
@@ -247,7 +297,9 @@ export default function ViewChemicals() {
   );
 }
 
+
 // Example data for chemicals
+/*
 const chemicalsData = [
   {
     id: 1,
@@ -293,8 +345,7 @@ const chemicalsData = [
     quantity: 75,
     isExpired: false,
   },
-];
-
+];*/ 
 
 const styles = StyleSheet.create({
   container: {
