@@ -10,7 +10,7 @@ import Size from '@/constants/Size';
 import Colors from '@/constants/Colors';
 
 export default function LoginPage() {
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
