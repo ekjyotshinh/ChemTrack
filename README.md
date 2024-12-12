@@ -1,4 +1,9 @@
+<p align="center">
+   <img src="./assets/banner.png"/>
+</p>
+
 # ChemTrack
+A chemical inventory manager with QR code scanning built for schools.
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -10,6 +15,12 @@
 - [Running the Project](#running-the-project)
   - [Backend](#running-the-backend)
   - [Frontend](#running-the-frontend)
+- [Testing](#testing-to-do)
+- [Deployment](#deployment-to-do)
+- [API Endpoints](#api-endpoints)
+- [UI Images](#ui-images)
+- [Key Milestones](#key-milestones-for-191)
+- [Additional Information](#additional-information)
 
 ## Introduction
 ChemTrack is a project designed to manage chemical inventories. It includes a backend API built with Go and a frontend application built with React Native and Expo.
@@ -86,8 +97,36 @@ ChemTrack is a project designed to manage chemical inventories. It includes a ba
     ```
 3. Follow the instructions in the terminal to run the app on an emulator, simulator, or physical device.
 
+## Testing (To Do)
+
+## Deployment (To Do)
+1. Requirements
+   
+2. Steps for Deployment
+
 ## API Endpoints
-Refer to the [api.txt] file for a list of available API endpoints and their usage.
+Refer to the ```http://localhost:8080/swagger/index.html#/``` when running the backend for a list of available API endpoints and their usage.
+
+<p align="center">
+    <img src="./assets/Animation.gif" alt="Swagger API Gif"/>
+</p>
+
+
+## UI Images
+Created in Figma
+<p align="center">
+  <img src="./assets/figma/home.png" alt="Home screen image" width="30%">
+  <img src="./assets/figma/add.png" alt="Add chemical screen image" width="30%">
+  <img src="./assets/figma/view.png" alt="View chemical screen image" width="30%">
+</p>
+
+## Key Milestones for 191
+- SDS viewing & uploading
+- Inviting user backend functionality
+- User type implementation
+- QR code scanning and routing
+- Label printing & generation
+
 
 ## Additional Information
 - For more details on the project structure and code, refer to the individual files and directories.
