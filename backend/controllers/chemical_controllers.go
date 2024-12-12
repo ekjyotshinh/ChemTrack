@@ -151,18 +151,39 @@ func UpdateChemical(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	_, err := client.Collection("chemicals").Doc(chemicalID).Set(ctx, map[string]interface{}{
-		"name":            chemical.Name,
-		"CAS":             chemical.CAS,
-		"school":          chemical.School,
-		"purchase_date":   chemical.PurchaseDate,
-		"expiration_date": chemical.ExpirationDate,
-		"status":          chemical.Status,
-		"quantity":        chemical.Quantity,
-		"room":            chemical.Room,
-		"cabinet":         chemical.Cabinet,
-		"shelf":           chemical.Shelf,
-	}, firestore.MergeAll)
+	updateData := map[string]interface{}{}
+	if chemical.Name != "" {
+		updateData["name"] = chemical.Name
+	}
+	if chemical.CAS != 0 {
+		updateData["CAS"] = chemical.CAS
+	}
+	if chemical.School != "" {
+		updateData["school"] = chemical.School
+	}
+	if chemical.PurchaseDate != "" {
+		updateData["purchase_date"] = chemical.PurchaseDate
+	}
+	if chemical.ExpirationDate != "" {
+		updateData["expiration_date"] = chemical.ExpirationDate
+	}
+	if chemical.Status != "" {
+		updateData["status"] = chemical.Status
+	}
+	if chemical.Quantity != "" {
+		updateData["quantity"] = chemical.Quantity
+	}
+	if chemical.Room != "" {
+		updateData["room"] = chemical.Room
+	}
+	if chemical.Cabinet != 0 {
+		updateData["cabinet"] = chemical.Cabinet
+	}
+	if chemical.Shelf != 0 {
+		updateData["shelf"] = chemical.Shelf
+	}
+
+	_, err := client.Collection("chemicals").Doc(chemicalID).Set(ctx, updateData, firestore.MergeAll)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update chemical"})
 		return
