@@ -39,7 +39,6 @@ export default function ViewChemicals() {
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
             <Text style={styles.text}>Flip Camera</Text>
           </TouchableOpacity>
-          <Text style={styles.text}>{data}</Text>
         </View>
       </CameraView>
     </View>

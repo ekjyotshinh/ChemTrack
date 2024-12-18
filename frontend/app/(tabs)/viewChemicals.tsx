@@ -23,7 +23,7 @@ export default function ViewChemicals() {
   const closeModal = () => setModalVisible(false);
   const openSortModal = () => setSortModalVisible(true);
   const closeSortModal = () => setSortModalVisible(false);
-  const openFilterModal = () => setFiltersVisible(true);  
+  const openFilterModal = () => setFiltersVisible(true);
   const closeFilterModal = () => setFiltersVisible(false);
   const toggleFilterSheet = () => setFiltersVisible(!filtersVisible);
 

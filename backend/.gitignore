@@ -1,6 +1,12 @@
 # project files
+#-------------------------------#
+# Firebase Admin SDK key file
 key.json
+# Firebase Storage bucket keys file
+bucketkeys.json 
+# environment variables
 .env
+#-------------------------------#
 
 
 

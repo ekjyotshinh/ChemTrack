@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	// # TODO : Change this to github path when branch is posted @AggressiveGas
 	"cloud.google.com/go/firestore"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/iterator"
@@ -15,6 +16,8 @@ import (
 
 // Chemical represents the structure of a chemical
 type Chemical struct {
+	ID             string `json:"id"`
+	QRcode         string `json:"qrcode"`
 	Name           string `json:"name"`
 	CAS            int    `json:"CAS"`
 	School         string `json:"school"`
@@ -54,7 +57,7 @@ func AddChemical(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	_, _, err := client.Collection("chemicals").Add(ctx, map[string]interface{}{
+	docRef, _, err := client.Collection("chemicals").Add(ctx, map[string]interface{}{
 		"name":            chemical.Name,
 		"CAS":             chemical.CAS,
 		"school":          chemical.School,
@@ -70,8 +73,12 @@ func AddChemical(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add chemical"})
 		return
 	}
+	chemical.ID = docRef.ID // Set the document ID as the chemical ID
 
-	c.JSON(http.StatusOK, gin.H{"message": "Chemical added successfully"})
+	// Generate a QR code for the chemical
+	GenerateQRCode(chemical.ID)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Chemical added successfully", "chemical": chemical})
 }
 
 // GetChemical godoc
@@ -93,10 +100,10 @@ func GetChemical(c *gin.Context) {
 		return
 	}
 
-	chemical := doc.Data()
-	chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
+	//chemical := doc.Data()
+	//chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
 
-	c.JSON(http.StatusOK, chemical)
+	c.JSON(http.StatusOK, doc.Data())
 }
 
 // GetChemicals godoc
@@ -122,7 +129,7 @@ func GetChemicals(c *gin.Context) {
 			return
 		}
 		chemical := doc.Data()
-		chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
+		//chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
 		chemicals = append(chemicals, chemical)
 	}
 
