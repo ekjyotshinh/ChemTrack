@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	// # TODO : Change this to github path when branch is posted @AggressiveGas
 	"cloud.google.com/go/firestore"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/iterator"
+
+	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 )
 
 // #TODO add the functionality of adding a PDF for sds @AggressiveGas
@@ -100,10 +101,10 @@ func GetChemical(c *gin.Context) {
 		return
 	}
 
-	//chemical := doc.Data()
-	//chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
+	chemical := doc.Data()
+	chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
 
-	c.JSON(http.StatusOK, doc.Data())
+	c.JSON(http.StatusOK, chemical)
 }
 
 // GetChemicals godoc
@@ -129,7 +130,7 @@ func GetChemicals(c *gin.Context) {
 			return
 		}
 		chemical := doc.Data()
-		//chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
+		chemical["id"] = doc.Ref.ID // Add the document ID to the chemical data
 		chemicals = append(chemicals, chemical)
 	}
 
@@ -217,6 +218,9 @@ func DeleteChemical(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete chemical"})
 		return
 	}
+
+	// Delete the QR code from Google Cloud Storage
+	helpers.DeleteFileFromGCS(ctx, "chemtrack-testing", "QRcodes/"+ chemicalID +".png")
 
 	c.JSON(http.StatusOK, gin.H{"message": "Chemical deleted successfully"})
 }

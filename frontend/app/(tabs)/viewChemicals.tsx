@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -9,6 +9,8 @@ import DescendingSortIcon from '@/assets/icons/DescendingSortIcon';
 import CustomButton from '@/components/CustomButton';
 import Accordion from 'react-native-collapsible/Accordion'; // Add Accordion component
 import Colors from '@/constants/Colors';
+import axios from 'axios';
+
 
 export default function ViewChemicals() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,6 +46,39 @@ export default function ViewChemicals() {
     { title: 'Location', data: ['Room', 'Cabinet', 'Shelf'] },
   ];
 
+  
+  interface ChemicalData {
+    id: number;
+    qr_code: string;
+    name: string;
+    cas: string;
+    school: string;
+    purchase_date: string;
+    expiration_date: string;
+    status: string;
+    quantity: string;
+    room: string;
+    cabinet: string;
+    shelf: string;
+  }
+
+  const [chemicals, setChemicals] = useState<ChemicalData[]>([]);
+
+  useEffect(() => {
+    const fetchChemicals = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/v1/chemicals/');
+        setChemicals(response.data);
+      } catch (error) {
+        console.error('Error fetching chemicals:', error);
+      }
+    };
+
+    fetchChemicals();
+  }, []);  // TODO fix this thing that aint workin??
+
+
+  
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>

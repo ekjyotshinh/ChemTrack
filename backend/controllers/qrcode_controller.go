@@ -11,7 +11,6 @@ import (
 	//"github.com/gin-gonic/gin" 
 	"github.com/skip2/go-qrcode" 
 	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
-	// #TODO : import the helper function for uploading to GCS @AggressiveGas
 
 )
 
@@ -44,7 +43,7 @@ func GenerateQRCode(chemicalIdNumber string) {
 	bucketName := "chemtrack-testing"
 	objectName := "QRcodes/" + chemID + ".png"
 
-	err = uploadFileToGCS(ctx, bucketName, objectName, filepath)
+	err = helpers.UploadFileToGCS(ctx, bucketName, objectName, filepath)
 	if err != nil {
 		fmt.Println("Failed to upload QR code to Google Cloud Storage")
 		return
