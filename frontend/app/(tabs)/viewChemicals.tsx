@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -9,7 +9,7 @@ import DescendingSortIcon from '@/assets/icons/DescendingSortIcon';
 import CustomButton from '@/components/CustomButton';
 import Accordion from 'react-native-collapsible/Accordion'; // Add Accordion component
 import Colors from '@/constants/Colors';
-import { useFocusEffect } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function ViewChemicals() {
 
@@ -51,15 +51,9 @@ interface Chemical {
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
+    
   };
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
-
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchChemicals(); // Fetch the chemicals whenever the page is in focus
-    }, [])
-  );
-
   const fetchChemicals = async () => {
     try {
       const response = await fetch(`${API_URL}/api/v1/chemicals/`);
@@ -74,6 +68,20 @@ interface Chemical {
       console.error(error);
     }
   };
+  const isFocused = useIsFocused();
+  const hasFetched = useRef(false);
+  useEffect(() => {
+    if (isFocused && !hasFetched.current) {
+      fetchChemicals(); // Fetch only if it hasn't been fetched before
+      hasFetched.current = true; // Mark as fetched
+    }
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (!isFocused) {
+      hasFetched.current = false; // Reset when leaving the screen
+    }
+  }, [isFocused]);
 
   const searchIconSvg = `
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
