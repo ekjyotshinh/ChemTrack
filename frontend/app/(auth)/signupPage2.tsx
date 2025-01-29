@@ -69,7 +69,7 @@ export default function SignUpPage2() {
           school: selectedSchoolValue,
           id: data.user.id,
         });
-        router.push('/');
+        router.replace('/(tabs)');
       } else {
         Alert.alert("Error creating Account!");
         router.push('/signupPage1');
