@@ -107,8 +107,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile/userPage"
         options={{
-          title: 'User Page',
-          tabBarButton: () => null, // This hides the tab from the bottom navigation
+          href: null,
         }}
       />
 
@@ -116,8 +115,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile/resetPassword"
         options={{
-          title: 'Reset Password',
-          tabBarButton: () => null, // This hides the tab from the bottom navigation
+          href: null,
         }}
       />
     </Tabs>

@@ -3,7 +3,7 @@ import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Header from '@/components/Header';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 import UploadIcon from '@/assets/icons/UploadIcon';
 import ReturnIcon from '@/assets/icons/ReturnIcon';
@@ -13,6 +13,7 @@ import DropdownInput from '@/components/inputFields/DropdownInput';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
+import { useRouter } from 'expo-router';
 
 export default function ViewChemicals() {
   const [name, setName] = useState<string>('')
@@ -38,6 +39,10 @@ export default function ViewChemicals() {
   const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity]
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
   const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded]
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
+
+    const router = useRouter();
+
 
   // check if all fields have been added or not
   useEffect(() => {
@@ -53,30 +58,75 @@ export default function ViewChemicals() {
   }, allInputs)
   
   const schools = [
-    { label: 'Encina High School', value: '1' },
-    { label: 'Sacramento High School', value: '2' },
-    { label: 'Foothill High School', value: '3' },
-    { label: 'Grant Union High School', value: '4' },
+    { label: 'Encina High School', value: 'Encina High School' },
+    { label: 'Sacramento High School', value: 'Sacramento High School' },
+    { label: 'Foothill High School', value: 'Foothill High School' },
+    { label: 'Grant Union High School', value: 'Grant Union High School' },
   ]
 
   const statuses = [
-    { label: 'On-site', value: '1' },
-    { label: 'Off-site', value: '2' },
+    { label: 'On-site', value: 'On-site' },
+    { label: 'Off-site', value: 'Off-site' },
   ]
 
   const quantities = [
-    { label: 'Good', value: '1' },
-    { label: 'Fair', value: '2' },
-    { label: 'Low', value: '3' },
+    { label: 'Good', value: 'Good' },
+    { label: 'Fair', value: 'Fair' },
+    { label: 'Low', value: 'Low' },
   ]
 
-  const onSave = () => { 
-    if (isFilled) {
-      console.log('Clicked save!')
-    } else {
-      console.log('Please fill in all fields!')
+const onSave = async () => { 
+  if (isFilled) {
+    // Prepare the data to send to the backend
+    // Format the date to "YYYY-MM-DD"
+    const formatDate = (date: Date | null | undefined): string | undefined => 
+      date ? date.toISOString().split('T')[0] : undefined;
+    const data = {
+      name,
+      cas: parseInt(casParts.join(''), 10), // Concatenate CAS parts into one string
+      school,
+      purchase_date: formatDate(purchaseDate), // Format the date as "YYYY-MM-DD"
+      expiration_date: formatDate(expirationDate),
+      status,
+      quantity,
+      room,
+      shelf: parseInt(shelf, 10), // Convert shelf to integer (if it's a number)
+      cabinet: parseInt(cabinet, 10), // Convert cabinet to integer (if it's a number)
+    };
+
+    try {
+      // Send the data to the backend
+      console.log('Request data:', JSON.stringify(data, null, 2));
+ 
+      const response = await fetch(`${API_URL}/api/v1/chemicals`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const responseData = await response.json();
+
+      if (response.ok) {
+        // Handle successful response
+        console.log('Chemical added successfully:', responseData);
+        onClear();
+        Alert.alert('Success', 'Chemical information added');
+        router.push('/'); 
+      } else {
+        // Handle server errors
+        console.log('Failed to add chemical:', responseData);
+        Alert.alert('Error', 'Error occured');
+      }
+    } catch (error) {
+      console.error('Error adding chemical:', error);
+      Alert.alert('Error', 'Error occured');
     }
+  } else {
+    console.log('Please fill in all fields!');
+    Alert.alert('Error', 'Please fill in all fields!');
   }
+};
 
   const onClear = () => {
     console.log('Clicked clear!')
@@ -137,7 +187,7 @@ export default function ViewChemicals() {
           </View>
 
           <View style={styles.row}>
-            <View>
+            <View style={{width: Size.width(180)}}>
               <CustomTextHeader headerText='School' />
               <DropdownInput data={schools} value={school} setValue={setSchool} />
             </View>

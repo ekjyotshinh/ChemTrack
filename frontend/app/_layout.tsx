@@ -7,6 +7,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/contexts/UserContext'; // Import the UserProvider
 
+import 'react-native-gesture-handler'; 
+import { GestureHandlerRootView } from 'react-native-gesture-handler'; 
+
 import { useColorScheme } from '@/components/useColorScheme';
 
 import { 
@@ -30,7 +33,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: '(auth)',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -66,9 +69,11 @@ export default function RootLayout() {
   }
 
   return (
-    <UserProvider> 
-      <RootLayoutNav />
-    </UserProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <UserProvider>
+        <RootLayoutNav />
+      </UserProvider>
+    </GestureHandlerRootView>
   );
 }
 
