@@ -44,7 +44,7 @@ interface Chemical {
   const closeModal = () => setModalVisible(false);
   const openSortModal = () => setSortModalVisible(true);
   const closeSortModal = () => setSortModalVisible(false);
-  const openFilterModal = () => setFiltersVisible(true);
+  const openFilterModal = () => setFiltersVisible(true);  
   const closeFilterModal = () => setFiltersVisible(false);
   const toggleFilterSheet = () => setFiltersVisible(!filtersVisible);
 
@@ -95,39 +95,6 @@ interface Chemical {
     { title: 'Location', data: ['Room', 'Cabinet', 'Shelf'] },
   ];
 
-  
-  interface ChemicalData {
-    id: number;
-    qr_code: string;
-    name: string;
-    cas: string;
-    school: string;
-    purchase_date: string;
-    expiration_date: string;
-    status: string;
-    quantity: string;
-    room: string;
-    cabinet: string;
-    shelf: string;
-  }
-
-  const [chemicals, setChemicals] = useState<ChemicalData[]>([]);
-
-  useEffect(() => {
-    const fetchChemicals = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/v1/chemicals/');
-        setChemicals(response.data);
-      } catch (error) {
-        console.error('Error fetching chemicals:', error);
-      }
-    };
-
-    fetchChemicals();
-  }, []);  // TODO fix this thing that aint workin??
-
-
-  
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>
@@ -320,7 +287,7 @@ interface Chemical {
       </Modal>
       
       {/* View SDS Bottom Sheet component */}
-      {/*<BottomSheet
+      <BottomSheet
         index={isSDSBottomSheetOpen ? 0 : -1}
         snapPoints={['30%', '50%']}
         backgroundStyle={stylesSDS.bottomSheetBackground}
@@ -333,7 +300,7 @@ interface Chemical {
             <Text style={stylesSDS.downloadButtonText}>Download</Text>
           </TouchableOpacity>
         </View>
-      </BottomSheet>*/}
+      </BottomSheet>
     </View>
   );
 }
