@@ -13,18 +13,18 @@ import { useIsFocused } from '@react-navigation/native';
 
 export default function ViewChemicals() {
 
-// Define the type for the chemical data
-interface Chemical {
-  id: string;
-  name: string;
-  CAS: string;
-  purchase_date: string;
-  expiration_date: string;
-  school: string;
-  room: string;
-  cabinet: string;
-  shelf: string;
-}
+  // Define the type for the chemical data
+  interface Chemical {
+    id: string;
+    name: string;
+    CAS: string;
+    purchase_date: string;
+    expiration_date: string;
+    school: string;
+    room: string;
+    cabinet: string;
+    shelf: string;
+  }
 
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,20 +44,20 @@ interface Chemical {
   const closeModal = () => setModalVisible(false);
   const openSortModal = () => setSortModalVisible(true);
   const closeSortModal = () => setSortModalVisible(false);
-  const openFilterModal = () => setFiltersVisible(true);  
+  const openFilterModal = () => setFiltersVisible(true);
   const closeFilterModal = () => setFiltersVisible(false);
   const toggleFilterSheet = () => setFiltersVisible(!filtersVisible);
 
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
-    
+
   };
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
     try {
       const response = await fetch(`${API_URL}/api/v1/chemicals/`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch chemicals');
       }
@@ -99,8 +99,8 @@ interface Chemical {
     <View style={styles.container}>
       <Text style={styles.headerText}>
         View <Text style={styles.headerHighlight}>Chemicals</Text>
-        </Text>
-      
+      </Text>
+
       {/* Search Button */}
       <View style={styles.searchContainer}>
         <TextInput style={styles.searchInput} placeholder="Chemical name..." />
@@ -111,14 +111,14 @@ interface Chemical {
 
       {/* Filter Button */}
       <View style={styles.filterSortContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.filterButton}
           onPress={openFilterModal} // Open filter modal
         >
           <Text style={styles.buttonText}>Filter By</Text>
         </TouchableOpacity>
 
-       {/* SORT BY BUTTON */}
+        {/* SORT BY BUTTON */}
         <TouchableOpacity style={styles.sortButton} onPress={openSortModal}>
           <Text style={styles.buttonText}>Sort By</Text>
         </TouchableOpacity>
@@ -126,7 +126,7 @@ interface Chemical {
 
       {/* Chemicals List */}
       <ScrollView style={styles.chemicalsList}>
-        {chemicalsData.map((chemical : Chemical, index) => (
+        {chemicalsData.map((chemical: Chemical, index) => (
           <TouchableOpacity
             key={index}
             style={styles.chemicalItem}
@@ -139,153 +139,154 @@ interface Chemical {
             <Text>School: {chemical.school || 'Unknown'}</Text>
           </TouchableOpacity>
         ))}
+
+        {/* Modals need to be inside to scrollview to avoid Android issues */}
+
+        {/* Popup Modal for chemical details */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}>
+          <BlurView intensity={50} style={stylesPopup.blurContainer}>
+            <View style={stylesPopup.modalView}>
+              <TouchableOpacity style={stylesPopup.closeButton} onPress={closeModal}>
+                <Text style={stylesPopup.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+              <ScrollView contentContainerStyle={stylesPopup.modalContent}>
+                {/* Chemical Details */}
+                {selectedChemical && (
+                  <>
+                    <Text style={stylesPopup.chemicalName}>{selectedChemical.name}</Text>
+                    <Text style={stylesPopup.chemicalId}>ID: {selectedChemical.id || 'Unknown'}</Text>
+                    <Text style={stylesPopup.chemicalCAS}>CAS: {selectedChemical.CAS || 'N/A'}</Text>
+
+                    {/* QR Code Placeholder */}
+                    <View style={stylesPopup.qrCodePlaceholder}>
+                      <Text style={stylesPopup.qrCodeText}>QR Code</Text>
+                    </View>
+
+                    {/* Chemical Details */}
+                    <Text>Purchase Date: {selectedChemical.purchase_date || 'Unknown'}</Text>
+                    <Text>Expiration Date: {selectedChemical.expiration_date || 'Unknown'}</Text>
+                    <Text>School: {selectedChemical.school || 'Unknown'}</Text>
+                    <Text>Room: {selectedChemical.room || 'Unknown'}</Text>
+                    <Text>Cabinet: {selectedChemical.cabinet || 'Unknown'}</Text>
+                    <Text>Shelf: {selectedChemical.shelf || 'Unknown'}</Text>
+
+                    <Text>Status: <Text style={stylesPopup.onSiteStatus}>On-site</Text></Text>
+                    <Text>Quantity: <Text style={stylesPopup.quantityGood}>Good</Text></Text>
+
+                    {/* Buttons */}
+                    <TouchableOpacity style={stylesPopup.actionButton}>
+                      <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
+                      <Text style={stylesPopup.actionButtonText}>View SDS</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={stylesPopup.editButton}>
+                      <Text style={stylesPopup.editButtonText}>Edit Information</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </ScrollView>
+            </View>
+          </BlurView>
+        </Modal>
+
+        {/* Sort Modal */}
+        <Modal animationType="slide" transparent={true} visible={sortModalVisible} onRequestClose={closeSortModal}>
+          <View style={stylesSort.modalContainer}>
+            <View style={stylesSort.modalView}>
+              <TouchableOpacity onPress={closeSortModal} style={stylesSort.closeButton}>
+                <Text style={stylesSort.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+              <Text style={stylesSort.modalHeader}>Sort Options</Text>
+
+              {/* Dropdown for Sorting Options */}
+              <View style={stylesSort.dropdownContainer}>
+                {['Chemical Name', 'Purchase Date', 'Expiration Date', 'School Name', 'Quantity', 'Recent'].map((option, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      setSortOption(option); // Set the selected sort option
+                      //closeSortModal(); // Close the modal after selection
+                    }}
+                    style={[
+                      stylesSort.option,
+                      sortOption === option && stylesSort.selectedOption, // Highlight selected option
+                    ]}
+                  >
+                    <Text style={stylesSort.optionText}>{option}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+
+              {/* Sorting Order Buttons */}
+              <View style={stylesSort.orderButtons}>
+                <CustomButton
+                  title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Ascending" : "New -> Old"}
+                  color={sortOrder === 'Ascending' ? Colors.blue : Colors.white}
+                  textColor={sortOrder === 'Ascending' ? Colors.white : Colors.black}
+                  onPress={() => setSortOrder('Ascending')}
+                  width={180} // Adjust width as needed
+                  icon={<AscendingSortIcon width={24} height={24} color={sortOrder === 'Ascending' ? Colors.white : Colors.black} />}
+                  iconPosition="right"
+                />
+                <CustomButton
+                  title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Descending" : "Old -> New"}
+                  color={sortOrder === 'Descending' ? Colors.blue : Colors.white}
+                  textColor={sortOrder === 'Descending' ? Colors.white : Colors.black}
+                  onPress={() => setSortOrder('Descending')}
+                  width={180} // Adjust width as needed
+                  icon={<DescendingSortIcon width={24} height={24} color={sortOrder === 'Descending' ? Colors.white : Colors.black} />}
+                  iconPosition="right"
+                />
+              </View>
+
+            </View>
+          </View>
+        </Modal>
+
+        {/* Filter Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={filtersVisible}
+          onRequestClose={closeFilterModal}
+        >
+          <BlurView intensity={50} style={stylesFilter.blurContainer}>
+            <View style={[stylesFilter.modalView, { height: '75%' }]}>
+              <TouchableOpacity style={stylesFilter.closeButton} onPress={closeFilterModal}>
+                <Text style={stylesFilter.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+              <ScrollView contentContainerStyle={stylesFilter.modalContent}>
+                <Accordion
+                  sections={filterSections}
+                  activeSections={expanded} // Manage active sections
+                  renderHeader={(section) => (
+                    <View style={stylesFilter.accordionHeader}>
+                      <Text>{section.title}</Text>
+                    </View>
+                  )}
+                  renderContent={(section) => (
+                    <View style={stylesFilter.accordionContent}>
+                      {section.data.map((item, index) => (
+                        <TouchableOpacity key={index} style={stylesFilter.accordionItem}>
+                          <Text>{item}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                  onChange={(expandedSections) => setExpanded(expandedSections)} // Set active sections
+                />
+              </ScrollView>
+            </View>
+          </BlurView>
+        </Modal>
       </ScrollView>
 
-      {/* Popup Modal for chemical details */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}>
-        <BlurView intensity={50} style={stylesPopup.blurContainer}>
-          <View style={stylesPopup.modalView}>
-            <TouchableOpacity style={stylesPopup.closeButton} onPress={closeModal}>
-              <Text style={stylesPopup.closeButtonText}>✕</Text>
-            </TouchableOpacity>
-            <ScrollView contentContainerStyle={stylesPopup.modalContent}>
-              {/* Chemical Details */}
-              {selectedChemical && (
-                <>
-                  <Text style={stylesPopup.chemicalName}>{selectedChemical.name}</Text>
-                  <Text style={stylesPopup.chemicalId}>ID: {selectedChemical.id || 'Unknown'}</Text>
-                  <Text style={stylesPopup.chemicalCAS}>CAS: {selectedChemical.CAS || 'N/A'}</Text>
-              
-                  {/* QR Code Placeholder */}
-                  <View style={stylesPopup.qrCodePlaceholder}>
-                    <Text style={stylesPopup.qrCodeText}>QR Code</Text>
-                  </View>
-              
-                  {/* Chemical Details */}
-                  <Text>Purchase Date: {selectedChemical.purchase_date || 'Unknown'}</Text>
-                  <Text>Expiration Date: {selectedChemical.expiration_date || 'Unknown'}</Text>
-                  <Text>School: {selectedChemical.school || 'Unknown'}</Text>
-                  <Text>Room: {selectedChemical.room || 'Unknown'}</Text>
-                  <Text>Cabinet: {selectedChemical.cabinet || 'Unknown'}</Text>
-                  <Text>Shelf: {selectedChemical.shelf || 'Unknown'}</Text>
-              
-                  <Text>Status: <Text style={stylesPopup.onSiteStatus}>On-site</Text></Text>
-                  <Text>Quantity: <Text style={stylesPopup.quantityGood}>Good</Text></Text>
-              
-                  {/* Buttons */}
-                  <TouchableOpacity style={stylesPopup.actionButton}>
-                    <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
-                    <Text style={stylesPopup.actionButtonText}>View SDS</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={stylesPopup.editButton}>
-                    <Text style={stylesPopup.editButtonText}>Edit Information</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </ScrollView>
-          </View>
-        </BlurView>
-      </Modal>
-
-
-      {/* Sort Modal */}
-      <Modal animationType="slide" transparent={true} visible={sortModalVisible} onRequestClose={closeSortModal}>
-        <View style={stylesSort.modalContainer}>
-          <View style={stylesSort.modalView}>
-            <TouchableOpacity onPress={closeSortModal} style={stylesSort.closeButton}>
-              <Text style={stylesSort.closeButtonText}>✕</Text>
-            </TouchableOpacity>
-            <Text style={stylesSort.modalHeader}>Sort Options</Text>
-              
-            {/* Dropdown for Sorting Options */}
-            <View style={stylesSort.dropdownContainer}>
-              {['Chemical Name', 'Purchase Date', 'Expiration Date', 'School Name', 'Quantity', 'Recent'].map((option, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    setSortOption(option); // Set the selected sort option
-                    //closeSortModal(); // Close the modal after selection
-                  }}
-                  style={[
-                    stylesSort.option,
-                    sortOption === option && stylesSort.selectedOption, // Highlight selected option
-                  ]}
-                >
-                  <Text style={stylesSort.optionText}>{option}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-                
-            {/* Sorting Order Buttons */}
-            <View style={stylesSort.orderButtons}>
-              <CustomButton
-                title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Ascending" : "New -> Old"}
-                color={sortOrder === 'Ascending' ? Colors.blue : Colors.white}
-                textColor={sortOrder === 'Ascending' ? Colors.white : Colors.black}
-                onPress={() => setSortOrder('Ascending')}
-                width={180} // Adjust width as needed
-                icon={<AscendingSortIcon width={24} height={24} color={sortOrder === 'Ascending' ? Colors.white : Colors.black} />}
-                iconPosition="right"
-              />
-              <CustomButton
-                title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Descending" : "Old -> New"}
-                color={sortOrder === 'Descending' ? Colors.blue : Colors.white}
-                textColor={sortOrder === 'Descending' ? Colors.white : Colors.black}
-                onPress={() => setSortOrder('Descending')}
-                width={180} // Adjust width as needed
-                icon={<DescendingSortIcon width={24} height={24} color={sortOrder === 'Descending' ? Colors.white : Colors.black} />}
-                iconPosition="right"
-              />
-            </View>     
-                
-          </View>
-        </View>
-      </Modal>
-
-      {/* Filter Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={filtersVisible}
-        onRequestClose={closeFilterModal}
-      >
-        <BlurView intensity={50} style={stylesFilter.blurContainer}>
-          <View style={[stylesFilter.modalView, { height: '75%' }]}>
-            <TouchableOpacity style={stylesFilter.closeButton} onPress={closeFilterModal}>
-              <Text style={stylesFilter.closeButtonText}>✕</Text>
-            </TouchableOpacity>
-            <ScrollView contentContainerStyle={stylesFilter.modalContent}>
-            <Accordion
-              sections={filterSections}
-              activeSections={expanded} // Manage active sections
-              renderHeader={(section) => (
-                <View style={stylesFilter.accordionHeader}>
-                  <Text>{section.title}</Text>
-                </View>
-              )}
-              renderContent={(section) => (
-                <View style={stylesFilter.accordionContent}>
-                  {section.data.map((item, index) => (
-                    <TouchableOpacity key={index} style={stylesFilter.accordionItem}>
-                      <Text>{item}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-              onChange={(expandedSections) => setExpanded(expandedSections)} // Set active sections
-            />
-            </ScrollView>
-          </View>
-        </BlurView>
-      </Modal>
-      
       {/* View SDS Bottom Sheet component */}
       <BottomSheet
         index={isSDSBottomSheetOpen ? 0 : -1}
@@ -353,7 +354,7 @@ const chemicalsData = [
     quantity: 75,
     isExpired: false,
   },
-];*/ 
+];*/
 
 const styles = StyleSheet.create({
   container: {
