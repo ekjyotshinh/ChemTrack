@@ -183,7 +183,15 @@ interface Chemical {
                   <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
                     <Text style={stylesPopup.actionButtonText}>View SDS</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={stylesPopup.editButton}>
+                  <TouchableOpacity 
+                    style={stylesPopup.editButton} 
+                    onPress={() => {
+                      closeModal();  // Close the modal
+                      const chemicalId = selectedChemical.id;
+                      router.push(`/editChemical?id=${chemicalId}`); 
+                      console.log(selectedChemical);
+                    }}
+                  >                 
                     <Text style={stylesPopup.editButtonText}>Edit Information</Text>
                   </TouchableOpacity>
                 </>
