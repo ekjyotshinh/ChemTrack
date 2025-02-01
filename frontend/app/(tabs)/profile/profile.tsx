@@ -32,7 +32,7 @@ export default function ViewChemicals() {
 
   const router = useRouter();
   const { userInfo, updateUserInfo } = useUser();
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   // Initialize name and email from user info
   useEffect(() => {
@@ -188,7 +188,7 @@ export default function ViewChemicals() {
 
             <Pressable
               style={styles.closePopUpButton}
-              onPress={() => router.replace('/(auth)/login')}
+              onPress={() => (setConfirmModalVisible(false), router.push('/(auth)/login'))}
             >
             <Text style={styles.popUpText}>Yes</Text>
             </Pressable>

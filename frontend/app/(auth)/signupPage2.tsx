@@ -15,7 +15,7 @@ import Colors from '@/constants/Colors';
 
 // Define the SignUpPage2 component
 export default function SignUpPage2() {
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const router = useRouter();
@@ -58,7 +58,6 @@ export default function SignUpPage2() {
       });
 
       if (res.ok) {
-        Alert.alert("Account Created Successfully!");
         // After successfully creating the user, update context and navigate
         const data = await res.json();
         console.log(data);
@@ -70,7 +69,7 @@ export default function SignUpPage2() {
           school: selectedSchoolValue,
           id: data.user.id,
         });
-        router.push('/');
+        router.replace('/(tabs)');
       } else {
         Alert.alert("Error creating Account!");
         router.push('/signupPage1');

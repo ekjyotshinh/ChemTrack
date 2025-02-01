@@ -23,7 +23,33 @@ A chemical inventory manager with QR code scanning built for schools.
 - [Additional Information](#additional-information)
 
 ## Introduction
-ChemTrack is a project designed to manage chemical inventories. It includes a backend API built with Go and a frontend application built with React Native and Expo.
+ChemTrack is an innovative chemical inventory management system designed specifically for educational institutions. This powerful tool leverages QR code technology to streamline the tracking and management of chemical inventories, ensuring safety and compliance in school laboratories.
+
+With ChemTrack, users can easily add, view, and manage chemical details, including CAS numbers, purchase and expiration dates, storage locations, and quantities. The system provides real-time updates and alerts for expired or low-quantity chemicals, helping schools maintain a safe and well-organized chemical inventory.
+
+ChemTrack's user-friendly interface allows for quick access to Safety Data Sheets (SDS) and other critical information, ensuring that all necessary safety protocols are readily available. The software also supports the generation and printing of QR codes for each chemical, enabling efficient scanning and retrieval of chemical data.
+
+Designed with scalability and ease of use in mind, ChemTrack integrates seamlessly with existing school systems and provides robust reporting and analytics features. Whether you're a science teacher, lab technician, or school administrator, ChemTrack offers a comprehensive solution to manage your chemical inventory with confidence and ease.
+
+#### Technologies Used
+ChemTrack is built using a modern technology stack to ensure reliability, scalability, and ease of use:
+
+#### Frontend
+React Native: For building a cross-platform mobile application that runs on both iOS and Android devices, providing a seamless user experience.
+Expo: To streamline the development process, allowing for quick testing and deployment of the React Native application.
+Axios: For making HTTP requests to the backend API, ensuring efficient data retrieval and manipulation.
+TypeScript: To add static typing to JavaScript, enhancing code quality and maintainability.
+#### Backend
+Go (Golang): A statically typed, compiled programming language known for its performance and efficiency, used to build the backend API.
+Gin: A high-performance HTTP web framework for Go, used to create robust and scalable RESTful APIs.
+Google Cloud Firestore: A flexible, scalable database for mobile, web, and server development, used to store chemical data securely.
+Google Cloud Storage: For storing and serving QR code images and other static assets.
+bcrypt: For securely hashing and storing user passwords, ensuring data security.
+#### Additional Tools
+Swagger: For API documentation, making it easy for developers to understand and interact with the backend services.
+Docker: To containerize the application, ensuring consistent environments across development, testing, and production.
+GitHub: For version control and collaboration, enabling seamless teamwork and code management.
+By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, efficient, and user-friendly experience for managing chemical inventories in educational institutions.
 
 ## Contributors
 - Rahul Gupta

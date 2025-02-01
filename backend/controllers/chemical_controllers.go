@@ -8,6 +8,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/iterator"
+
+	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 )
 
 // #TODO add the functionality of adding a PDF for sds @AggressiveGas
@@ -15,6 +17,8 @@ import (
 
 // Chemical represents the structure of a chemical
 type Chemical struct {
+	ID             string `json:"id"`
+	QRcode         string `json:"qrcode"`
 	Name           string `json:"name"`
 	CAS            int    `json:"CAS"`
 	School         string `json:"school"`
@@ -54,7 +58,7 @@ func AddChemical(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	_, _, err := client.Collection("chemicals").Add(ctx, map[string]interface{}{
+	docRef, _, err := client.Collection("chemicals").Add(ctx, map[string]interface{}{
 		"name":            chemical.Name,
 		"CAS":             chemical.CAS,
 		"school":          chemical.School,
@@ -70,8 +74,12 @@ func AddChemical(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add chemical"})
 		return
 	}
+	chemical.ID = docRef.ID // Set the document ID as the chemical ID
 
-	c.JSON(http.StatusOK, gin.H{"message": "Chemical added successfully"})
+	// Generate a QR code for the chemical
+	GenerateQRCode(chemical.ID)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Chemical added successfully", "chemical": chemical})
 }
 
 // GetChemical godoc
@@ -151,18 +159,39 @@ func UpdateChemical(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	_, err := client.Collection("chemicals").Doc(chemicalID).Set(ctx, map[string]interface{}{
-		"name":            chemical.Name,
-		"CAS":             chemical.CAS,
-		"school":          chemical.School,
-		"purchase_date":   chemical.PurchaseDate,
-		"expiration_date": chemical.ExpirationDate,
-		"status":          chemical.Status,
-		"quantity":        chemical.Quantity,
-		"room":            chemical.Room,
-		"cabinet":         chemical.Cabinet,
-		"shelf":           chemical.Shelf,
-	}, firestore.MergeAll)
+	updateData := map[string]interface{}{}
+	if chemical.Name != "" {
+		updateData["name"] = chemical.Name
+	}
+	if chemical.CAS != 0 {
+		updateData["CAS"] = chemical.CAS
+	}
+	if chemical.School != "" {
+		updateData["school"] = chemical.School
+	}
+	if chemical.PurchaseDate != "" {
+		updateData["purchase_date"] = chemical.PurchaseDate
+	}
+	if chemical.ExpirationDate != "" {
+		updateData["expiration_date"] = chemical.ExpirationDate
+	}
+	if chemical.Status != "" {
+		updateData["status"] = chemical.Status
+	}
+	if chemical.Quantity != "" {
+		updateData["quantity"] = chemical.Quantity
+	}
+	if chemical.Room != "" {
+		updateData["room"] = chemical.Room
+	}
+	if chemical.Cabinet != 0 {
+		updateData["cabinet"] = chemical.Cabinet
+	}
+	if chemical.Shelf != 0 {
+		updateData["shelf"] = chemical.Shelf
+	}
+
+	_, err := client.Collection("chemicals").Doc(chemicalID).Set(ctx, updateData, firestore.MergeAll)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update chemical"})
 		return
@@ -189,6 +218,9 @@ func DeleteChemical(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete chemical"})
 		return
 	}
+
+	// Delete the QR code from Google Cloud Storage
+	helpers.DeleteFileFromGCS(ctx, "chemtrack-testing", "QRcodes/"+ chemicalID +".png")
 
 	c.JSON(http.StatusOK, gin.H{"message": "Chemical deleted successfully"})
 }

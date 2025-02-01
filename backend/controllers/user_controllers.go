@@ -163,26 +163,33 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	// Hash the user's password if it is provided
+	updateData := make(map[string]interface{})
+
+	if user.First != "" {
+		updateData["first"] = user.First
+	}
+	if user.Last != "" {
+		updateData["last"] = user.Last
+	}
+	if user.Email != "" {
+		updateData["email"] = user.Email
+	}
 	if user.Password != "" {
 		hashedPassword, err := HashPassword(user.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 			return
 		}
-		user.Password = hashedPassword
+		updateData["password"] = hashedPassword
 	}
+	if user.School != "" {
+		updateData["school"] = user.School
+	}
+	updateData["is_admin"] = user.IsAdmin
+	updateData["is_master"] = user.IsMaster
 
 	ctx := context.Background()
-	_, err := client.Collection("users").Doc(userID).Set(ctx, map[string]interface{}{
-		"first":     user.First,
-		"last":      user.Last,
-		"email":     user.Email,
-		"password":  user.Password, // Store hashed password
-		"school":    user.School,
-		"is_admin":  user.IsAdmin,
-		"is_master": user.IsMaster,
-	}, firestore.MergeAll)
+	_, err := client.Collection("users").Doc(userID).Set(ctx, updateData, firestore.MergeAll)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 		return
