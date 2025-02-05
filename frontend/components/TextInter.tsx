@@ -8,7 +8,7 @@ interface TextInterface extends TextProps {
 // Use this instead of <Text> so we can use Inter font
 // Wanted to make it as easy as possible for people to use
 // Basically just use this like you would <Text> and it should work!
-const TextInter = ({ style, ...props } : TextInterface) => {
+const TextInter = ({ style = {}, ...props } : TextInterface) => {
 
     // The issue is that we cannot apply bold to custom fonts and if
     // we do, THE FONT WILL NOT WORK ON ANDROID!
