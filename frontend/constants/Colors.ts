@@ -8,6 +8,7 @@ const Colors = {
   black: '#000000',
   blue: '#0F82FF',
   red: '#FF0035',
+  green: '#05F140',
 
   // usually used for borders and text/icon color
   grey: '#BFBFBF',

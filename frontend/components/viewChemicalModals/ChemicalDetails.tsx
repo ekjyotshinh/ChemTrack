@@ -1,5 +1,8 @@
 import { BlurView } from 'expo-blur'
-import { View, Text, Modal, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Modal, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import Colors from '@/constants/Colors';
+import CloseIcon from '@/assets/icons/CloseIcon';
+import TextInter from '../TextInter';
 
 interface Chemical {
     id: string;
@@ -20,7 +23,40 @@ interface props {
     closeModal: () => void
 }
 
+const ChemicalDetail = ({ property, value, color }: { property: string, value: string | null, color?: string }) => {
+    if (!color) color = Colors.black
+    return (
+        <View style={stylesPopup.details}>
+            <TextInter style={{ fontWeight: '700', fontSize: 18 }}>{property}</TextInter>
+            <TextInter style={{ color: color, fontSize: 18 }}>{value || 'Unknown'}</TextInter>
+        </View>
+    )
+}
+
 const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal }: props) => {
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'On-site':
+                return Colors.blue
+            case 'Off-site':
+                return Colors.red
+            default:
+                return 'black'
+        }
+    }
+
+    const getQuantityColor = (quantity: string) => {
+        switch (quantity) {
+            case 'Good':
+                return Colors.green
+            case 'Fair':
+                return Colors.blue
+            case 'Low':
+                return Colors.red
+            default:
+                return 'black'
+        }
+    }
 
     return (
         <Modal
@@ -30,41 +66,52 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
             onRequestClose={closeModal}>
             <BlurView intensity={50} style={stylesPopup.blurContainer}>
                 <View style={stylesPopup.modalView}>
+
+                    {/* X (Close) button */}
                     <TouchableOpacity style={stylesPopup.closeButton} onPress={closeModal}>
-                        <Text style={stylesPopup.closeButtonText}>✕</Text>
+                        <CloseIcon width={24} height={24} color={Colors.black} />
                     </TouchableOpacity>
+
                     <ScrollView contentContainerStyle={stylesPopup.modalContent}>
                         {/* Chemical Details */}
                         {selectedChemical && (<>
-                            <Text style={stylesPopup.chemicalName}>{selectedChemical.name}</Text>
-                            <Text style={stylesPopup.chemicalId}>ID: {selectedChemical.id || 'Unknown'}</Text>
-                            <Text style={stylesPopup.chemicalCAS}>CAS: {selectedChemical.CAS || 'N/A'}</Text>
+                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                {/* QR Code Placeholder */}
+                                <View style={stylesPopup.qrCodePlaceholder}>
+                                    <TextInter style={stylesPopup.qrCodeTextInter}>QR Code</TextInter>
+                                </View>
 
-                            {/* QR Code Placeholder */}
-                            <View style={stylesPopup.qrCodePlaceholder}>
-                                <Text style={stylesPopup.qrCodeText}>QR Code</Text>
+                            
+                                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                                    <TextInter style={stylesPopup.chemicalName}>{selectedChemical.name}</TextInter>
+                                    <TextInter style={stylesPopup.chemicalCAS}>CAS: {selectedChemical.CAS || 'N/A'}</TextInter>
+                                </View>
                             </View>
 
-                            {/* Chemical Details */}
-                            <Text>Purchase Date: {selectedChemical.purchase_date || 'Unknown'}</Text>
-                            <Text>Expiration Date: {selectedChemical.expiration_date || 'Unknown'}</Text>
-                            <Text>School: {selectedChemical.school || 'Unknown'}</Text>
-                            <Text>Room: {selectedChemical.room || 'Unknown'}</Text>
-                            <Text>Cabinet: {selectedChemical.cabinet || 'Unknown'}</Text>
-                            <Text>Shelf: {selectedChemical.shelf || 'Unknown'}</Text>
 
-                            <Text>Status: <Text style={stylesPopup.onSiteStatus}>On-site</Text></Text>
-                            <Text>Quantity: <Text style={stylesPopup.quantityGood}>Good</Text></Text>
+                            {/* Chemical Details */}
+                            <ChemicalDetail property={'ID:'} value={selectedChemical.id} />
+                            <ChemicalDetail property={'Purchase Date:'} value={selectedChemical.purchase_date} />
+                            <ChemicalDetail property={'Expiration Date:'} value={selectedChemical.expiration_date} />
+                            <ChemicalDetail property={'School:'} value={selectedChemical.school} />
+                            <ChemicalDetail property={'Room:'} value={selectedChemical.room} />
+                            <ChemicalDetail property={'Cabinet:'} value={selectedChemical.cabinet} />
+                            <ChemicalDetail property={'Shelf:'} value={selectedChemical.shelf} />
+
+                            {/* Status */}
+                            <ChemicalDetail property={'Status:'} value={'On-site'} color={getStatusColor('On-site')} />
+                            <ChemicalDetail property={'Quantity:'} value={'Good'} color={getQuantityColor('Good')} />
+
 
                             {/* Buttons */}
                             <TouchableOpacity style={stylesPopup.actionButton}>
-                                <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
+                                <TextInter style={stylesPopup.actionButtonTextInter}>Print QR Code</TextInter>
                             </TouchableOpacity>
                             <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
-                                <Text style={stylesPopup.actionButtonText}>View SDS</Text>
+                                <TextInter style={stylesPopup.actionButtonTextInter}>View SDS</TextInter>
                             </TouchableOpacity>
                             <TouchableOpacity style={stylesPopup.editButton}>
-                                <Text style={stylesPopup.editButtonText}>Edit Information</Text>
+                                <TextInter style={stylesPopup.editButtonTextInter}>Edit Information</TextInter>
                             </TouchableOpacity></>)}
                     </ScrollView>
                 </View>
@@ -80,40 +127,45 @@ const stylesPopup = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#F5F5F5',
     },
-    openText: {
-        fontSize: 18,
-        color: '#4285F4',
-    },
     blurContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
     modalView: {
-        width: '90%',
-        borderRadius: 20,
-        backgroundColor: 'white',
+        width: '100%',
+        height: '75%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        // backgroundColor: 'blue',
+        backgroundColor: Colors.white,
         padding: 20,
         alignItems: 'center',
         elevation: 20,
-        marginBottom: 30,
+        marginTop: 'auto',
     },
     closeButton: {
         position: 'absolute',
-        top: 10,
-        right: 10,
+        top: 20,
+        right: 20,
+        padding: 0,
+        margin: 0,
     },
-    closeButtonText: {
-        fontSize: 20,
-        color: '#555',
+    closeButtonTextInter: {
+        fontSize: 25,
+        color: Colors.black,
     },
     modalContent: {
-        alignItems: 'center',
+        marginTop: 20,
+        width: '100%',
+        // alignItems: 'center',
+        // backgroundColor: 'red'
     },
     chemicalName: {
         fontSize: 20,
         fontWeight: 'bold',
         color: '#4285F4',
+        textAlign: 'center',
     },
     chemicalId: {
         fontSize: 16,
@@ -131,7 +183,7 @@ const stylesPopup = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 10,
     },
-    qrCodeText: {
+    qrCodeTextInter: {
         color: '#999',
     },
     onSiteStatus: {
@@ -150,7 +202,7 @@ const stylesPopup = StyleSheet.create({
         alignItems: 'center',
         marginVertical: 5,
     },
-    actionButtonText: {
+    actionButtonTextInter: {
         fontSize: 16,
     },
     editButton: {
@@ -161,10 +213,15 @@ const stylesPopup = StyleSheet.create({
         alignItems: 'center',
         marginTop: 10,
     },
-    editButtonText: {
+    editButtonTextInter: {
         color: 'white',
         fontSize: 16,
     },
+    details: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    }
 
 });
 
