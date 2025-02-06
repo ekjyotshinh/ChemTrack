@@ -3,6 +3,11 @@ import { View, Modal, ScrollView, TouchableOpacity, StyleSheet } from 'react-nat
 import Colors from '@/constants/Colors';
 import CloseIcon from '@/assets/icons/CloseIcon';
 import TextInter from '../TextInter';
+import Size from '@/constants/Size';
+import CustomButton from '../CustomButton';
+import QrCodeIcon from '@/assets/icons/QRCodeIcon';
+import ViewDocIcon from '@/assets/icons/ViewDocIcon';
+import CustomEditIcon from '@/assets/icons/EditIcon';
 
 interface Chemical {
     id: string;
@@ -34,6 +39,9 @@ const ChemicalDetail = ({ property, value, color }: { property: string, value: s
 }
 
 const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal }: props) => {
+
+    const gapSize = Size.height(15)
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'On-site':
@@ -75,44 +83,69 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                     <ScrollView contentContainerStyle={stylesPopup.modalContent}>
                         {/* Chemical Details */}
                         {selectedChemical && (<>
-                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', marginBottom: Size.height(10) }}>
                                 {/* QR Code Placeholder */}
                                 <View style={stylesPopup.qrCodePlaceholder}>
-                                    <TextInter style={stylesPopup.qrCodeTextInter}>QR Code</TextInter>
+                                    <TextInter>QR Code</TextInter>
                                 </View>
-
                             
-                                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginLeft: 5 }}>
                                     <TextInter style={stylesPopup.chemicalName}>{selectedChemical.name}</TextInter>
-                                    <TextInter style={stylesPopup.chemicalCAS}>CAS: {selectedChemical.CAS || 'N/A'}</TextInter>
+                                    <ChemicalDetail property={'CAS: '} value={selectedChemical.CAS} />
                                 </View>
                             </View>
 
 
                             {/* Chemical Details */}
-                            <ChemicalDetail property={'ID:'} value={selectedChemical.id} />
-                            <ChemicalDetail property={'Purchase Date:'} value={selectedChemical.purchase_date} />
-                            <ChemicalDetail property={'Expiration Date:'} value={selectedChemical.expiration_date} />
-                            <ChemicalDetail property={'School:'} value={selectedChemical.school} />
-                            <ChemicalDetail property={'Room:'} value={selectedChemical.room} />
-                            <ChemicalDetail property={'Cabinet:'} value={selectedChemical.cabinet} />
-                            <ChemicalDetail property={'Shelf:'} value={selectedChemical.shelf} />
+                            <ChemicalDetail property={'ID: '} value={selectedChemical.id} />
+                            <View style={{flex: 1, marginBottom: gapSize, marginTop: gapSize}}>
+                                <ChemicalDetail property={'Purchase Date: '} value={selectedChemical.purchase_date} />
+                                <ChemicalDetail property={'Expiration Date: '} value={selectedChemical.expiration_date} />
+                            </View>
+                            <ChemicalDetail property={'School: '} value={selectedChemical.school} />
+                            <ChemicalDetail property={'Room: '} value={selectedChemical.room} />
+                            <ChemicalDetail property={'Cabinet: '} value={selectedChemical.cabinet} />
+                            <ChemicalDetail property={'Shelf: '} value={selectedChemical.shelf} />
 
                             {/* Status */}
-                            <ChemicalDetail property={'Status:'} value={'On-site'} color={getStatusColor('On-site')} />
-                            <ChemicalDetail property={'Quantity:'} value={'Good'} color={getQuantityColor('Good')} />
-
-
-                            {/* Buttons */}
-                            <TouchableOpacity style={stylesPopup.actionButton}>
-                                <TextInter style={stylesPopup.actionButtonTextInter}>Print QR Code</TextInter>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
-                                <TextInter style={stylesPopup.actionButtonTextInter}>View SDS</TextInter>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={stylesPopup.editButton}>
-                                <TextInter style={stylesPopup.editButtonTextInter}>Edit Information</TextInter>
-                            </TouchableOpacity></>)}
+                            <View style={{flex: 1, marginBottom: gapSize, marginTop: gapSize}}>
+                                <ChemicalDetail property={'Status: '} value={'On-site'} color={getStatusColor('On-site')} />
+                                <ChemicalDetail property={'Quantity: '} value={'Good'} color={getQuantityColor('Good')} />
+                            </View>
+                            
+                            <View style={stylesPopup.buttonContainer}>
+                                <CustomButton 
+                                    title={'Save QR Label'}
+                                    icon={<QrCodeIcon color={Colors.black} strokeWidth='4' />}
+                                    textColor={Colors.black}
+                                    onPress={()=> {}}
+                                    color={Colors.white}
+                                    width={270}
+                                    height={47}
+                                    fontSize={14}
+                                />
+                                <CustomButton 
+                                    title={'View SDS'}
+                                    icon={<ViewDocIcon color={Colors.black} />}
+                                    textColor={Colors.black}
+                                    onPress={()=> {}}
+                                    color={Colors.white}
+                                    width={270}
+                                    height={47}
+                                    fontSize={14}
+                                />
+                                <CustomButton 
+                                    title={'Edit Information'}
+                                    icon={<CustomEditIcon color={Colors.white} />}
+                                    onPress={()=> {}}
+                                    color={Colors.blue}
+                                    width={270}
+                                    height={47}
+                                    fontSize={14}
+                                />
+                            </View>
+                            
+                            </>)}
                     </ScrollView>
                 </View>
             </BlurView>
@@ -134,20 +167,17 @@ const stylesPopup = StyleSheet.create({
     },
     modalView: {
         width: '100%',
-        height: '75%',
+        height: Size.height(691),
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        // backgroundColor: 'blue',
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.offwhite,
         padding: 20,
         alignItems: 'center',
         elevation: 20,
         marginTop: 'auto',
     },
     closeButton: {
-        position: 'absolute',
-        top: 20,
-        right: 20,
+        alignSelf: 'flex-end',
         padding: 0,
         margin: 0,
     },
@@ -156,42 +186,28 @@ const stylesPopup = StyleSheet.create({
         color: Colors.black,
     },
     modalContent: {
-        marginTop: 20,
         width: '100%',
-        // alignItems: 'center',
-        // backgroundColor: 'red'
+        marginTop: 20,
+    },
+    buttonContainer: {
+        alignItems: 'center',
     },
     chemicalName: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#4285F4',
+        color: Colors.blue,
         textAlign: 'center',
-    },
-    chemicalId: {
-        fontSize: 16,
-        marginTop: 5,
-    },
-    chemicalCAS: {
-        fontSize: 16,
-        marginBottom: 10,
     },
     qrCodePlaceholder: {
         width: 100,
         height: 100,
-        backgroundColor: '#eee',
+        backgroundColor: Colors.grey,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
     },
-    qrCodeTextInter: {
-        color: '#999',
-    },
     onSiteStatus: {
         color: '#4285F4',
-        fontWeight: 'bold',
-    },
-    quantityGood: {
-        color: 'green',
         fontWeight: 'bold',
     },
     actionButton: {
