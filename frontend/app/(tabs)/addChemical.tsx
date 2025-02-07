@@ -13,7 +13,8 @@ import DropdownInput from '@/components/inputFields/DropdownInput';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
-import * as DocumentPicker from 'expo-document-picker';
+//import RNFS from 'react-native-fs';
+//import DocumentPicker from 'react-native-document-picker';
 import { useRouter } from 'expo-router';
 
 export default function ViewChemicals() {
@@ -31,7 +32,6 @@ export default function ViewChemicals() {
   const [expirationDate, setExpirationDate] = useState<Date>()
 
   const [uploaded, setUploaded] = useState<boolean>(false)
-  const [selectedDocuments, setSelectedDocuments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
 
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
@@ -77,6 +77,34 @@ export default function ViewChemicals() {
     { label: 'Low', value: 'Low' },
   ]
 
+  // Upload pdf
+  /*
+  const uploadPdf = async () => {
+    try {
+      // Get pdf
+      const pickedPdf = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.pdf],
+      });
+      console.log('Got the pdf: ', pickedPdf);
+
+      // Convert file to base64 to be sent 
+
+      await RNFS.readFile(pickedPdf.uri, 'base64').then(data => {
+        console.log('base64', data);
+      });
+    } catch (error) {
+      // if user decides not to upload sds pdf
+      if (DocumentPicker.isCancel(error)) {
+        console.log(error);
+      } else {
+        console.log(error);
+        throw error;
+      }
+    };
+    setUploaded(!uploaded);
+  };*/
+
+  // Saves form
   const onSave = async () => {
     if (isFilled) {
       // Prepare the data to send to the backend
@@ -150,27 +178,6 @@ export default function ViewChemicals() {
     setUploaded(!uploaded)
   }
 
-  // Upload PDF file
-  /*
-  const selectPdf = async () => {
-    try {
-      const sds = await DocumentPicker.getDocumentAsync({
-        multiple: false, // Allows the user to select one file 
-        type: ["application/pdf"],
-      });
-
-      // if user decides not to select any file
-      if (!sds.canceled) {
-        const successResult = sds as DocumentPicker.DocumentPickerSuccessResult;
-
-        console.log("File selection canceled.");
-      }
-      setUploaded(!uploaded)
-    } catch (error) {
-      console.log("Error in select pdf:", error);
-    }
-  };
- */
   return (
     <View style={styles.container}>
       <Header headerText='Add Chemical' />
