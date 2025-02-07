@@ -13,6 +13,7 @@ import DropdownInput from '@/components/inputFields/DropdownInput';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
+import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
 
 export default function ViewChemicals() {
@@ -30,6 +31,7 @@ export default function ViewChemicals() {
   const [expirationDate, setExpirationDate] = useState<Date>()
 
   const [uploaded, setUploaded] = useState<boolean>(false)
+  const [selectedDocuments, setSelectedDocuments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
 
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
@@ -41,7 +43,7 @@ export default function ViewChemicals() {
   const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded]
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
-    const router = useRouter();
+  const router = useRouter();
 
 
   // check if all fields have been added or not
@@ -56,7 +58,7 @@ export default function ViewChemicals() {
       setIsFilled(false)
     }
   }, allInputs)
-  
+
   const schools = [
     { label: 'Encina High School', value: 'Encina High School' },
     { label: 'Sacramento High School', value: 'Sacramento High School' },
@@ -75,58 +77,58 @@ export default function ViewChemicals() {
     { label: 'Low', value: 'Low' },
   ]
 
-const onSave = async () => { 
-  if (isFilled) {
-    // Prepare the data to send to the backend
-    // Format the date to "YYYY-MM-DD"
-    const formatDate = (date: Date | null | undefined): string | undefined => 
-      date ? date.toISOString().split('T')[0] : undefined;
-    const data = {
-      name,
-      cas: parseInt(casParts.join(''), 10), // Concatenate CAS parts into one string
-      school,
-      purchase_date: formatDate(purchaseDate), // Format the date as "YYYY-MM-DD"
-      expiration_date: formatDate(expirationDate),
-      status,
-      quantity,
-      room,
-      shelf: parseInt(shelf, 10), // Convert shelf to integer (if it's a number)
-      cabinet: parseInt(cabinet, 10), // Convert cabinet to integer (if it's a number)
-    };
+  const onSave = async () => {
+    if (isFilled) {
+      // Prepare the data to send to the backend
+      // Format the date to "YYYY-MM-DD"
+      const formatDate = (date: Date | null | undefined): string | undefined =>
+        date ? date.toISOString().split('T')[0] : undefined;
+      const data = {
+        name,
+        cas: parseInt(casParts.join(''), 10), // Concatenate CAS parts into one string
+        school,
+        purchase_date: formatDate(purchaseDate), // Format the date as "YYYY-MM-DD"
+        expiration_date: formatDate(expirationDate),
+        status,
+        quantity,
+        room,
+        shelf: parseInt(shelf, 10), // Convert shelf to integer (if it's a number)
+        cabinet: parseInt(cabinet, 10), // Convert cabinet to integer (if it's a number)
+      };
 
-    try {
-      // Send the data to the backend
-      console.log('Request data:', JSON.stringify(data, null, 2));
- 
-      const response = await fetch(`${API_URL}/api/v1/chemicals`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      const responseData = await response.json();
+      try {
+        // Send the data to the backend
+        console.log('Request data:', JSON.stringify(data, null, 2));
 
-      if (response.ok) {
-        // Handle successful response
-        console.log('Chemical added successfully:', responseData);
-        onClear();
-        Alert.alert('Success', 'Chemical information added');
-        router.push('/'); 
-      } else {
-        // Handle server errors
-        console.log('Failed to add chemical:', responseData);
+        const response = await fetch(`${API_URL}/api/v1/chemicals`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        const responseData = await response.json();
+
+        if (response.ok) {
+          // Handle successful response
+          console.log('Chemical added successfully:', responseData);
+          onClear();
+          Alert.alert('Success', 'Chemical information added');
+          router.push('/');
+        } else {
+          // Handle server errors
+          console.log('Failed to add chemical:', responseData);
+          Alert.alert('Error', 'Error occured');
+        }
+      } catch (error) {
+        console.error('Error adding chemical:', error);
         Alert.alert('Error', 'Error occured');
       }
-    } catch (error) {
-      console.error('Error adding chemical:', error);
-      Alert.alert('Error', 'Error occured');
+    } else {
+      console.log('Please fill in all fields!');
+      Alert.alert('Error', 'Please fill in all fields!');
     }
-  } else {
-    console.log('Please fill in all fields!');
-    Alert.alert('Error', 'Please fill in all fields!');
-  }
-};
+  };
 
   const onClear = () => {
     console.log('Clicked clear!')
@@ -148,6 +150,27 @@ const onSave = async () => {
     setUploaded(!uploaded)
   }
 
+  // Upload PDF file
+  /*
+  const selectPdf = async () => {
+    try {
+      const sds = await DocumentPicker.getDocumentAsync({
+        multiple: false, // Allows the user to select one file 
+        type: ["application/pdf"],
+      });
+
+      // if user decides not to select any file
+      if (!sds.canceled) {
+        const successResult = sds as DocumentPicker.DocumentPickerSuccessResult;
+
+        console.log("File selection canceled.");
+      }
+      setUploaded(!uploaded)
+    } catch (error) {
+      console.log("Error in select pdf:", error);
+    }
+  };
+ */
   return (
     <View style={styles.container}>
       <Header headerText='Add Chemical' />
@@ -175,19 +198,19 @@ const onSave = async () => {
 
           {/* Status and Quality */}
           <View style={styles.row}>
-            <View style={{width: Size.width(154)}}>
+            <View style={{ width: Size.width(154) }}>
               <CustomTextHeader headerText='Status' />
-              <DropdownInput data={statuses} value={status} setValue={setStatus}/>
+              <DropdownInput data={statuses} value={status} setValue={setStatus} />
             </View>
 
-            <View style={{width: Size.width(154)}}>
+            <View style={{ width: Size.width(154) }}>
               <CustomTextHeader headerText='Quantity' />
               <DropdownInput data={quantities} value={quantity} setValue={setQuantity} />
             </View>
           </View>
 
           <View style={styles.row}>
-            <View style={{width: Size.width(180)}}>
+            <View style={{ width: Size.width(180) }}>
               <CustomTextHeader headerText='School' />
               <DropdownInput data={schools} value={school} setValue={setSchool} />
             </View>
@@ -220,24 +243,24 @@ const onSave = async () => {
           {/* SDS button */}
           <View style={{ marginTop: 10, marginBottom: 10 }}>
             <CustomTextHeader headerText={'SDS'} />
-            <View style={{alignItems: 'center'}}>
-            <CustomButton
-              title={ uploaded ? 'placeholder_sds.pdf' : 'Upload'}
-              onPress={onUpload}
-              width={337}
-              icon={ uploaded ?
-                <ResetIcon width={24} height={24} color='white' /> :
-                <UploadIcon width={24} height={24} />
-              }
-              iconPosition="left"
-              color={ uploaded ? 'black' : 'white'}
-              textColor={ uploaded ? 'white' : 'black'}
-            />
+            <View style={{ alignItems: 'center' }}>
+              <CustomButton
+                title={uploaded ? 'placeholder_sds.pdf' : 'Upload'}
+                onPress={onUpload}
+                width={337}
+                icon={uploaded ?
+                  <ResetIcon width={24} height={24} color='white' /> :
+                  <UploadIcon width={24} height={24} />
+                }
+                iconPosition="left"
+                color={uploaded ? 'black' : 'white'}
+                textColor={uploaded ? 'white' : 'black'}
+              />
             </View>
           </View>
-          
-          <View style={{alignItems: 'center'}}>
-          {/* Save and Clear buttons */}
+
+          <View style={{ alignItems: 'center' }}>
+            {/* Save and Clear buttons */}
             <CustomButton
               title={'Save Chemical'}
               textColor={isFilled ? 'white' : Colors.grey}
@@ -260,7 +283,7 @@ const onSave = async () => {
           </View>
 
           {/* Extra padding */}
-          <View style={{ height: 40 }}/>
+          <View style={{ height: 40 }} />
 
         </View>
       </ScrollView>
