@@ -21,7 +21,6 @@ export default function ResetPassword() {
     } 
 
     try {
-      console.log("here")
       // Make the request to the backend to send an email
       const response = await fetch(`${API_URL}/api/v1/email/send`, {
         method: 'POST',
