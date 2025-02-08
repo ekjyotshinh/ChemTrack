@@ -20,7 +20,7 @@ const Colors = {
   lightgrey: '#ECECEC',
 
   // preview text color for search bar
-  previewText: '6D6D6D',
+  previewText: '#6D6D6D',
 
   // premade stuff from react-native
   light: {
