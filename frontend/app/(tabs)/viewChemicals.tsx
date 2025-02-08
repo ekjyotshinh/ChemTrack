@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -13,6 +13,8 @@ import ChemicalDetails from '@/components/viewChemicalModals/ChemicalDetails';
 import Header from '@/components/Header';
 import Size from '@/constants/Size';
 import SearchIcon from '@/assets/icons/SearchIcon';
+import FilterIcon from '@/assets/icons/FilterIcon';
+import SortIcon from '@/assets/icons/SortIcon';
 
 export default function ViewChemicals() {
 
@@ -108,17 +110,25 @@ export default function ViewChemicals() {
 
         {/* Filter Button */}
         <View style={styles.filterSortContainer}>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={openFilterModal} // Open filter modal
-          >
-            <Text style={styles.buttonText}>Filter By</Text>
-          </TouchableOpacity>
 
-          {/* SORT BY BUTTON */}
-          <TouchableOpacity style={styles.sortButton} onPress={openSortModal}>
-            <Text style={styles.buttonText}>Sort By</Text>
-          </TouchableOpacity>
+          <CustomButton 
+            title={'Filter By'}
+            onPress={openFilterModal}
+            width={165}
+            icon={<FilterIcon width={24} height={24} color={Colors.white} />}
+            iconPosition='right'
+            isSpaceBetween={true}
+          />
+
+          <CustomButton 
+            title={'Sort By'}
+            onPress={openSortModal}
+            width={165}
+            icon={<SortIcon width={24} height={24} color={Colors.white} />}
+            iconPosition='right'
+            isSpaceBetween={true}
+          />
+
         </View>
       </View>
 
@@ -187,18 +197,20 @@ export default function ViewChemicals() {
                     color={sortOrder === 'Ascending' ? Colors.blue : Colors.white}
                     textColor={sortOrder === 'Ascending' ? Colors.white : Colors.black}
                     onPress={() => setSortOrder('Ascending')}
-                    width={180} // Adjust width as needed
-                    icon={<AscendingSortIcon width={24} height={24} color={sortOrder === 'Ascending' ? Colors.white : Colors.black} />}
+                    width={165} // Adjust width as needed
+                    icon={<AscendingSortIcon width={18} height={18} color={sortOrder === 'Ascending' ? Colors.white : Colors.black} />}
                     iconPosition="right"
+                    isSpaceBetween={true}
                   />
                   <CustomButton
                     title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Descending" : "Old -> New"}
                     color={sortOrder === 'Descending' ? Colors.blue : Colors.white}
                     textColor={sortOrder === 'Descending' ? Colors.white : Colors.black}
                     onPress={() => setSortOrder('Descending')}
-                    width={180} // Adjust width as needed
-                    icon={<DescendingSortIcon width={24} height={24} color={sortOrder === 'Descending' ? Colors.white : Colors.black} />}
+                    width={165} // Adjust width as needed
+                    icon={<DescendingSortIcon width={18} height={18} color={sortOrder === 'Descending' ? Colors.white : Colors.black} />}
                     iconPosition="right"
+                    isSpaceBetween={true}
                   />
                 </View>
 
@@ -277,25 +289,16 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   innerContainer: {
-    // marginTop: Size.height(0),
     marginHorizontal: Size.width(33),
   },
-  headerText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  headerHighlight: {
-    color: '#4285F4',
-  },
   searchContainer: {
+    marginTop: Size.height(20),
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
   },
   searchInput: {
     flex: 1,
-    height: 45,
+    height: Size.height(45),
     backgroundColor: Colors.white,
     borderColor: Colors.lightgrey,
     borderWidth: 1,
@@ -310,18 +313,18 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 52,
+    width: Size.width(52),
     marginLeft: 0,
     backgroundColor: Colors.blue,
     padding: 8,
-    height: 45,
+    height: Size.height(45),
     borderTopRightRadius: 25,
     borderBottomRightRadius: 25,
   },
   filterSortContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 10,
+    marginVertical: Size.height(10),
   },
   filterButton: {
     backgroundColor: '#4285F4',
