@@ -10,26 +10,48 @@ import TextInter from '@/components/TextInter';
 import LoginIcon from '@/assets/icons/LoginIcon'; // You might want to use a different icon  
 
 export default function ResetPassword() {  
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [email, setEmail] = useState('');  
   const router = useRouter();  
 
-  const handleResetPassword = async () => {  
-    if (!email) {  
-      Alert.alert('Error', 'Please enter your email address');  
-      return;  
-    }  
+  const handleResetPassword = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address');
+      return;
+    } 
 
-    try {  
-      // API call to backend will go here  
-      Alert.alert(  
-        'Success',  
-        'If an account exists with this email, you will receive password reset instructions.',  
-        [{ text: 'OK', onPress: () => router.push('/profile/profile') }]  
-      );  
-    } catch (error) {  
-      Alert.alert('Error', 'Something went wrong. Please try again.');  
-    }  
+    try {
+      console.log("here")
+      // Make the request to the backend to send an email
+      const response = await fetch(`${API_URL}/api/v1/email/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: email,
+          subject: 'Password Reset Request',
+          body: 'Email sent successfully from the resent password screen. (TODO: figure out the logic, I think that if the user is logged in there should not be any need for this step. --> Maybe this screens should be at the login with some link like reset password)',
+        }),
+      }); 
+
+      const data = await response.json(); 
+
+      if (response.ok) {
+        Alert.alert(
+          'Success',
+          'Email sent successfully. (TODO: figure out the logic, I think that if the user is logged in there should not be any need for this step.)',
+          [{ text: 'OK', onPress: () => router.push('/profile/profile') }]
+        );
+      } else {
+        Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    }
   };  
+
 
   return (  
     <View style={styles.container}>  
