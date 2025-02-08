@@ -15,6 +15,55 @@ import Size from '@/constants/Size';
 import SearchIcon from '@/assets/icons/SearchIcon';
 import FilterIcon from '@/assets/icons/FilterIcon';
 import SortIcon from '@/assets/icons/SortIcon';
+import processCAS from '@/functions/ProcessCAS';
+import TextInter from '@/components/TextInter';
+import ChevronRight from '@/assets/icons/ChevronRightIcon';
+
+// Is the chemical expired?
+const isExpired = (expirationDate: string) => {
+  if (!expirationDate) return false
+  const today = new Date()
+  const expiration = new Date(expirationDate)
+  return expiration < today
+}
+
+// Add elipsis to long chemical names >= 30 characters
+const processChemName = ({name} : {name: string}) => {
+  name = name.toString()
+  if (name.length <= 30) {
+    return name
+  }
+  return name.substring(0, 27) + '...'
+}
+
+interface ChemDateSchoolProps {
+  purchaseDate?: string
+  expireDate?: string
+  school?: string
+  isExpired?: boolean
+}
+
+// Right side of the chemical item
+// includes purchase date, expiration date, and school name
+const ChemDateSchool = ({ purchaseDate, expireDate, school, isExpired = false }: ChemDateSchoolProps) => {
+  return (
+    <View style={{ marginRight: 5 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <TextInter style={styles.btnText}>Purchased: </TextInter>
+        <TextInter style={styles.btnText}>{purchaseDate || 'Unknown'}</TextInter>
+      </View>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <TextInter style={styles.btnText}>Expires: </TextInter>
+        <TextInter style={[styles.btnText, { color: isExpired ? Colors.red : Colors.black }]}>
+          {expireDate || 'Unknown'}
+        </TextInter>
+      </View>
+
+      <TextInter style={{ fontSize: 12.5 }}>{school || 'Unknown'}</TextInter>
+    </View>
+  )
+}
 
 export default function ViewChemicals() {
 
@@ -99,8 +148,9 @@ export default function ViewChemicals() {
     <View style={styles.container}>
       <Header headerText='View Chemicals' />
 
-      <View style={{ width: '100%', marginTop: Size.height(117), paddingHorizontal: Size.width(33) }}>
-        {/* Search Button */}
+      {/* Sticky container for search bar, filter and sort options */}
+      <View style={styles.modifyChemicalList}>
+        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <TextInput style={styles.searchInput} placeholder="Chemical name..." placeholderTextColor={Colors.previewText} />
           <TouchableOpacity style={styles.searchButton}>
@@ -108,10 +158,10 @@ export default function ViewChemicals() {
           </TouchableOpacity>
         </View>
 
-        {/* Filter Button */}
+        {/* Container for filter and sort buttons */}
         <View style={styles.filterSortContainer}>
 
-          <CustomButton 
+          <CustomButton
             title={'Filter By'}
             onPress={openFilterModal}
             width={165}
@@ -120,7 +170,7 @@ export default function ViewChemicals() {
             isSpaceBetween={true}
           />
 
-          <CustomButton 
+          <CustomButton
             title={'Sort By'}
             onPress={openSortModal}
             width={165}
@@ -132,23 +182,39 @@ export default function ViewChemicals() {
         </View>
       </View>
 
+      {/* Scrollable area */}
       <ScrollView style={styles.scroll}>
         <View style={styles.innerContainer}>
 
           {/* Chemicals List */}
-
           {chemicalsData.map((chemical: Chemical, index) => (
             <TouchableOpacity
               key={index}
               style={styles.chemicalItem}
               onPress={() => openModal(chemical)} // Pass the selected chemical to openModal
             >
-              <Text style={styles.chemicalName}>{chemical.name}</Text>
-              <Text style={styles.chemicalCAS}>CAS: {chemical.CAS || 'N/A'}</Text>
-              <Text>Purchased: {chemical.purchase_date || 'Unknown'}</Text>
-              <Text>Expires: {chemical.expiration_date || 'Unknown'}</Text>
-              <Text>School: {chemical.school || 'Unknown'}</Text>
+              <View style={styles.btnContainer}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <TextInter style={styles.chemicalName}>
+                    {processChemName({name: chemical.name || 'Unknown'})}
+                  </TextInter>
+                  
+                  <TextInter style={styles.chemicalCAS}>
+                    <TextInter style={{ fontWeight: 'bold' }}>CAS: </TextInter>
+                    {processCAS(chemical.CAS) || 'N/A'}
+                  </TextInter>
+                </View>
+
+                <ChemDateSchool
+                  purchaseDate={chemical.purchase_date}
+                  expireDate={chemical.expiration_date}
+                  school={chemical.school}
+                  isExpired={isExpired(chemical.expiration_date)}
+                />
+                <ChevronRight />
+              </View>
             </TouchableOpacity>
+
           ))}
 
           {/* Modals need to be inside to scrollview to avoid Android issues */}
@@ -289,7 +355,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   innerContainer: {
-    marginHorizontal: Size.width(33),
+    marginHorizontal: Size.width(14),
   },
   searchContainer: {
     marginTop: Size.height(20),
@@ -308,13 +374,13 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingLeft: 22,
     color: Colors.previewText,
+    fontFamily: 'Inter_400Regular',
   },
   searchButton: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: Size.width(52),
-    marginLeft: 0,
     backgroundColor: Colors.blue,
     padding: 8,
     height: Size.height(45),
@@ -326,45 +392,50 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginVertical: Size.height(10),
   },
-  filterButton: {
-    backgroundColor: '#4285F4',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  sortButton: {
-    backgroundColor: '#4285F4',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 14,
-  },
-  chemicalsList: {
-    marginTop: 16,
-  },
   chemicalItem: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 8,
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+    elevation: 2,
   },
   chemicalName: {
+    flex: 1,
+    flexDirection: 'row',
     fontSize: 18,
     fontWeight: 'bold',
   },
   chemicalCAS: {
     fontSize: 14,
-    color: '#555',
-    marginBottom: 4,
   },
   expiredText: {
-    color: 'red',
+    color: Colors.red,
   },
+  btnContainer: {
+    display: 'flex',
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  btnText: {
+    fontSize: 12.5,
+  },
+  modifyChemicalList: {
+    width: '100%',
+    marginTop: Size.height(110),
+    paddingHorizontal: Size.width(33),
+  },
+
 });
 
 const stylesSort = StyleSheet.create({

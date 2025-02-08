@@ -8,6 +8,7 @@ import QrCodeIcon from '@/assets/icons/QRCodeIcon';
 import ViewDocIcon from '@/assets/icons/ViewDocIcon';
 import CustomEditIcon from '@/assets/icons/EditIcon';
 import ModalContainer from './ModalContainer';
+import processCAS from '@/functions/ProcessCAS';
 
 interface chemicalDetailProps {
     property: string
@@ -87,22 +88,6 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
             default:
                 return 'black'
         }
-    }
-
-    // Adds dashes to the CAS number
-    const processCAS = (CAS: string) => {
-        if (CAS.length === 0) return 'Unknown'
-
-        let result = ''
-        let string = CAS.toString()
-
-        for (let i = 0; i < string.length; i++) {
-            if (i === string.length - 1 || i === string.length - 3) {
-                result += '-'
-            }
-            result += string[i]
-        }
-        return result
     }
 
     return (
