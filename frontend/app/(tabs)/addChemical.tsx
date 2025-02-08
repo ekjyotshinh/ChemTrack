@@ -13,8 +13,8 @@ import DropdownInput from '@/components/inputFields/DropdownInput';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
-//import RNFS from 'react-native-fs';
-//import DocumentPicker from 'react-native-document-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 import { useRouter } from 'expo-router';
 
 export default function ViewChemicals() {
@@ -35,6 +35,8 @@ export default function ViewChemicals() {
 
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
+  // used for pdf upload for sds
+  const [selectedDocuments, setSelectedDocuments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
 
   const [isFilled, setIsFilled] = useState<boolean>(false)
 
@@ -78,31 +80,35 @@ export default function ViewChemicals() {
   ]
 
   // Upload pdf
-  /*
+
   const uploadPdf = async () => {
     try {
       // Get pdf
-      const pickedPdf = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.pdf],
+      const pickedPdf = await DocumentPicker.getDocumentAsync({
+        multiple: false, // allow user to only select 1 file
+        type: ["application/pdf"], // Restrict to pdfs only
+        //copyToCacheDirectory: false,
       });
-      console.log('Got the pdf: ', pickedPdf);
 
-      // Convert file to base64 to be sent 
-
-      await RNFS.readFile(pickedPdf.uri, 'base64').then(data => {
-        console.log('base64', data);
-      });
-    } catch (error) {
-      // if user decides not to upload sds pdf
-      if (DocumentPicker.isCancel(error)) {
-        console.log(error);
+      // if selection goes through
+      if (!pickedPdf.canceled) {
+        // Check success
+        const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
+        console.log('Got the pdf: ', pickedPdf);
+        console.log('File assets: ', pickedPdf.assets);
+        //const {name, size, uri, mimeType, lastModified,file} = pickedPdf as DocumentPicker.DocumentPickerAsset;
       } else {
-        console.log(error);
-        throw error;
+        Alert.alert("Pdf selection canceled.");
+        console.log("Pdf selection canceled.");
       }
+
+
+    } catch (error) {
+      console.log(error);
     };
     setUploaded(!uploaded);
-  };*/
+    Alert.alert('PDF Uploaded!');
+  };
 
   // Saves form
   const onSave = async () => {
@@ -253,7 +259,7 @@ export default function ViewChemicals() {
             <View style={{ alignItems: 'center' }}>
               <CustomButton
                 title={uploaded ? 'placeholder_sds.pdf' : 'Upload'}
-                onPress={onUpload}
+                onPress={uploadPdf}
                 width={337}
                 icon={uploaded ?
                   <ResetIcon width={24} height={24} color='white' /> :
