@@ -187,7 +187,7 @@ const onSave = async () => {
           </View>
 
           <View style={styles.row}>
-            <View style={{width: Size.width(180)}}>
+            <View style={{width: '100%'}}>
               <CustomTextHeader headerText='School' />
               <DropdownInput data={schools} value={school} setValue={setSchool} />
             </View>
