@@ -1,6 +1,7 @@
 import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent, Dimensions, View } from 'react-native';
 import TextInter from './TextInter';
 import Size from '@/constants/Size';
+import Colors from '@/constants/Colors';
 
 interface ButtonProps {
   title: string;
@@ -10,9 +11,10 @@ interface ButtonProps {
   width: number; // Width prop
   icon?: React.ReactNode; // Icon as a React Node
   iconPosition?: 'left' | 'right'; // Position of the icon
+  fontSize?: number;
+  height?: number;
+  isSpaceBetween?: boolean;
 }
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function CustomButton({
   title,
@@ -20,12 +22,23 @@ export default function CustomButton({
   color,
   textColor,
   width,
+  height = 59,
   icon,
   iconPosition = 'left', // Default icon position
+  fontSize = 16,
+  isSpaceBetween = false,
 }: ButtonProps) {
+
+  const justyBtnContent = isSpaceBetween ? 'space-between' : 'center';
+
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: color || '#007AFF', width: Size.width(width), height: Size.height(59), }]}
+      style={
+        [styles.button, 
+          { backgroundColor: color || Colors.blue, width: Size.width(width), 
+            height: Size.height(height), 
+            justifyContent: justyBtnContent
+          }]}
       onPress={onPress}
     >
       {icon && iconPosition === 'left' && (
@@ -34,7 +47,13 @@ export default function CustomButton({
         </View>
       )}
       
-      <TextInter style={[styles.buttonText, {color: textColor || 'white'}]}>{title}</TextInter>
+      <TextInter 
+      style={
+        [styles.buttonText, 
+          {color: textColor || Colors.white, fontSize: fontSize}, 
+          isSpaceBetween && iconPosition === 'left' ? { marginRight: Size.width(24) } : {}, 
+          isSpaceBetween && iconPosition === 'right' ? { marginLeft: Size.width(24) } : {}
+        ]}>{title}</TextInter>
       
       {icon && iconPosition === 'right' && (
         <View style={[styles.iconContainer, { right: Size.width(24) }]}>
@@ -51,7 +70,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: Size.height(10),
     flexDirection: 'row', 
-    justifyContent: 'center',
     alignItems: 'center', 
     position: 'relative', 
     shadowColor: "#000",
@@ -61,7 +79,6 @@ const styles = StyleSheet.create({
     elevation: 2, 
   },
   buttonText: {
-    fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center', // Ensure text stays centered
   },

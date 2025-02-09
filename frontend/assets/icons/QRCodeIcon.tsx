@@ -1,14 +1,14 @@
 import React from 'react';
 import { Svg, Path, G, Defs, ClipPath, Rect } from 'react-native-svg';
 
-const QrCodeIcon = ({ width = 24, height = 24, color = 'white' })=> (
+const QrCodeIcon = ({ width = 24, height = 24, color = 'white', strokeWidth="3" })=> (
   <Svg 
     width={width} 
     height={height} 
     viewBox="0 0 48 45" 
     fill="none" 
     stroke={color}
-    strokeWidth="3" 
+    strokeWidth={strokeWidth} 
     strokeLinecap="round" 
     strokeLinejoin="round"
   >
