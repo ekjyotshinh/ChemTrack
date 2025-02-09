@@ -110,7 +110,7 @@ export default function ViewChemicals() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/v1/chemicals/`);
+      const response = await fetch(`${API_URL}/api/v1/chemicals`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch chemicals');
