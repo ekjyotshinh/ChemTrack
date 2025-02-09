@@ -32,6 +32,7 @@ export default function ViewChemicals() {
 
   const [uploaded, setUploaded] = useState<boolean>(false)
 
+
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
   // used for pdf upload for sds
@@ -98,6 +99,8 @@ export default function ViewChemicals() {
         console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
         console.log('File Name: ', pickedPdf.assets[0].name);
         sdsName = pickedPdf.assets[0].name;
+        setUploaded(true);
+        Alert.alert('PDF Uploaded!');
       } else {
         Alert.alert("Pdf selection canceled.");
         console.log("Pdf selection canceled.");
@@ -107,8 +110,6 @@ export default function ViewChemicals() {
     } catch (error) {
       console.log(error);
     };
-    setUploaded(!uploaded);
-    Alert.alert('PDF Uploaded!');
   };
 
   // Saves form
@@ -259,7 +260,7 @@ export default function ViewChemicals() {
             <CustomTextHeader headerText={'SDS'} />
             <View style={{ alignItems: 'center' }}>
               <CustomButton
-                title={uploaded ? 'placeholder_sds.pdf' : 'Upload'}
+                title={uploaded ? 'File Uploaded' : 'Upload'}
                 onPress={uploadPdf}
                 width={337}
                 icon={uploaded ?
