@@ -14,6 +14,7 @@ import DropdownInput from '@/components/inputFields/DropdownInput';
 import ResetIcon from '@/assets/icons/ResetIcon';
 import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
+import * as DocumentPicker from 'expo-document-picker';
 
 export default function editChemicals() {
   const [name, setName] = useState<string>('');
@@ -28,6 +29,7 @@ export default function editChemicals() {
   const [expirationDate, setExpirationDate] = useState<Date>();
   const [uploaded, setUploaded] = useState<boolean>(false);
   const [editChemical, setEditChemical] = useState<any>(null);
+  let sdsName: string = "placeholderName";
 
   const router = useRouter();
   const {id} = useLocalSearchParams();
@@ -54,6 +56,32 @@ export default function editChemicals() {
     { label: 'Low', value: 'Low' },
   ]
 
+    const replacePdf = async () => {
+    try {
+      // Get pdf
+      const pickedPdf = await DocumentPicker.getDocumentAsync({
+        multiple: false, // allow user to only select 1 file
+        type: ["application/pdf"], // Restrict to pdfs only
+        copyToCacheDirectory: false,
+      });
+      // if selection goes through
+      if (!pickedPdf.canceled) {
+        // Check success
+        const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
+        console.log('Got the pdf: ', pickedPdf);
+        console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
+        console.log('File Name: ', pickedPdf.assets[0].name);
+        sdsName = pickedPdf.assets[0].name;
+        setUploaded(true);
+        Alert.alert('PDF Uploaded!');
+      } else {
+        Alert.alert("Pdf selection canceled.");
+        console.log("Pdf selection canceled.");
+      }
+    } catch (error) {
+      console.log(error);
+    };
+  };
 
   // API URL
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -213,7 +241,7 @@ export default function editChemicals() {
           </View>
 
           <View style={styles.row}>
-            <View style={{ width: Size.width(180) }}>
+            <View style={{width: '100%'}}>
               <CustomTextHeader headerText="School" />
               <DropdownInput data={schools} value={school} setValue={setSchool} />
             </View>
@@ -231,8 +259,8 @@ export default function editChemicals() {
             <CustomTextHeader headerText="SDS" />
             <View style={{ alignItems: 'center' }}>
               <CustomButton
-                title={uploaded ? 'placeholder_sds.pdf' : 'Upload'}
-                onPress={onUpload}
+                title={uploaded ? 'File Uploaded' : 'Replace PDF'}
+                onPress={replacePdf}
                 width={337}
                 icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> : <UploadIcon width={24} height={24} />}
                 iconPosition="left"
