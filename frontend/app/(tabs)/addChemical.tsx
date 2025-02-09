@@ -14,7 +14,6 @@ import ResetIcon from '@/assets/icons/ResetIcon';
 import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
 import { useRouter } from 'expo-router';
 
 export default function ViewChemicals() {
@@ -36,7 +35,8 @@ export default function ViewChemicals() {
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
   // used for pdf upload for sds
-  const [selectedDocuments, setSelectedDocuments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+  //const [selectedDocuments, setSelectedDocuments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+  let sdsName: string = "placeholderName";
 
   const [isFilled, setIsFilled] = useState<boolean>(false)
 
@@ -87,7 +87,7 @@ export default function ViewChemicals() {
       const pickedPdf = await DocumentPicker.getDocumentAsync({
         multiple: false, // allow user to only select 1 file
         type: ["application/pdf"], // Restrict to pdfs only
-        //copyToCacheDirectory: false,
+        copyToCacheDirectory: false,
       });
 
       // if selection goes through
@@ -95,8 +95,9 @@ export default function ViewChemicals() {
         // Check success
         const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
         console.log('Got the pdf: ', pickedPdf);
-        console.log('File assets: ', pickedPdf.assets);
-        //const {name, size, uri, mimeType, lastModified,file} = pickedPdf as DocumentPicker.DocumentPickerAsset;
+        console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
+        console.log('File Name: ', pickedPdf.assets[0].name);
+        sdsName = pickedPdf.assets[0].name;
       } else {
         Alert.alert("Pdf selection canceled.");
         console.log("Pdf selection canceled.");
