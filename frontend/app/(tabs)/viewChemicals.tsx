@@ -225,6 +225,7 @@ export default function ViewChemicals() {
             toggleSDSBottomSheet={toggleSDSBottomSheet}
             modalVisible={modalVisible}
             closeModal={() => setModalVisible(false)}
+            router={router}
           />
 
           {/* Sort Modal */}
