@@ -9,6 +9,7 @@ import ViewDocIcon from '@/assets/icons/ViewDocIcon';
 import CustomEditIcon from '@/assets/icons/EditIcon';
 import ModalContainer from './ModalContainer';
 import processCAS from '@/functions/ProcessCAS';
+import { useRouter } from 'expo-router';
 
 interface chemicalDetailProps {
     property: string
@@ -58,9 +59,10 @@ interface props {
     toggleSDSBottomSheet: () => void
     modalVisible: boolean
     closeModal: () => void
+    router: ReturnType<typeof useRouter>; 
 }
 
-const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal }: props) => {
+const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal, router }: props) => {
 
     const gapSize = Size.height(12)
 
@@ -148,7 +150,11 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                         <CustomButton
                             title={'Edit Information'}
                             icon={<CustomEditIcon color={Colors.white} />}
-                            onPress={() => { }}
+                            onPress={() => {
+                                closeModal();  // Close the modal
+                                const chemicalId = selectedChemical.id;
+                                router.push(`/editChemical?id=${chemicalId}`); 
+                            }}
                             color={Colors.blue}
                             width={270}
                             height={47}
