@@ -15,6 +15,7 @@ import ResetIcon from '@/assets/icons/ResetIcon';
 import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
 import * as DocumentPicker from 'expo-document-picker';
+import BlueHeader from '@/components/BlueHeader';
 
 export default function editChemicals() {
   const [name, setName] = useState<string>('');
@@ -126,6 +127,10 @@ export default function editChemicals() {
       Alert.alert('Error', 'Error fetching chemical data');
     }
   };
+    // Handle Back button press
+  const handleBackPress = () => {
+    router.push('/viewChemicals');                // Navigate back to the login page
+  };
 
   // Handle form validation
   const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity];
@@ -210,7 +215,7 @@ export default function editChemicals() {
 
   return (
     <View style={styles.container}>
-      <Header headerText="Edit Chemical" />
+      <BlueHeader headerText={name || 'Chemical Name'} onPress={handleBackPress} />
       <ScrollView style={styles.scroll}>
         <View style={styles.innerContainer}>
           {/* Name */}
