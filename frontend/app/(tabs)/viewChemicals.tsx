@@ -91,6 +91,11 @@ export default function ViewChemicals() {
   const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
   const router = useRouter();
 
+  //Search functionality
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredChemicals, setFilteredChemicals] = useState<Chemical[]>([]);
+
+
   const openModal = (chemical: Chemical) => {
     setSelectedChemical(chemical); // Set the selected chemical
     setModalVisible(true); // Open the modal
@@ -122,6 +127,9 @@ export default function ViewChemicals() {
       console.error(error);
     }
   };
+
+
+
   const isFocused = useIsFocused();
   const hasFetched = useRef(false);
   useEffect(() => {
@@ -130,6 +138,30 @@ export default function ViewChemicals() {
       hasFetched.current = true; // Mark as fetched
     }
   }, [isFocused]);
+
+    //type-safe helper function
+  const safeString = (value: any): string => {
+    if (value === null || value === undefined) return '';
+    return String(value).toLowerCase();
+  };
+
+  // handle search filtering
+  useEffect(() => {
+      if (!chemicalsData) return;
+      
+      const searchLower = searchQuery.toLowerCase();
+      
+      const filtered = chemicalsData.filter((chemical: Chemical) => {
+        const nameMatch = safeString(chemical.name).includes(searchLower);
+        const casMatch = safeString(chemical.CAS).includes(searchLower);
+        const schoolMatch = safeString(chemical.school).includes(searchLower);
+        
+        return nameMatch || casMatch || schoolMatch;
+      });
+      
+      setFilteredChemicals(filtered);
+  }, [searchQuery, chemicalsData]);
+  
 
   useEffect(() => {
     if (!isFocused) {
@@ -152,7 +184,13 @@ export default function ViewChemicals() {
       <View style={styles.modifyChemicalList}>
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <TextInput style={styles.searchInput} placeholder="Chemical name..." placeholderTextColor={Colors.previewText} />
+        <TextInput 
+          style={styles.searchInput} 
+          placeholder="Chemical name, CAS, or school..." 
+          placeholderTextColor={Colors.previewText}
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
+        />
           <TouchableOpacity style={styles.searchButton}>
             <SearchIcon />
           </TouchableOpacity>
@@ -187,35 +225,48 @@ export default function ViewChemicals() {
         <View style={styles.innerContainer}>
 
           {/* Chemicals List */}
-          {chemicalsData.map((chemical: Chemical, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.chemicalItem}
-              onPress={() => openModal(chemical)} // Pass the selected chemical to openModal
-            >
-              <View style={styles.btnContainer}>
-                <View style={{ flex: 1, marginRight: 8 }}>
-                  <TextInter style={styles.chemicalName}>
-                    {processChemName({name: chemical.name || 'Unknown'})}
-                  </TextInter>
-                  
-                  <TextInter style={styles.chemicalCAS}>
-                    <TextInter style={{ fontWeight: 'bold' }}>CAS: </TextInter>
-                    {processCAS(chemical.CAS) || 'N/A'}
-                  </TextInter>
+          {filteredChemicals.length > 0 ? (
+            filteredChemicals.map((chemical: Chemical, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.chemicalItem}
+                onPress={() => openModal(chemical)}
+              >
+                <View style={styles.btnContainer}>
+                  <View style={{ flex: 1, marginRight: 8 }}>
+                    <TextInter style={styles.chemicalName}>
+                      {processChemName({name: chemical.name || 'Unknown'})}
+                    </TextInter>
+                    
+                    <TextInter style={styles.chemicalCAS}>
+                      <TextInter style={{ fontWeight: 'bold' }}>CAS: </TextInter>
+                      {processCAS(chemical.CAS) || 'N/A'}
+                    </TextInter>
+                  </View>
+
+                  <ChemDateSchool
+                    purchaseDate={chemical.purchase_date}
+                    expireDate={chemical.expiration_date}
+                    school={chemical.school}
+                    isExpired={isExpired(chemical.expiration_date)}
+                  />
+                  <ChevronRight />
                 </View>
-
-                <ChemDateSchool
-                  purchaseDate={chemical.purchase_date}
-                  expireDate={chemical.expiration_date}
-                  school={chemical.school}
-                  isExpired={isExpired(chemical.expiration_date)}
-                />
-                <ChevronRight />
-              </View>
-            </TouchableOpacity>
-
-          ))}
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.noResultsContainer}>
+              {searchQuery ? (
+                <TextInter style={styles.noResultsText}>
+                  No chemicals found matching "{searchQuery}"
+                </TextInter>
+              ) : (
+                <TextInter style={styles.noResultsText}>
+                  No chemicals available
+                </TextInter>
+              )}
+            </View>
+          )}
 
           {/* Modals need to be inside to scrollview to avoid Android issues */}
 
@@ -435,6 +486,16 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: Size.height(110),
     paddingHorizontal: Size.width(33),
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: Colors.previewText,
+    textAlign: 'center',
   },
 
 });
