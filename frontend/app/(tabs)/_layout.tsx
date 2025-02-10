@@ -118,6 +118,14 @@ export default function TabLayout() {
           href: null,
         }}
       />
-    </Tabs>
+
+      {/* Hidden Edit Chemical Tab*/}
+      <Tabs.Screen
+        name="editChemical"
+        options={{
+          href: null,
+        }}
+      />
+      </Tabs>
   );
 }
