@@ -11,97 +11,189 @@ import Accordion from 'react-native-collapsible/Accordion'; // Add Accordion com
 import Colors from '@/constants/Colors';
 import { useIsFocused } from '@react-navigation/native';
 
+
+// ======================================================================
+// Interface Definitions
+// ======================================================================
+
+interface Chemical {
+  id: string;
+  name: string;
+  CAS: string;
+  purchase_date: string;
+  expiration_date: string;
+  school: string;
+  room: string;
+  cabinet: string;
+  shelf: string;
+  status?: string;  // Add optional modifier
+  quantity?: string;
+}
+
+// ======================================================================
+// Main Component
+// ======================================================================
+
 export default function ViewChemicals() {
+  // ====================================================================
+  // State Management
+  // ====================================================================
 
-  // Define the type for the chemical data
-  interface Chemical {
-    id: string;
-    name: string;
-    CAS: string;
-    purchase_date: string;
-    expiration_date: string;
-    school: string;
-    room: string;
-    cabinet: string;
-    shelf: string;
-  }
-
-
+  // UI State
   const [modalVisible, setModalVisible] = useState(false);
-  const [sortModalVisible, setSortModalVisible] = useState(false); // Added for Sort By Modal
-  const [sortOption, setSortOption] = useState('Chemical Name'); // Added for sorting logic
-  const [sortOrder, setSortOrder] = useState('Ascending'); // Added for sorting logic
-  const [filtersVisible, setFiltersVisible] = useState(false); // State for controlling filter modal
-  const [expanded, setExpanded] = useState<number[]>([]);
-  const [chemicalsData, setChemicalsData] = useState([]);
-  const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
-  const router = useRouter();
-
-  const openModal = (chemical: Chemical) => {
-    setSelectedChemical(chemical); // Set the selected chemical
-    setModalVisible(true); // Open the modal
-  };
-  const closeModal = () => setModalVisible(false);
-  const openSortModal = () => setSortModalVisible(true);
-  const closeSortModal = () => setSortModalVisible(false);
-  const openFilterModal = () => setFiltersVisible(true);
-  const closeFilterModal = () => setFiltersVisible(false);
-  const toggleFilterSheet = () => setFiltersVisible(!filtersVisible);
-
+  const [sortModalVisible, setSortModalVisible] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
-  const toggleSDSBottomSheet = () => {
-    setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
 
-  };
+  // Data State
+  const [chemicalsData, setChemicalsData] = useState<Chemical[]>([]);
+  const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
+  
+  // Filter/Sort State
+  const [sortOption, setSortOption] = useState('Chemical Name');
+  const [sortOrder, setSortOrder] = useState('Ascending');
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // References
+  const router = useRouter();
+  const hasFetched = useRef(false);
+  const isFocused = useIsFocused();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
+
+  // ====================================================================
+  // Constants & Configuration
+  // ====================================================================
+
+  const filterOptions = [
+    { category: 'Status', options: ['On-site', 'Off-site', 'In Transit'] },
+    { category: 'Quantity', options: ['Good', 'Fair', 'Low'] },
+    { category: 'Location', options: ['Room', 'Cabinet', 'Shelf'] },
+    { category: 'Expired Date', options: ['Before 2025', '2025-2030', 'After 2030'] },
+    { category: 'Purchase Date', options: ['Before 2020', '2020-2024', 'After 2024'] }
+  ];
+
+  const searchIconSvg = `<svg ... />`; // Keep your existing SVG string
+
+  // ====================================================================
+  // Data Handling & API Calls
+  // ====================================================================
+
   const fetchChemicals = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/v1/chemicals/`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch chemicals');
-      }
+      const response = await fetch(`${API_URL}/api/v1/chemicals`);
+      if (!response.ok) throw new Error('Failed to fetch chemicals');
       const data = await response.json();
       setChemicalsData(data);
-      console.log(data)
     } catch (error) {
       console.error(error);
     }
   };
-  const isFocused = useIsFocused();
-  const hasFetched = useRef(false);
+
   useEffect(() => {
     if (isFocused && !hasFetched.current) {
-      fetchChemicals(); // Fetch only if it hasn't been fetched before
-      hasFetched.current = true; // Mark as fetched
+      fetchChemicals();
+      hasFetched.current = true;
     }
   }, [isFocused]);
 
   useEffect(() => {
-    if (!isFocused) {
-      hasFetched.current = false; // Reset when leaving the screen
-    }
+    if (!isFocused) hasFetched.current = false;
   }, [isFocused]);
 
-  const searchIconSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.5 3.75C6.77208 3.75 3.75 6.77208 3.75 10.5C3.75 14.2279 6.77208 17.25 10.5 17.25C12.3642 17.25 14.0506 16.4953 15.273 15.273C16.4953 14.0506 17.25 12.3642 17.25 10.5C17.25 6.77208 14.2279 3.75 10.5 3.75ZM2.25 10.5C2.25 5.94365 5.94365 2.25 10.5 2.25C15.0563 2.25 18.75 5.94365 18.75 10.5C18.75 12.5078 18.032 14.3491 16.8399 15.7793L21.5303 20.4697C21.8232 20.7626 21.8232 21.2374 21.5303 21.5303C21.2374 21.8232 20.7626 21.8232 20.4697 21.5303L15.7793 16.8399C14.3491 18.032 12.5078 18.75 10.5 18.75C5.94365 18.75 2.25 15.0563 2.25 10.5Z" fill="white"/>
-  </svg>`;
+  // ====================================================================
+  // Filtering Logic
+  // ====================================================================
 
-  const filterSections = [
-    { title: 'Status', data: ['On-site', 'Expired', 'In Transit'] },
-    { title: 'Expiration Date', data: ['Before 2025', '2025-2030', 'After 2030'] },
-    { title: 'Quantity', data: ['Low', 'Medium', 'High'] },
-    { title: 'Location', data: ['Room', 'Cabinet', 'Shelf'] },
-  ];
+  const filteredChemicals = chemicalsData.filter((chemical) => {
+    // Group selected filters by their category
+    const filtersByCategory = selectedFilters.reduce((acc, filter) => {
+      const category = filterOptions.find(opt => opt.options.includes(filter))?.category;
+      if (category) {
+        acc[category] = acc[category] || [];
+        acc[category].push(filter);
+      }
+      return acc;
+    }, {} as Record<string, string[]>);
+  
+    // Check if chemical matches all active categories
+    return Object.entries(filtersByCategory).every(([category, filters]) => {
+      // Check if any filter in the category matches (OR logic within category)
+      return filters.some(filter => {
+        switch (category) {
+          case 'Status':
+            return chemical.status?.toLowerCase() === filter.toLowerCase();
+          
+          case 'Quantity':
+            return chemical.quantity?.toLowerCase() === filter.toLowerCase();
+          
+          case 'Location':
+            // Search across all location fields
+            return ['room', 'cabinet', 'shelf'].some(field =>
+              chemical[field as keyof Chemical]?.toString().toLowerCase().includes(filter.toLowerCase())
+            );
+  
+          case 'Expired Date': {
+            if (!chemical.expiration_date) return false;
+            const expDate = new Date(chemical.expiration_date);
+            if (isNaN(expDate.getTime())) return false; // Handle invalid dates
+            
+            const year = expDate.getFullYear();
+            switch (filter) {
+              case 'Before 2025': return year < 2025;
+              case '2025-2030': return year >= 2025 && year <= 2030;
+              case 'After 2030': return year > 2030;
+              default: return true;
+            }
+          }
+
+          case 'Purchase Date': {
+            if (!chemical.purchase_date) return false;
+            const purchaseDate = new Date(chemical.purchase_date);
+            if (isNaN(purchaseDate.getTime())) return false;
+            const year = purchaseDate.getFullYear();
+            return (
+              (filter === 'Before 2020' && year < 2020) ||
+              (filter === '2020-2024' && year >= 2020 && year <= 2024) ||
+              (filter === 'After 2024' && year > 2024)
+            );
+          }
+  
+          default:
+            return true;
+        }
+      });
+    }) && 
+    // Global search filter
+    (chemical.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     chemical.CAS.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
+  
+
+  // ====================================================================
+  // Modal Handlers
+  // ====================================================================
+
+  const openModal = (chemical: Chemical) => {
+    setSelectedChemical(chemical);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => setModalVisible(false);
+  const toggleSDSBottomSheet = () => setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
+
+  // ====================================================================
+  // Render Components
+  // ====================================================================
 
   return (
     <View style={styles.container}>
+      {/* Header Section */}
       <Text style={styles.headerText}>
         View <Text style={styles.headerHighlight}>Chemicals</Text>
       </Text>
 
-      {/* Search Button */}
+      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput style={styles.searchInput} placeholder="Chemical name..." />
         <TouchableOpacity style={styles.searchButton}>
@@ -109,252 +201,311 @@ export default function ViewChemicals() {
         </TouchableOpacity>
       </View>
 
-      {/* Filter Button */}
+      {/* Filter/Sort Controls */}
       <View style={styles.filterSortContainer}>
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={openFilterModal} // Open filter modal
-        >
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFiltersVisible(true)}>
           <Text style={styles.buttonText}>Filter By</Text>
         </TouchableOpacity>
-
-        {/* SORT BY BUTTON */}
-        <TouchableOpacity style={styles.sortButton} onPress={openSortModal}>
+        <TouchableOpacity style={styles.sortButton} onPress={() => setSortModalVisible(true)}>
           <Text style={styles.buttonText}>Sort By</Text>
         </TouchableOpacity>
       </View>
 
       {/* Chemicals List */}
       <ScrollView style={styles.chemicalsList}>
-        {chemicalsData.map((chemical: Chemical, index) => (
-          <TouchableOpacity
+        {filteredChemicals.map((chemical, index) => (
+          <ChemicalListItem 
             key={index}
-            style={styles.chemicalItem}
-            onPress={() => openModal(chemical)} // Pass the selected chemical to openModal
-          >
-            <Text style={styles.chemicalName}>{chemical.name}</Text>
-            <Text style={styles.chemicalCAS}>CAS: {chemical.CAS || 'N/A'}</Text>
-            <Text>Purchased: {chemical.purchase_date || 'Unknown'}</Text>
-            <Text>Expires: {chemical.expiration_date || 'Unknown'}</Text>
-            <Text>School: {chemical.school || 'Unknown'}</Text>
-          </TouchableOpacity>
+            chemical={chemical}
+            onPress={() => openModal(chemical)}
+          />
         ))}
 
-        {/* Modals need to be inside to scrollview to avoid Android issues */}
-
-        {/* Popup Modal for chemical details */}
-        <Modal
-          animationType="slide"
-          transparent={true}
+        {/* Chemical Details Modal */}
+        <ChemicalDetailsModal
           visible={modalVisible}
-          onRequestClose={closeModal}>
-          <BlurView intensity={50} style={stylesPopup.blurContainer}>
-            <View style={stylesPopup.modalView}>
-              <TouchableOpacity style={stylesPopup.closeButton} onPress={closeModal}>
-                <Text style={stylesPopup.closeButtonText}>✕</Text>
-              </TouchableOpacity>
-              <ScrollView contentContainerStyle={stylesPopup.modalContent}>
-                {/* Chemical Details */}
-                {selectedChemical && (
-                  <>
-                    <Text style={stylesPopup.chemicalName}>{selectedChemical.name}</Text>
-                    <Text style={stylesPopup.chemicalId}>ID: {selectedChemical.id || 'Unknown'}</Text>
-                    <Text style={stylesPopup.chemicalCAS}>CAS: {selectedChemical.CAS || 'N/A'}</Text>
-
-                    {/* QR Code Placeholder */}
-                    <View style={stylesPopup.qrCodePlaceholder}>
-                      <Text style={stylesPopup.qrCodeText}>QR Code</Text>
-                    </View>
-
-                    {/* Chemical Details */}
-                    <Text>Purchase Date: {selectedChemical.purchase_date || 'Unknown'}</Text>
-                    <Text>Expiration Date: {selectedChemical.expiration_date || 'Unknown'}</Text>
-                    <Text>School: {selectedChemical.school || 'Unknown'}</Text>
-                    <Text>Room: {selectedChemical.room || 'Unknown'}</Text>
-                    <Text>Cabinet: {selectedChemical.cabinet || 'Unknown'}</Text>
-                    <Text>Shelf: {selectedChemical.shelf || 'Unknown'}</Text>
-
-                    <Text>Status: <Text style={stylesPopup.onSiteStatus}>On-site</Text></Text>
-                    <Text>Quantity: <Text style={stylesPopup.quantityGood}>Good</Text></Text>
-
-                    {/* Buttons */}
-                    <TouchableOpacity style={stylesPopup.actionButton}>
-                      <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
-                      <Text style={stylesPopup.actionButtonText}>View SDS</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={stylesPopup.editButton}>
-                      <Text style={stylesPopup.editButtonText}>Edit Information</Text>
-                    </TouchableOpacity>
-                  </>
-                )}
-              </ScrollView>
-            </View>
-          </BlurView>
-        </Modal>
+          onClose={closeModal}
+          chemical={selectedChemical}
+          toggleSDS={toggleSDSBottomSheet}
+        />
 
         {/* Sort Modal */}
-        <Modal animationType="slide" transparent={true} visible={sortModalVisible} onRequestClose={closeSortModal}>
-          <View style={stylesSort.modalContainer}>
-            <View style={stylesSort.modalView}>
-              <TouchableOpacity onPress={closeSortModal} style={stylesSort.closeButton}>
-                <Text style={stylesSort.closeButtonText}>✕</Text>
-              </TouchableOpacity>
-              <Text style={stylesSort.modalHeader}>Sort Options</Text>
-
-              {/* Dropdown for Sorting Options */}
-              <View style={stylesSort.dropdownContainer}>
-                {['Chemical Name', 'Purchase Date', 'Expiration Date', 'School Name', 'Quantity', 'Recent'].map((option, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      setSortOption(option); // Set the selected sort option
-                      //closeSortModal(); // Close the modal after selection
-                    }}
-                    style={[
-                      stylesSort.option,
-                      sortOption === option && stylesSort.selectedOption, // Highlight selected option
-                    ]}
-                  >
-                    <Text style={stylesSort.optionText}>{option}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-
-              {/* Sorting Order Buttons */}
-              <View style={stylesSort.orderButtons}>
-                <CustomButton
-                  title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Ascending" : "New -> Old"}
-                  color={sortOrder === 'Ascending' ? Colors.blue : Colors.white}
-                  textColor={sortOrder === 'Ascending' ? Colors.white : Colors.black}
-                  onPress={() => setSortOrder('Ascending')}
-                  width={180} // Adjust width as needed
-                  icon={<AscendingSortIcon width={24} height={24} color={sortOrder === 'Ascending' ? Colors.white : Colors.black} />}
-                  iconPosition="right"
-                />
-                <CustomButton
-                  title={sortOption === 'Chemical Name' || sortOption === 'School Name' || sortOption === 'Quantity' ? "Descending" : "Old -> New"}
-                  color={sortOrder === 'Descending' ? Colors.blue : Colors.white}
-                  textColor={sortOrder === 'Descending' ? Colors.white : Colors.black}
-                  onPress={() => setSortOrder('Descending')}
-                  width={180} // Adjust width as needed
-                  icon={<DescendingSortIcon width={24} height={24} color={sortOrder === 'Descending' ? Colors.white : Colors.black} />}
-                  iconPosition="right"
-                />
-              </View>
-
-            </View>
-          </View>
-        </Modal>
-
+        <SortModal
+          visible={sortModalVisible}
+          onClose={() => setSortModalVisible(false)}
+          sortOption={sortOption}
+          setSortOption={setSortOption}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+        />
         {/* Filter Modal */}
-        <Modal
-          animationType="slide"
-          transparent={true}
+        <FilterModal
           visible={filtersVisible}
-          onRequestClose={closeFilterModal}
-        >
-          <BlurView intensity={50} style={stylesFilter.blurContainer}>
-            <View style={[stylesFilter.modalView, { height: '75%' }]}>
-              <TouchableOpacity style={stylesFilter.closeButton} onPress={closeFilterModal}>
-                <Text style={stylesFilter.closeButtonText}>✕</Text>
-              </TouchableOpacity>
-              <ScrollView contentContainerStyle={stylesFilter.modalContent}>
-                <Accordion
-                  sections={filterSections}
-                  activeSections={expanded} // Manage active sections
-                  renderHeader={(section) => (
-                    <View style={stylesFilter.accordionHeader}>
-                      <Text>{section.title}</Text>
-                    </View>
-                  )}
-                  renderContent={(section) => (
-                    <View style={stylesFilter.accordionContent}>
-                      {section.data.map((item, index) => (
-                        <TouchableOpacity key={index} style={stylesFilter.accordionItem}>
-                          <Text>{item}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                  onChange={(expandedSections) => setExpanded(expandedSections)} // Set active sections
-                />
-              </ScrollView>
-            </View>
-          </BlurView>
-        </Modal>
+          onClose={() => setFiltersVisible(false)}
+          selectedFilters={selectedFilters}
+          setSelectedFilters={setSelectedFilters}
+          filterOptions={filterOptions}
+        />
       </ScrollView>
 
-      {/* View SDS Bottom Sheet component */}
-      <BottomSheet
-        index={isSDSBottomSheetOpen ? 0 : -1}
-        snapPoints={['30%', '50%']}
-        backgroundStyle={stylesSDS.bottomSheetBackground}
-        handleIndicatorStyle={stylesSDS.handleIndicator}
+      {/* SDS Bottom Sheet */}
+      <SDSBottomSheet
+        isOpen={isSDSBottomSheetOpen}
         onClose={() => setIsSDSBottomSheetOpen(false)}
-      >
-        <View style={stylesSDS.container}>
-          <Text style={stylesSDS.headerText}>SDS</Text>
-          <TouchableOpacity style={stylesSDS.downloadButton}>
-            <Text style={stylesSDS.downloadButtonText}>Download</Text>
-          </TouchableOpacity>
-        </View>
-      </BottomSheet>
+      />
     </View>
   );
 }
 
+// ======================================================================
+// Sub-Components
+// ======================================================================
 
-// Example data for chemicals
-/*
-const chemicalsData = [
-  {
-    id: 1,
-    name: 'Sodium Chloride',
-    cas: '7647-14-5',
-    purchased: '2023-01-15',
-    expires: '2030-01-15',
-    location: 'Shelf #4',
-    schoolName: 'Encina High School',
-    quantity: 50,
-    isExpired: false,
-  },
-  {
-    id: 2,
-    name: 'Hydrochloric Acid',
-    cas: '7647-01-0',
-    purchased: '2022-09-10',
-    expires: '2027-09-10',
-    location: 'Shelf #3',
-    schoolName: 'Riverdale Academy',
-    quantity: 20,
-    isExpired: false,
-  },
-  {
-    id: 3,
-    name: 'Ethanol',
-    cas: '64-19-7',
-    purchased: '2021-10-05',
-    expires: '2024-10-05',
-    location: 'Shelf #5',
-    schoolName: 'Encina High School',
-    quantity: 100,
-    isExpired: true,
-  },
-  {
-    id: 4,
-    name: 'Ammonium Hydroxide',
-    cas: '64-19-7',
-    purchased: '2022-03-05',
-    expires: '2025-03-05',
-    location: 'Shelf #5',
-    schoolName: 'Riverdale Academy',
-    quantity: 75,
-    isExpired: false,
-  },
-];*/
+const ChemicalListItem = ({ chemical, onPress }: { chemical: Chemical, onPress: () => void }) => (
+  <TouchableOpacity style={styles.chemicalItem} onPress={onPress}>
+    <Text style={styles.chemicalName}>{chemical.name}</Text>
+    <Text style={styles.chemicalCAS}>CAS: {chemical.CAS || 'N/A'}</Text>
+    <Text>Purchased: {chemical.purchase_date || 'Unknown'}</Text>
+    <Text>Expires: {chemical.expiration_date || 'Unknown'}</Text>
+    <Text>School: {chemical.school || 'Unknown'}</Text>
+  </TouchableOpacity>
+);
+
+// Chemical Details Modal
+const ChemicalDetailsModal = ({ 
+  visible, 
+  onClose, 
+  chemical,
+  toggleSDS
+}: {
+  visible: boolean;
+  onClose: () => void;
+  chemical: Chemical | null;
+  toggleSDS: () => void;
+}) => {
+  if (!chemical) return null; // Prevent rendering if no chemical is selected
+
+  return (
+    <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
+      <BlurView intensity={50} style={stylesPopup.blurContainer}>
+        <View style={stylesPopup.modalView}>
+          <TouchableOpacity style={stylesPopup.closeButton} onPress={onClose}>
+            <Text style={stylesPopup.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+
+          <ScrollView contentContainerStyle={stylesPopup.modalContent}>
+            {/* Chemical Details */}
+            <Text style={stylesPopup.chemicalName}>{chemical.name}</Text>
+            <Text style={stylesPopup.chemicalId}>ID: {chemical.id || 'Unknown'}</Text>
+            <Text style={stylesPopup.chemicalCAS}>CAS: {chemical.CAS || 'N/A'}</Text>
+
+            {/* QR Code Placeholder */}
+            <View style={stylesPopup.qrCodePlaceholder}>
+              <Text style={stylesPopup.qrCodeText}>QR Code</Text>
+            </View>
+
+            {/* Additional Chemical Details */}
+            <Text>Purchase Date: {chemical.purchase_date || 'Unknown'}</Text>
+            <Text>Expiration Date: {chemical.expiration_date || 'Unknown'}</Text>
+            <Text>School: {chemical.school || 'Unknown'}</Text>
+            <Text>Room: {chemical.room || 'Unknown'}</Text>
+            <Text>Cabinet: {chemical.cabinet || 'Unknown'}</Text>
+            <Text>Shelf: {chemical.shelf || 'Unknown'}</Text>
+
+            <Text>Status: <Text style={stylesPopup.onSiteStatus}>On-site</Text></Text>
+            <Text>Quantity: <Text style={stylesPopup.quantityGood}>Good</Text></Text>
+
+            {/* Action Buttons */}
+            <TouchableOpacity style={stylesPopup.actionButton}>
+              <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDS}>
+              <Text style={stylesPopup.actionButtonText}>View SDS</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={stylesPopup.editButton}>
+              <Text style={stylesPopup.editButtonText}>Edit Information</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </BlurView>
+    </Modal>
+  );
+};
+
+
+const SortModal = ({ 
+  visible, 
+  onClose, 
+  sortOption, 
+  setSortOption, 
+  sortOrder, 
+  setSortOrder 
+}: {
+  visible: boolean;
+  onClose: () => void;
+  sortOption: string;
+  setSortOption: React.Dispatch<React.SetStateAction<string>>;
+  sortOrder: string;
+  setSortOrder: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  return (
+    <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
+      <View style={stylesSort.modalContainer}>
+        <View style={stylesSort.modalView}>
+          <TouchableOpacity onPress={onClose} style={stylesSort.closeButton}>
+            <Text style={stylesSort.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+          <Text style={stylesSort.modalHeader}>Sort Options</Text>
+
+          {/* Sorting Options */}
+          <View style={stylesSort.dropdownContainer}>
+            {['Chemical Name', 'Purchase Date', 'Expiration Date', 'School Name', 'Quantity', 'Recent'].map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => setSortOption(option)}
+                style={[
+                  stylesSort.option,
+                  sortOption === option && stylesSort.selectedOption
+                ]}
+              >
+                <Text style={stylesSort.optionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Sorting Order Buttons */}
+          <View style={stylesSort.orderButtons}>
+            <CustomButton
+              title={['Chemical Name', 'School Name', 'Quantity'].includes(sortOption) ? "Ascending" : "New -> Old"}
+              color={sortOrder === 'Ascending' ? Colors.blue : Colors.white}
+              textColor={sortOrder === 'Ascending' ? Colors.white : Colors.black}
+              onPress={() => setSortOrder('Ascending')}
+              width={180}
+              icon={<AscendingSortIcon width={24} height={24} color={sortOrder === 'Ascending' ? Colors.white : Colors.black} />}
+              iconPosition="right"
+            />
+            <CustomButton
+              title={['Chemical Name', 'School Name', 'Quantity'].includes(sortOption) ? "Descending" : "Old -> New"}
+              color={sortOrder === 'Descending' ? Colors.blue : Colors.white}
+              textColor={sortOrder === 'Descending' ? Colors.white : Colors.black}
+              onPress={() => setSortOrder('Descending')}
+              width={180}
+              icon={<DescendingSortIcon width={24} height={24} color={sortOrder === 'Descending' ? Colors.white : Colors.black} />}
+              iconPosition="right"
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// filter model 
+const FilterModal = ({ 
+  visible, 
+  onClose, 
+  selectedFilters, 
+  setSelectedFilters, 
+  filterOptions 
+}: {
+  visible: boolean;
+  onClose: () => void;
+  selectedFilters: string[];
+  setSelectedFilters: React.Dispatch<React.SetStateAction<string[]>>;
+  filterOptions: Array<{ category: string; options: string[] }>;
+}) => {
+  return (
+    <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
+      <View style={stylesFilter.modalContainer}>
+        <View style={stylesFilter.modalView}>
+          <TouchableOpacity onPress={onClose} style={stylesFilter.closeButton}>
+            <Text style={stylesFilter.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+          <Text style={stylesFilter.modalHeader}>Filter Options</Text>
+
+          {/* Scrollable Filter Options */}
+          <ScrollView style={stylesFilter.scrollContainer}>
+            {filterOptions.map((section, sectionIndex) => (
+              <View key={`section-${sectionIndex}`} style={stylesFilter.sectionContainer}>
+                <Text style={stylesFilter.sectionHeader}>{section.category}</Text>
+                <View style={stylesFilter.buttonGrid}>
+                  {section.options.map((option, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        stylesFilter.filterButton,
+                        selectedFilters.includes(option) && stylesFilter.selectedFilterButton,
+                      ]}
+                      onPress={() => {
+                        setSelectedFilters(prevFilters => {
+                          // Allow only one filter per category
+                          const updatedFilters = prevFilters.filter(f => 
+                            !section.options.includes(f)
+                          );
+                          return [...updatedFilters, option];
+                        });
+                      }}
+                    >
+                      <Text
+                        style={[
+                          stylesFilter.filterButtonText,
+                          selectedFilters.includes(option) && stylesFilter.selectedFilterButtonText,
+                        ]}
+                      >
+                        {option}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* Apply & Reset Buttons */}
+          <View style={stylesFilter.buttonContainer}>
+            <CustomButton
+              title="Apply"
+              color={Colors.blue}
+              textColor={Colors.white}
+              onPress={onClose}
+              width={100}
+            />
+            <CustomButton
+              title="Reset"
+              color={Colors.white}
+              textColor={Colors.black}
+              onPress={() => setSelectedFilters([])}
+              width={100}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// SDSBottomSheet Component
+const SDSBottomSheet = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => (
+  <BottomSheet
+    index={isOpen ? 0 : -1}
+    snapPoints={['30%', '50%']}
+    backgroundStyle={stylesSDS.bottomSheetBackground}
+    handleIndicatorStyle={stylesSDS.handleIndicator}
+    onClose={onClose}
+  >
+    <View style={stylesSDS.container}>
+      <Text style={stylesSDS.headerText}>SDS</Text>
+      <TouchableOpacity style={stylesSDS.downloadButton}>
+        <Text style={stylesSDS.downloadButtonText}>Download</Text>
+      </TouchableOpacity>
+    </View>
+  </BottomSheet>
+);
+
+
+// ======================================================================
+// Style Sheets 
+// ======================================================================
 
 const styles = StyleSheet.create({
   container: {
@@ -622,41 +773,27 @@ const stylesSort = StyleSheet.create({
     color: 'white', // Active button text color
   },
 });
+
 // Styles for the modal and accordion
 const stylesFilter = StyleSheet.create({
-  modalView: {
-    width: '100%',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: 'white',
-    padding: 20,
-    alignItems: 'center',
-    elevation: 20,
-    marginTop: 'auto',
-  },
-  modalContent: {
-    padding: 20,
-    backgroundColor: "#f0f0f0", // Example color
-    borderRadius: 10,
-    alignItems: "center",
-  },
-
-  blurContainer: {
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Same dim background as sorting modal
   },
-  accordionHeader: {
-    backgroundColor: '#f2f2f2',
-    padding: 10,
-  },
-  accordionContent: {
-    padding: 10,
-  },
-  accordionItem: {
-    padding: 8,
-    backgroundColor: '#fff',
-    marginVertical: 2,
+  modalView: {
+    backgroundColor: 'white', // White outside border
+    borderRadius: 15, // Rounded corners
+    padding: 20,
+    width: '100%', // Compact modal width
+    maxHeight: '50%', // Limited height for a better fit
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5, // Shadow for Android
   },
   closeButton: {
     position: 'absolute',
@@ -664,10 +801,75 @@ const stylesFilter = StyleSheet.create({
     right: 10,
   },
   closeButtonText: {
-    fontSize: 20,
-    color: '#555',
+    fontSize: 20, // Slightly smaller
+    fontWeight: 'bold',
+    color: '#888',
   },
+  modalHeader: {
+    fontSize: 22, // Reduced font size for better fit
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: 'black',
+    textAlign: 'center',
+  },
+  scrollContainer: {
+    width: '100%',
+    maxHeight: '100%', // Allows scrolling for long lists
+  },
+  sectionContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 5,
+    backgroundColor: '#F3F4F6', // Gray background inside
+    borderRadius: 10,
+    padding: 8,
+    elevation: 3, // Light shadow effect
+  },
+  sectionHeader: {
+    fontSize: 17, // Smaller header font
+    fontWeight: '700', // Keep section titles bold
+    color: '#4285F4',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  buttonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 15, // Adjusted for compact spacing
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 10,
+    gap: 10,
+  },
+  filterButton: {
+    width: 100, // Increased width for better spacing
+    paddingVertical: 12,
+    backgroundColor: 'transparent', // 🔹 Remove background color
+    borderWidth: 1, // 🔹 Add subtle border
+    borderColor: '#ccc', // 🔹 Light gray border to keep visible
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }, 
+  selectedFilterButton: {
+    backgroundColor: '#4285F4', // 🔹 Blue background when selected
+    borderColor: '#4285F4', // 🔹 Blue border when selected
+  },
+  filterButtonText: {
+    fontSize: 14,
+    fontWeight: 'normal', // 🔹 Ensures text remains unbolded
+    color: '#333', // Default text color
+  },
+  selectedFilterButtonText: {
+    color: 'white', // 🔹 White text when selected
+  },
+
 });
+
 const stylesSDS = StyleSheet.create({
   bottomSheetBackground: {
     backgroundColor: '#fff',
@@ -691,7 +893,6 @@ const stylesSDS = StyleSheet.create({
   },
   headerText: {
     fontSize: 18,
-    fontWeight: 'bold',
   },
   downloadButton: {
     paddingVertical: 8,
@@ -702,5 +903,6 @@ const stylesSDS = StyleSheet.create({
   downloadButtonText: {
     color: 'white',
     fontSize: 14,
-  },
+  }
 });
+

@@ -69,3 +69,4 @@ const styles = StyleSheet.create({
     position: 'absolute', // Absolutely position the icon
   },
 });
+
