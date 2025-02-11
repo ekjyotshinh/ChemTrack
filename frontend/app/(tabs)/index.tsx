@@ -52,6 +52,13 @@ export default function HomePageView() {
         icon={<UserIcon width = {24} height = {24}/>} 
         iconPosition="left" 
       />
+      <CustomButton 
+        title="Only for testing purpose" 
+        onPress={() => router.push('/checkDownload')} 
+        width={337} 
+        icon={<QRCodeIcon width={24} height={24} />}
+        iconPosition='left'
+      />
     </View>
   );
 }

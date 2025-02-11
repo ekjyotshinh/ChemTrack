@@ -118,6 +118,14 @@ export default function TabLayout() {
           href: null,
         }}
       />
+
+      {/* Hidden testing Tab */}
+      <Tabs.Screen
+        name="checkDownload"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
