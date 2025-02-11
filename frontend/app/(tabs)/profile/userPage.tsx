@@ -9,7 +9,8 @@ import {
     Platform,
     SafeAreaView,
     KeyboardAvoidingView,
-    ScrollView
+    ScrollView,
+    Alert
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import ReturnIcon from '@/assets/icons/ReturnIcon';
@@ -25,15 +26,50 @@ import Header from '@/components/Header';
 const { width, height } = Dimensions.get('window');
 
 const InviteUserPage: React.FC = () => {
+    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const [email, setEmail] = useState<string>('');
     const [school, setSchool] = useState<string>('');
     const [userType, setUserType] = useState<'Master' | 'Admin' | null>(null);
 
-    const handleSendInvite = (): void => {
+    const handleSendInvite = async () => {
         if (email && school && userType) {
-            console.log('Invite sent to:', email, 'at', school, 'as', userType);
+            try {
+                // Make the request to send an invite email
+                const response = await fetch(`${API_URL}/api/v1/email/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'ChemTrack User Invitation',
+                        body: `Email sent successfully from the invite user screen. User type: ${userType} and user School: ${school}. TODO: Implement user invitation flow (password(create random password and have user update the password upon login) or use magic link).`,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Success alert
+                    Alert.alert('Success', 'Invitation sent successfully!', [{ text: 'OK' }]);
+                    // Reset the form fields
+                    setEmail('');
+                    setSchool('');
+                    setUserType(null);
+                } else {
+                    // Error alert, either from the API or general fallback
+                    Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error sending invite:', error);  // Log the full error for debugging
+                Alert.alert('Error', 'An error occurred. Please try again later.');
+            }
+        } else {
+            // Ensure user has filled in all fields
+            Alert.alert('Error', 'Please fill in all the fields');
         }
     };
+
 
     const handleClear = (): void => {
         setEmail('');

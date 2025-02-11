@@ -39,6 +39,7 @@ func main() {
     // Register routes
     routes.RegisterRoutesUser(router)
     routes.RegisterRoutesChemical(router)
+    routes.RegisterRoutesEmail(router)
     //routes.RegisterRoutesQRCode(router)
 
 	// Swagger Documentation: http://localhost:8080/swagger/index.html
