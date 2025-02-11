@@ -848,24 +848,24 @@ const stylesFilter = StyleSheet.create({
   filterButton: {
     width: 100, // Increased width for better spacing
     paddingVertical: 12,
-    backgroundColor: 'transparent', // 🔹 Remove background color
-    borderWidth: 1, // 🔹 Add subtle border
-    borderColor: '#ccc', // 🔹 Light gray border to keep visible
+    backgroundColor: 'transparent', // Remove background color
+    borderWidth: 1, // Add subtle border
+    borderColor: '#ccc', // Light gray border to keep visible
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   }, 
   selectedFilterButton: {
-    backgroundColor: '#4285F4', // 🔹 Blue background when selected
-    borderColor: '#4285F4', // 🔹 Blue border when selected
+    backgroundColor: '#4285F4', // Blue background when selected
+    borderColor: '#4285F4', // Blue border when selected
   },
   filterButtonText: {
     fontSize: 14,
-    fontWeight: 'normal', // 🔹 Ensures text remains unbolded
+    fontWeight: 'normal', // Ensures text remains unbolded
     color: '#333', // Default text color
   },
   selectedFilterButtonText: {
-    color: 'white', // 🔹 White text when selected
+    color: 'white', // White text when selected
   },
 
 });
