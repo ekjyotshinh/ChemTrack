@@ -121,7 +121,7 @@ return (
 <Text style={styles.message}>We need your permission to show the camera.</Text>
 <Button onPress={requestPermission} title="Grant Camera Permission" />
 <TouchableOpacity style={styles.downloadButton} onPress={downloadImage}>
-<Text style={styles.downloadButtonText}>Download Image</Text>
+<Text style={styles.downloadButtonText}>Download QR Code</Text>
 </TouchableOpacity>
 </View>
 );
@@ -140,7 +140,7 @@ onPress={() => setFacing((prev) => (prev === 'back' ? 'front' : 'back'))}
 </TouchableOpacity>
 </View>
 <TouchableOpacity style={styles.downloadButton} onPress={downloadImage}>
-<Text style={styles.downloadButtonText}>Download Image</Text>
+<Text style={styles.downloadButtonText}>Download QR Code</Text>
 </TouchableOpacity>
 </View>
 );
