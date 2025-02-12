@@ -90,6 +90,8 @@ export default function ViewChemicals() {
   const [chemicalsData, setChemicalsData] = useState([]);
   const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
   const router = useRouter();
+  const [selectedSort, setSelectedSort] = useState("Newest first (by date)"); // Default sorting option
+  const [sortedChemicals, setSortedChemicals] = useState<Chemical[]>([]);
 
   //Search functionality
   const [searchQuery, setSearchQuery] = useState('');
@@ -139,7 +141,7 @@ export default function ViewChemicals() {
     }
   }, [isFocused]);
 
-    //type-safe helper function
+  //type-safe helper function
   const safeString = (value: any): string => {
     if (value === null || value === undefined) return '';
     return String(value).toLowerCase();
@@ -176,6 +178,76 @@ export default function ViewChemicals() {
     { title: 'Location', data: ['Room', 'Cabinet', 'Shelf'] },
   ];
 
+  const [sortVisible, setSortVisible] = useState(false);
+  const sortOptions = [
+    "Newest first (by date)",
+    "Oldest first (by date)",
+    "Highest quantity first",
+    "Lowest quantity first",
+    "A-Z",
+    "Z-A",
+    "By expiration",
+  ];
+
+  // Sorting function
+  const sortChemicals = (option: string) => {
+    let sortedList = [...chemicalsData];
+  
+    switch (option) {
+      case "Lowest quantity first":
+        sortedList.sort((a, b) => (a['quantity'] === "Low" ? -1 : 1));
+        break;
+      case "Highest quantity first":
+        sortedList.sort((a, b) => (a['quantity'] === "Good" ? -1 : 1));
+        break;
+      case "Newest first (by date)":
+        sortedList.sort(
+          (a, b) => new Date(b['purchase_date']).getTime() - new Date(a['purchase_date']).getTime()
+        );
+        break;
+      case "Oldest first (by date)":
+        sortedList.sort(
+          (a, b) => new Date(a['purchase_date']).getTime() - new Date(b['purchase_date']).getTime()
+        );
+        break;
+      case "A-Z":
+        sortedList.sort((a, b) => (a['name'] > b['name'] ? 1 : -1));
+        break;
+      case "Z-A":
+        sortedList.sort((a, b) => (a['name'] < b['name'] ? 1 : -1));
+        break;
+      case "By expiration":
+        sortedList.sort(
+          (a, b) => new Date(a['expiration_date']).getTime() - new Date(b['expiration_date']).getTime()
+        );
+        break;
+      default:
+        break;
+    }
+    return sortedList; // Return the sorted array instead of modifying state here
+  };
+  
+
+
+  // Handle option selection
+  const handleSortSelection = (option: string) => {
+    setSelectedSort(option); // Move checkmark
+    sortChemicals(option); // Sort list dynamically
+    setSortVisible(false); 
+  };
+
+  useEffect(() => {
+    if (chemicalsData.length > 0) {
+      let sortedList = sortChemicals(selectedSort); // Get sorted array
+  
+      setSortedChemicals(sortedList); // Update sorted list state
+      setFilteredChemicals(sortedList); // Ensure displayed list is sorted
+    }
+  }, [chemicalsData, selectedSort]); // Trigger sorting when data or selection changes
+  
+
+
+
   return (
     <View style={styles.container}>
       <Header headerText='View Chemicals' />
@@ -207,10 +279,10 @@ export default function ViewChemicals() {
             iconPosition='right'
             isSpaceBetween={true}
           />
-
+          
           <CustomButton
             title={'Sort By'}
-            onPress={openSortModal}
+            onPress={() => setSortVisible(!sortVisible)}
             width={165}
             icon={<SortIcon width={24} height={24} color={Colors.white} />}
             iconPosition='right'
@@ -219,6 +291,18 @@ export default function ViewChemicals() {
 
         </View>
       </View>
+
+
+      {/* Sort Dropdown needs to situated here. Otherwise it hides behind the Chemicals List */}
+      {sortVisible && (
+        <View style={stylesSort.dropdown}>
+          {sortOptions.map((option, index) => (
+            <TouchableOpacity key={index} style={stylesSort.option} onPress={() => handleSortSelection(option)}>
+              <Text>{selectedSort === option ? "✓ " : ""} {option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       {/* Scrollable area */}
       <ScrollView style={styles.scroll}>
@@ -243,7 +327,6 @@ export default function ViewChemicals() {
                       {processCAS(chemical.CAS) || 'N/A'}
                     </TextInter>
                   </View>
-
                   <ChemDateSchool
                     purchaseDate={chemical.purchase_date}
                     expireDate={chemical.expiration_date}
@@ -501,6 +584,36 @@ const styles = StyleSheet.create({
 });
 
 const stylesSort = StyleSheet.create({
+  dropdown: {
+    position: "absolute",
+    top: 255,
+    right: 32,
+    width: 220,
+    backgroundColor: "white",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    zIndex: 99999,
+    elevation: 9999,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  option: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  selectedOption: {
+    backgroundColor: "#f1f1f1", // Highlight selected option
+  },
+  optionText: {
+    fontSize: 16,
+    color: "#333",
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -545,6 +658,7 @@ const stylesSort = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
   },
+  /*
   option: {
     paddingVertical: 10,
     borderBottomWidth: 1,
@@ -557,7 +671,7 @@ const stylesSort = StyleSheet.create({
   },
   selectedOption: {
     backgroundColor: '#E3F2FD', // Highlighted option background
-  },
+  },*/
   orderButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -586,6 +700,8 @@ const stylesSort = StyleSheet.create({
     color: 'white', // Active button text color
   },
 });
+
+
 // Styles for the modal and accordion
 const stylesFilter = StyleSheet.create({
   modalView: {
