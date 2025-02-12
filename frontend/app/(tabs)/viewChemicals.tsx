@@ -12,8 +12,7 @@ import Colors from '@/constants/Colors';
 import { useIsFocused } from '@react-navigation/native';
 import { Card, CardContent } from '@/assets/icons/card';
 import { Button } from '@/assets/icons/button';
-import { ChevronDown } from "lucide-react";
-import { CSSProperties } from "react";
+
 
 
 export default function ViewChemicals() {
@@ -31,8 +30,6 @@ export default function ViewChemicals() {
     shelf: string;
     quantity: string;
   }
-  
-
 
   const [modalVisible, setModalVisible] = useState(false);
   const [sortModalVisible, setSortModalVisible] = useState(false); // Added for Sort By Modal
@@ -46,11 +43,10 @@ export default function ViewChemicals() {
   const [sortedChemicals, setSortedChemicals] = useState<Chemical[]>([]);
   const isFocused = useIsFocused();
   const hasFetched = useRef(false);
-  const router = useRouter();
 
   const openModal = (chemical: Chemical) => {
-    setSelectedChemical(chemical); // Set the selected chemical
-    setModalVisible(true); // Open the modal
+    setSelectedChemical(chemical); 
+    setModalVisible(true);
   };
   const closeModal = () => setModalVisible(false);
   const openSortModal = () => setSortModalVisible(true);
@@ -58,7 +54,7 @@ export default function ViewChemicals() {
   const openFilterModal = () => setFiltersVisible(true);
   const closeFilterModal = () => setFiltersVisible(false);
   const toggleFilterSheet = () => setFiltersVisible(!filtersVisible);
-
+  
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
@@ -106,22 +102,16 @@ export default function ViewChemicals() {
     { title: 'Location', data: ['Room', 'Cabinet', 'Shelf'] },
   ];
 
+  /*Remove these upon finalization of the Sort functionality
   const [isOpen, setIsOpen] = useState(false);
-
   const togglePopup = () => {
     setIsOpen(!isOpen);
     setTimeout(() => {
       // Force re-render if needed
     }, 0);
-  };
-
-
+  };*/
 
   const [sortVisible, setSortVisible] = useState(false);
-
-  const toggleSortModal = () => setSortVisible(!sortVisible);
-  const closeSortModal = () => setSortVisible(false);
-
   const sortOptions = [
     "Newest first (by date)",
     "Oldest first (by date)",
@@ -153,12 +143,12 @@ export default function ViewChemicals() {
           (a, b) => new Date(a['purchase_date']).getTime() - new Date(b['purchase_date']).getTime()
         );
         break;
-        case "A-Z":
-          sortedList.sort((a, b) => (a['name'] > b['name'] ? 1 : -1));
-          break;
-  case "Z-A":
-          sortedList.sort((a, b) => (a['name'] < b['name'] ? 1 : -1));
-          break;
+      case "A-Z":
+        sortedList.sort((a, b) => (a['name'] > b['name'] ? 1 : -1));
+        break;
+      case "Z-A":
+        sortedList.sort((a, b) => (a['name'] < b['name'] ? 1 : -1));
+        break;
       case "By expiration":
         sortedList.sort(
           (a, b) => new Date(a['expiration_date']).getTime() - new Date(b['expiration_date']).getTime()
@@ -167,7 +157,6 @@ export default function ViewChemicals() {
       default:
         break;
     }
-
     setSortedChemicals(sortedList);
   };
 
@@ -175,19 +164,15 @@ export default function ViewChemicals() {
   const handleSortSelection = (option: string) => {
     setSelectedSort(option); // Move checkmark
     sortChemicals(option); // Sort list dynamically
-    setSortVisible(false); // Close popup
+    setSortVisible(false); 
   };
 
-  // Use sorted list in UI instead of original chemicalsData
   useEffect(() => {
-    setSortedChemicals(chemicalsData);
+    if (chemicalsData.length > 0) {
+      setSortedChemicals([...chemicalsData]); // Copying the data to avoid directly mutating the original state which is chemicalsData
+      sortChemicals(selectedSort); // This would Ensure default sorting is applied
+    }
   }, [chemicalsData]);
-
-
-
-
-
-
 
 
 
@@ -205,7 +190,7 @@ export default function ViewChemicals() {
         </TouchableOpacity>
       </View>
 
-      {/* Filter & Sort Buttons */}
+      {/* Filter Button */}
       <View style={styles.filterSortContainer}>
         <TouchableOpacity
           style={styles.filterButton}
@@ -227,7 +212,7 @@ export default function ViewChemicals() {
         </TouchableOpacity>
 
 
-        {/* NEW SORT BY BUTTON */}
+        {/* NEW Sort Button */}
         <TouchableOpacity 
           style={styles.sortButton} 
           onPress={() => setSortVisible(!sortVisible)}
@@ -297,15 +282,16 @@ export default function ViewChemicals() {
           )}*/}
 
         
-       
-
         {/* OLD SORT BY BUTTON 
         <TouchableOpacity style={styles.sortButton} onPress={openSortModal}>
          <Text style={styles.buttonText}>Sort By</Text>
         </TouchableOpacity>*/}
+
       </View>
-          
-      {/* Sort Dropdown needs to situated here. Otherwise it hides behind the Chemical List*/}
+
+
+
+      {/* Sort Dropdown needs to situated here. Otherwise it hides behind the Chemicals List */}
       {sortVisible && (
         <View style={stylesSort.dropdown}>
           {sortOptions.map((option, index) => (
@@ -317,6 +303,8 @@ export default function ViewChemicals() {
       )}
 
       
+
+
       {/* Chemicals List */}
       <ScrollView style={styles.chemicalsList}>
         {sortedChemicals.map((chemical: Chemical, index) => (
@@ -332,9 +320,6 @@ export default function ViewChemicals() {
             <Text>School: {chemical.school || 'Unknown'}</Text>
           </TouchableOpacity>
         ))}
-
-
-        
 
         {/* Modals need to be inside to scrollview to avoid Android issues */}
 
@@ -506,54 +491,7 @@ export default function ViewChemicals() {
 }
 
 
-// Example data for chemicals
-/*
-const chemicalsData = [
-  {
-    id: 1,
-    name: 'Sodium Chloride',
-    cas: '7647-14-5',
-    purchased: '2023-01-15',
-    expires: '2030-01-15',
-    location: 'Shelf #4',
-    schoolName: 'Encina High School',
-    quantity: 50,
-    isExpired: false,
-  },
-  {
-    id: 2,
-    name: 'Hydrochloric Acid',
-    cas: '7647-01-0',
-    purchased: '2022-09-10',
-    expires: '2027-09-10',
-    location: 'Shelf #3',
-    schoolName: 'Riverdale Academy',
-    quantity: 20,
-    isExpired: false,
-  },
-  {
-    id: 3,
-    name: 'Ethanol',
-    cas: '64-19-7',
-    purchased: '2021-10-05',
-    expires: '2024-10-05',
-    location: 'Shelf #5',
-    schoolName: 'Encina High School',
-    quantity: 100,
-    isExpired: true,
-  },
-  {
-    id: 4,
-    name: 'Ammonium Hydroxide',
-    cas: '64-19-7',
-    purchased: '2022-03-05',
-    expires: '2025-03-05',
-    location: 'Shelf #5',
-    schoolName: 'Riverdale Academy',
-    quantity: 75,
-    isExpired: false,
-  },
-];*/
+/*View Chemicals Page Stylesheet */
 
 const styles = StyleSheet.create({
   container: {
@@ -644,6 +582,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
+
 
 const stylesPopup = StyleSheet.create({
   container: {
@@ -740,33 +679,6 @@ const stylesPopup = StyleSheet.create({
 });
 
 
-/*
-const stylesSort: { [key: string]: any } = {
-  dropdown: {
-    position: "absolute",
-    top: "120%",
-    right: "0",
-    width: "50%",
-    backgroundColor: "white",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
-    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-    zIndex: 99999,
-    elevation: 999,
-  },
-  option: {
-    padding: "12px 15px",
-    cursor: "pointer",
-    borderBottom: "1px solid #f0f0f0",
-    fontSize: "16px",
-    color: "#333",
-  },
-  optionHover: {
-    backgroundColor: "#f9f9f9",
-  },
-};*/
-
-
 const stylesSort = StyleSheet.create({
   dropdown: {
     position: "absolute",
@@ -799,7 +711,6 @@ const stylesSort = StyleSheet.create({
     color: "#333",
   },
 });
-
 
 
 // Styles for the modal and accordion
