@@ -195,10 +195,17 @@ export default function ViewChemicals() {
   
     switch (option) {
       case "Lowest quantity first":
-        sortedList.sort((a, b) => (a['quantity'] === "Low" ? -1 : 1));
+        sortedList.sort((a, b) => {
+          const priority = { Low: 1, Fair: 2, Good: 3 }; // Define order
+          return (priority[a['quantity']] || 4) - (priority[b['quantity']] || 4);
+        });
         break;
+
       case "Highest quantity first":
-        sortedList.sort((a, b) => (a['quantity'] === "Good" ? -1 : 1));
+        sortedList.sort((a, b) => {
+          const priority = { Good: 1, Fair: 2, Low: 3 }; // Reverse order
+          return (priority[a['quantity']] || 4) - (priority[b['quantity']] || 4);
+        });
         break;
       case "Newest first (by date)":
         sortedList.sort(
