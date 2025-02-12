@@ -266,16 +266,7 @@ export default function ViewChemicals() {
         </TouchableOpacity>
 
 
-        {/* Sort Dropdown */}
-        {sortVisible && (
-          <View style={stylesSort.dropdown}>
-            {sortOptions.map((option, index) => (
-              <TouchableOpacity key={index} style={stylesSort.option} onPress={() => handleSortSelection(option)}>
-                <Text>{selectedSort === option ? "✓ " : ""} {option}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+        
 
 
         {/*{isOpen && (
@@ -313,7 +304,19 @@ export default function ViewChemicals() {
          <Text style={styles.buttonText}>Sort By</Text>
         </TouchableOpacity>*/}
       </View>
+          
+      {/* Sort Dropdown needs to situated here. Otherwise it hides behind the Chemical List*/}
+      {sortVisible && (
+        <View style={stylesSort.dropdown}>
+          {sortOptions.map((option, index) => (
+            <TouchableOpacity key={index} style={stylesSort.option} onPress={() => handleSortSelection(option)}>
+              <Text>{selectedSort === option ? "✓ " : ""} {option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
+      
       {/* Chemicals List */}
       <ScrollView style={styles.chemicalsList}>
         {sortedChemicals.map((chemical: Chemical, index) => (
@@ -329,6 +332,9 @@ export default function ViewChemicals() {
             <Text>School: {chemical.school || 'Unknown'}</Text>
           </TouchableOpacity>
         ))}
+
+
+        
 
         {/* Modals need to be inside to scrollview to avoid Android issues */}
 
@@ -764,15 +770,15 @@ const stylesSort: { [key: string]: any } = {
 const stylesSort = StyleSheet.create({
   dropdown: {
     position: "absolute",
-    top: 50,
-    right: 10,
+    top: 190,
+    right: 15,
     width: 220,
     backgroundColor: "white",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ddd",
-    zIndex: 9999,
-    elevation: 5,
+    zIndex: 99999,
+    elevation: 9999,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
