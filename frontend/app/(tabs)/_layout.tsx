@@ -119,6 +119,14 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Hidden testing Tab */}
+      <Tabs.Screen
+        name="checkDownload"
+        options={{
+          href: null,
+        }}
+      />
+
       {/* Hidden Edit Chemical Tab*/}
       <Tabs.Screen
         name="editChemical"
