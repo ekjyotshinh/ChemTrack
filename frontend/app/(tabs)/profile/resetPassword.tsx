@@ -1,22 +1,30 @@
-import React, { useState } from 'react';  
+import { useState, useEffect } from 'react';  
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';  
 import { useRouter } from 'expo-router';  
 import CustomButton from '@/components/CustomButton';  
-import Colors from '@/constants/Colors';  
-import Header from '@/components/Header';  
+import Colors from '@/constants/Colors';   
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';  
 import Size from '@/constants/Size';  
 import TextInter from '@/components/TextInter';  
 import LoginIcon from '@/assets/icons/LoginIcon'; // You might want to use a different icon  
+import BlueHeader from '@/components/BlueHeader';
 
 export default function ResetPassword() {  
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
-  const [email, setEmail] = useState('');  
+  const [email, setEmail] = useState('');
+  const [isValidEmail, setIsValidEmail] = useState(false);
+
+  // Regex that checks if the email is valid
+  useEffect(() => {
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    .test(email) ? setIsValidEmail(true) : setIsValidEmail(false);
+  }, [email]);
+  
   const router = useRouter();  
 
   const handleResetPassword = async () => {
-    if (!email) {
-      Alert.alert('Error', 'Please enter your email address');
+    if (!email || !isValidEmail) {
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     } 
 
@@ -54,7 +62,7 @@ export default function ResetPassword() {
 
   return (  
     <View style={styles.container}>  
-      <Header headerText={'Reset Password'} />  
+      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/profile/profile')} />  
 
       <ScrollView style={styles.scrollContainer}>  
         <View style={{ marginTop: Size.height(40) }}>  
@@ -77,22 +85,14 @@ export default function ResetPassword() {
           <View style={styles.buttonContainer}>  
             <CustomButton  
               title="Send Reset Link"  
-              color={Colors.blue} // Use your app's primary color  
-              textColor={Colors.white}  
+              color={isValidEmail ? Colors.blue : Colors.white}
+              textColor={isValidEmail ? Colors.white : Colors.grey}  
               onPress={handleResetPassword}  
               width={337}  
-              icon={<LoginIcon width={24} height={24} color={Colors.white} />}  
+              icon={<LoginIcon width={24} height={24} color={isValidEmail ? Colors.white : Colors.grey} />}  
               iconPosition='left'  
-            />  
+            />
 
-            <CustomButton  
-              title="Back"  
-              color={Colors.white}  
-              textColor={Colors.black}  
-              onPress={() => router.push('/profile/profile')}  
-              width={337}  
-              iconPosition='left'  
-            />  
           </View>  
         </View>  
       </ScrollView>  
