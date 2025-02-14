@@ -119,6 +119,14 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Hidden Notifications Tab */}
+      <Tabs.Screen
+        name="profile/notifications"
+        options={{
+          href: null,
+        }}
+      />
+
       {/* Hidden testing Tab */}
       <Tabs.Screen
         name="checkDownload"

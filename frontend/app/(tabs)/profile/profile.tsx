@@ -149,7 +149,7 @@ export default function ViewChemicals() {
             title="Notifications"
             color={Colors.white}
             textColor={Colors.black}
-            onPress={() => Alert.alert('Notifications pressed')}
+            onPress={() => router.push('/profile/notifications')}
             width={337}
             icon={<BellIcon width={24} height={24} color={Colors.black} />}
             iconPosition="left"
