@@ -8,17 +8,14 @@ import Size from '@/constants/Size';
 import TextInter from '@/components/TextInter';  
 import LoginIcon from '@/assets/icons/LoginIcon'; // You might want to use a different icon  
 import BlueHeader from '@/components/BlueHeader';
+import emailRegex from '@/functions/EmailRegex';
 
 export default function ResetPassword() {  
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [email, setEmail] = useState('');
+  
   const [isValidEmail, setIsValidEmail] = useState(false);
-
-  // Regex that checks if the email is valid
-  useEffect(() => {
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    .test(email) ? setIsValidEmail(true) : setIsValidEmail(false);
-  }, [email]);
+  emailRegex({ email, setIsValidEmail });
   
   const router = useRouter();  
 

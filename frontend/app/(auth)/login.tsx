@@ -8,6 +8,7 @@ import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import TextInter from '@/components/TextInter';
 import Size from '@/constants/Size';
 import Colors from '@/constants/Colors';
+import emailRegex from '@/functions/EmailRegex';
 
 export default function LoginPage() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -15,11 +16,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  emailRegex({ email, setIsValidEmail });
+
   const { updateUserInfo } = useUser(); // Use the updateUserInfo function from context
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Please enter both email and password');
+    if (!email || !password || !isValidEmail) {
+      Alert.alert('Please enter a valid email and password');
       return;
     }
 
@@ -116,9 +120,9 @@ export default function LoginPage() {
             title="Log In"
             onPress={handleLogin}
             width={337}
-            color={(!password || !email) ? Colors.white : Colors.blue}
-            textColor={(!password || !email) ? Colors.grey : Colors.white}
-            icon={<LoginIcon width={24} height={24} color={(!password || !email) ? Colors.grey : Colors.white} />}
+            color={(!password || !isValidEmail) ? Colors.white : Colors.blue}
+            textColor={(!password || !isValidEmail) ? Colors.grey : Colors.white}
+            icon={<LoginIcon width={24} height={24} color={(!password || !isValidEmail) ? Colors.grey : Colors.white} />}
           />
 
           {/* Link to the signup page */}

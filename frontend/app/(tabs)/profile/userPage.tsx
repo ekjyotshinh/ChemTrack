@@ -18,6 +18,7 @@ import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Size from '@/constants/Size';
 import BlueHeader from '@/components/BlueHeader';
 import { useRouter } from 'expo-router';
+import emailRegex from '@/functions/EmailRegex';
 
 const InviteUserPage: React.FC = () => {
     const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -26,12 +27,7 @@ const InviteUserPage: React.FC = () => {
     const [userType, setUserType] = useState<'Master' | 'Admin' | null>(null);
 
     const [isValidEmail, setIsValidEmail] = useState(false);
-
-    // Regex that checks if the email is valid
-    useEffect(() => {
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-        .test(email) ? setIsValidEmail(true) : setIsValidEmail(false);
-    }, [email]);
+    emailRegex({ email, setIsValidEmail });
 
     const [allFieldsFilled, setAllFieldsFilled] = useState(false);
 
