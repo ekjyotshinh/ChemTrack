@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Alert,
   View,
@@ -8,7 +8,6 @@ import {
   Modal,
   Pressable,
   TouchableOpacity,
-  GestureResponderEvent,
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import AddUserIcon from '@/assets/icons/AddUserIcon';
@@ -23,12 +22,17 @@ import Size from '@/constants/Size';
 import TextInter from '@/components/TextInter';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
+import emailRegex from '@/functions/EmailRegex';
+import CloseIcon from '@/assets/icons/CloseIcon';
 
 export default function ViewChemicals() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  emailRegex({ email, setIsValidEmail });
 
   const router = useRouter();
   const { userInfo, updateUserInfo } = useUser();
@@ -43,7 +47,7 @@ export default function ViewChemicals() {
   }, [userInfo]);
 
   // Get initials for the avatar
-  const getInitials = (fullName:string) =>
+  const getInitials = (fullName: string) =>
     fullName
       .split(' ')
       .map((part) => part[0])
@@ -53,6 +57,12 @@ export default function ViewChemicals() {
   const handleUpdateInfo = async () => {
     const [firstName, ...rest] = name.split(' ');
     const lastName = rest.join(' ');
+
+    // Don't allow the user to update with invalid information
+    if (!firstName || !lastName || !isValidEmail) {
+      Alert.alert('Error', 'Please fill in all fields with valid information');
+      return;
+    }
 
     try {
       const response = await fetch(`${API_URL}/api/v1/users/${userInfo.id}`, {
@@ -81,6 +91,13 @@ export default function ViewChemicals() {
     }
   };
 
+  // Cancel editing and reset the inputs to the original values
+  const handleCancel = () => {
+    setEmail(userInfo.email);
+    setName(userInfo.name);
+    setIsEditing(false);
+  }
+
   return (
     <View style={styles.container}>
       <Header headerText="My Account" />
@@ -98,7 +115,7 @@ export default function ViewChemicals() {
 
           {/* Name and Email Inputs */}
           <View>
-            <TouchableOpacity onPress={() => setIsEditing((prev) => !prev)}>
+            <TouchableOpacity onPress={isEditing ? handleCancel : () => setIsEditing(true)}>
               <Text style={styles.editText}>
                 {isEditing ? 'Cancel Edit' : 'Edit'}
               </Text>
@@ -109,7 +126,7 @@ export default function ViewChemicals() {
             onChangeText={setName}
             headerText="Name"
             value={name}
-            hasIcon
+            hasIcon={isEditing}
             inputWidth={Size.width(340)}
             disabled={!isEditing}
           />
@@ -118,7 +135,7 @@ export default function ViewChemicals() {
             onChangeText={setEmail}
             headerText="Email"
             value={email}
-            hasIcon
+            hasIcon={isEditing}
             inputWidth={Size.width(340)}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -129,49 +146,66 @@ export default function ViewChemicals() {
         <View style={styles.buttonContainer}>
           <CustomButton
             title={isEditing ? 'Finish Updating' : 'Update Info'}
-            color={isEditing ?  Colors.blue : Colors.white}
-            textColor={isEditing ? Colors.white : Colors.black}
+            color={isEditing ? ((!name || !isValidEmail) ? Colors.white : Colors.blue) : Colors.white}
+            textColor={isEditing ? (!name || !isValidEmail ? Colors.grey : Colors.white) : Colors.black}
             onPress={isEditing ? handleUpdateInfo : () => setIsEditing(true)}
             width={337}
-            icon={<EditIcon width={24} height={24} color={isEditing ? Colors.white : Colors.black} />}
+            icon={<EditIcon width={24} height={24} color={isEditing ? (!name || !isValidEmail ? Colors.grey : Colors.white) : Colors.black} />}
             iconPosition="left"
           />
-          <CustomButton
-            title="Invite User"
-            color={Colors.white}
-            textColor={Colors.black}
-            onPress={() => router.push('/profile/userPage')}
-            width={337}
-            icon={<AddUserIcon width={24} height={24} color={Colors.black} />}
-            iconPosition="left"
-          />
-          <CustomButton
-            title="Notifications"
-            color={Colors.white}
-            textColor={Colors.black}
-            onPress={() => router.push('/profile/notifications')}
-            width={337}
-            icon={<BellIcon width={24} height={24} color={Colors.black} />}
-            iconPosition="left"
-          />
-          <CustomButton
-            title="Reset Password"
-            color={Colors.white}
-            textColor={Colors.black}
-            onPress={() => router.push('/profile/resetPassword')}
-            width={337}
-            icon={<ResetIcon width={24} height={24} color={Colors.black} />}
-            iconPosition="left"
-          />
-          <CustomButton
-            title="Log Out"
-            color={Colors.red}
-            textColor={Colors.white}
-            onPress={() => setConfirmModalVisible(true)}
-            width={337}
-            icon={<LoginIcon width={24} height={24} color={Colors.white} />}
-            iconPosition="left"
-          />
+          {/* Only show when editing */}
+          {isEditing &&
+            <CustomButton
+              title={'Cancel Edit'}
+              color={Colors.red}
+              textColor={Colors.white}
+              onPress={handleCancel}
+              width={337}
+              icon={<CloseIcon width={18} height={18} color={Colors.white} />}
+              iconPosition="left"
+            />
+          }
+          {/* Only show these buttons when NOT editing */}
+          {!isEditing &&
+            <>
+              <CustomButton
+                title="Invite User"
+                color={Colors.white}
+                textColor={Colors.black}
+                onPress={() => router.push('/profile/userPage')}
+                width={337}
+                icon={<AddUserIcon width={24} height={24} color={Colors.black} />}
+                iconPosition="left"
+              />
+              <CustomButton
+                title="Notifications"
+                color={Colors.white}
+                textColor={Colors.black}
+                onPress={() => router.push('/profile/notifications')}
+                width={337}
+                icon={<BellIcon width={24} height={24} color={Colors.black} />}
+                iconPosition="left"
+              />
+              <CustomButton
+                title="Reset Password"
+                color={Colors.white}
+                textColor={Colors.black}
+                onPress={() => router.push('/profile/resetPassword')}
+                width={337}
+                icon={<ResetIcon width={24} height={24} color={Colors.black} />}
+                iconPosition="left"
+              />
+              <CustomButton
+                title="Log Out"
+                color={Colors.red}
+                textColor={Colors.white}
+                onPress={() => setConfirmModalVisible(true)}
+                width={337}
+                icon={<LoginIcon width={24} height={24} color={Colors.white} />}
+                iconPosition="left"
+              />
+            </>
+          }
         </View>
       </ScrollView>
 
@@ -190,7 +224,7 @@ export default function ViewChemicals() {
               style={styles.closePopUpButton}
               onPress={() => (setConfirmModalVisible(false), router.push('/(auth)/login'))}
             >
-            <Text style={styles.popUpText}>Yes</Text>
+              <Text style={styles.popUpText}>Yes</Text>
             </Pressable>
 
             <Pressable
@@ -199,7 +233,7 @@ export default function ViewChemicals() {
             >
               <Text style={styles.popUpText}>Cancel</Text>
             </Pressable>
-            
+
           </View>
         </View>
       </Modal>
@@ -231,6 +265,7 @@ const styles = StyleSheet.create({
     shadowColor: Colors.grey,
     shadowOpacity: 0.5,
     shadowOffset: { height: 1, width: 0.2 },
+    elevation: 2,
   },
   avatarText: {
     fontSize: 45,
@@ -239,12 +274,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   editText: {
-    color: '#4285F4',
+    color: Colors.blue,
     alignSelf: 'center',
     fontWeight: '600',
     fontSize: 15,
   },
   buttonContainer: {
+    marginTop: Size.height(25),
     alignItems: 'center',
   },
   modalContainer: {
