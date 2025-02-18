@@ -1,4 +1,3 @@
-// controllers/email_controller.go
 package controllers
 
 import (
@@ -21,7 +20,7 @@ func SendEmail(c *gin.Context) {
 		return
 	}
 
-	if err := helpers.sendEmailHelper(req.To, req.Subject, req.Body); err != nil {
+	if err := helpers.SendEmailHelper(req.To, req.Subject, req.Body); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to send email",
 			"details": err.Error(),
