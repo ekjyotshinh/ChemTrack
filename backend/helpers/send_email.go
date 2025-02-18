@@ -8,7 +8,7 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 // sendEmailHelper is a helper function to send an email 
-func sendEmailHelper(to, subject, body string) error {
+func SendEmailHelper(to, subject, body string) error {
 	from := mail.NewEmail("ChemTrack", "ekjyotshinh@gmail.com") // TODO: Change this to Chemtrack email before deployment
 	toEmail := mail.NewEmail("Recipient", to)
 	message := mail.NewSingleEmail(from, subject, toEmail, body, body)
