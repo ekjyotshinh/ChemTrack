@@ -52,6 +52,8 @@ interface Chemical {
     room: string;
     cabinet: string;
     shelf: string;
+    status: string;
+    quantity: string;
 }
 
 interface props {
@@ -122,8 +124,8 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                     <ChemicalDetail property={'Shelf: '} value={selectedChemical.shelf} margin={gapSize} />
 
                     {/* Status & Quantity */}
-                    <ChemicalDetail property={'Status: '} value={'On-site'} color={getStatusColor('On-site')} />
-                    <ChemicalDetail property={'Quantity: '} value={'Good'} color={getQuantityColor('Good')} margin={gapSize} />
+                    <ChemicalDetail property={'Status: '} value={selectedChemical.status} color={getStatusColor(selectedChemical.status)} />
+                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity} color={getQuantityColor(selectedChemical.quantity)} margin={gapSize} />
 
                     {/* Buttons */}
                     <View style={stylesPopup.buttonContainer}>
