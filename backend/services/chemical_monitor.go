@@ -125,7 +125,6 @@ func CheckCriticalChemicalStatus() {
 
 			if len(emails) > 0 {
 				for _,email := range emails{
-					fmt.Println(email)
 					subject := fmt.Sprintf("Chemical Alert Report for %s", school)
 					helpers.SendEmailHelper(email, subject, alertMessage)
 				}
@@ -133,6 +132,7 @@ func CheckCriticalChemicalStatus() {
 		}
 	}
 }
+
 
 
 func GetAdminAndMasterEmails(school string) ([]string, error) {
@@ -156,7 +156,6 @@ func GetAdminAndMasterEmails(school string) ([]string, error) {
                 return nil, err
             }
             user := doc.Data()
-			log.Printf(user["email"].(string))
             if email, ok := user["email"].(string); ok {
                 emailSet[email] = struct{}{} 
             }
