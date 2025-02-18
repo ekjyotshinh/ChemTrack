@@ -1,16 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
-    Text,
-    TextInput,
-    TouchableOpacity,
     StyleSheet,
-    Dimensions,
     Platform,
-    SafeAreaView,
     KeyboardAvoidingView,
     ScrollView,
-    Alert
+    Alert,
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import ReturnIcon from '@/assets/icons/ReturnIcon';
@@ -21,9 +16,9 @@ import Colors from '@/constants/Colors';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Size from '@/constants/Size';
-import Header from '@/components/Header';
-
-const { width, height } = Dimensions.get('window');
+import BlueHeader from '@/components/BlueHeader';
+import { useRouter } from 'expo-router';
+import emailRegex from '@/functions/EmailRegex';
 
 const InviteUserPage: React.FC = () => {
     const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -31,8 +26,26 @@ const InviteUserPage: React.FC = () => {
     const [school, setSchool] = useState<string>('');
     const [userType, setUserType] = useState<'Master' | 'Admin' | null>(null);
 
+    const [isValidEmail, setIsValidEmail] = useState(false);
+    emailRegex({ email, setIsValidEmail });
+
+    const [allFieldsFilled, setAllFieldsFilled] = useState(false);
+
+    // Make sure that all fields are filled
+    useEffect(() => {
+        if (email && school && userType && isValidEmail) {
+            setAllFieldsFilled(true);
+        } else {
+            setAllFieldsFilled(false);
+        }
+    }, [email, school, userType, isValidEmail]);
+
     const handleSendInvite = async () => {
         if (email && school && userType) {
+            if (!isValidEmail) {
+                Alert.alert('Error', 'Please enter a valid email address');
+                return;
+            }
             try {
                 // Make the request to send an invite email
                 const response = await fetch(`${API_URL}/api/v1/email/send`, {
@@ -70,17 +83,18 @@ const InviteUserPage: React.FC = () => {
         }
     };
 
-
     const handleClear = (): void => {
         setEmail('');
         setSchool('');
         setUserType(null);
     };
 
+    const router = useRouter()
+
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <View style={styles.safeArea}>
             {/* Title */}
-            <Header headerText={'Invite User'} />
+            <BlueHeader headerText={'Invite User'} onPress={() => router.push('/profile/profile')} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.container}>
@@ -115,7 +129,7 @@ const InviteUserPage: React.FC = () => {
                             <View style={{ height: Size.height(10) }} />
 
                             {/* User Type Selection with Icons */}
-                            <View style={styles.inputContainer}>
+                            <View>
                                 <CustomTextHeader headerText={'User Type'} />
 
                                 <CustomButton
@@ -155,14 +169,14 @@ const InviteUserPage: React.FC = () => {
                                 <CustomButton
                                     title="Send Invite"
                                     onPress={handleSendInvite}
-                                    textColor={!email || !school || !userType ? Colors.grey : Colors.white}
-                                    color={!email || !school || !userType ? Colors.white : Colors.blue}
+                                    textColor={!allFieldsFilled ? Colors.grey : Colors.white}
+                                    color={!allFieldsFilled ? Colors.white : Colors.blue}
                                     width={337}
                                     icon={
                                         <SendIcon
                                             width={24}
                                             height={24}
-                                            color={!email || !school || !userType ? Colors.grey : Colors.white}
+                                            color={!allFieldsFilled ? Colors.grey : Colors.white}
                                         />}
                                     iconPosition="left"
                                 />
@@ -175,14 +189,13 @@ const InviteUserPage: React.FC = () => {
                                     icon={<ReturnIcon width={24} height={24} />}
                                     iconPosition='left'
                                 />
-                                {/* <View style={{height: 10000}}/> */}
                             </View>
                         </View>
                     </View>
 
                 </ScrollView>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </View>
     );
 };
 
@@ -190,104 +203,22 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: Colors.offwhite,
-        alignItems: 'center',
+        alignItems: 'center',       
     },
     container: {
-        width: '100%',
+        width: '100%',      
     },
     scrollContainer: {
-        flexGrow: 1,
-        // paddingBottom: height * 0.08, // Space for bottom navigation  
+        flexGrow: 1,    
     },
     content: {
         flex: 1,
-        // padding: width * 0.05,
-        paddingTop: Size.height(136),
-    },
-    title: {
-        fontSize: Math.min(width * 0.07, 28),
-        fontWeight: 'bold',
-        marginBottom: height * 0.03,
-    },
-    titleHighlight: {
-        color: '#007AFF',
-    },
-    formContainer: {
-        gap: height * 0.02,
-    },
-    inputContainer: {
-        // gap: height * 0.01,
-    },
-    label: {
-        fontSize: Math.min(width * 0.04, 16),
-        fontWeight: '600',
-        color: '#000',
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#E5E5E5',
-        borderRadius: 10,
-        paddingHorizontal: width * 0.04,
-        height: height * 0.06,
-        backgroundColor: '#fff',
-    },
-    input: {
-        flex: 1,
-        fontSize: Math.min(width * 0.04, 16),
-        color: '#000',
-    },
-    radioButton: {
-        borderWidth: 1,
-        borderColor: '#E5E5E5',
-        borderRadius: 10,
-        padding: height * 0.02,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        marginBottom: height * 0.01,
-        flexDirection: 'row',
-    },
-    selectedRadio: {
-        backgroundColor: '#007AFF20',
-        borderColor: '#007AFF',
-    },
-    radioText: {
-        fontSize: Math.min(width * 0.04, 16),
-        fontWeight: '500',
-        color: '#000',
-        alignItems: 'center',
-    },
-    selectedRadioText: {
-        color: '#007AFF',
+        marginTop: Size.height(136),
     },
     buttonContainer: {
         marginTop: Size.height(43),
-        gap: height * 0.012,
+        gap: Size.height(10.3),
         alignItems: 'center',
-    },
-    button: {
-        borderRadius: 10,
-        padding: height * 0.018,
-        alignItems: 'center',
-    },
-    sendButton: {
-        backgroundColor: '#007AFF',
-    },
-    clearButton: {
-        backgroundColor: '#FF3B30',
-    },
-    disabledButton: {
-        backgroundColor: '#A5A5A5',
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: Math.min(width * 0.04, 16),
-        fontWeight: '600',
-    },
-    centeredText: {
-        flex: 1, // Take up remaining space
-        textAlign: 'center', // Center text
     },
 
 });
