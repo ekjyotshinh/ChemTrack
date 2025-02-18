@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ekjyotshinh/ChemTrack/backend/controllers"
 	"google.golang.org/api/option"
+	"github.com/ekjyotshinh/ChemTrack/backend/services"
 )
 
 var client *firestore.Client
@@ -25,6 +26,8 @@ func InitFirestore() {
 
 	// Pass the initialized Firestore client to the controllers package
 	controllers.SetClient(client)
+	// Pass the initialized Firestore client to the services package
+	services.SetClient(client)
 }
 
 // RegisterRoutes defines and registers all routes
