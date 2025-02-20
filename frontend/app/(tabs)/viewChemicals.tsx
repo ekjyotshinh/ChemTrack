@@ -66,7 +66,6 @@ const ChemDateSchool = ({ purchaseDate, expireDate, school, isExpired = false }:
 }
 
 export default function ViewChemicals() {
-
   // Define the type for the chemical data
   interface Chemical {
     id: string;
@@ -78,6 +77,9 @@ export default function ViewChemicals() {
     room: string;
     cabinet: string;
     shelf: string;
+    status: string; // Added
+    quantity: string; // Added
+    location: string; // Added
   }
 
 
@@ -97,6 +99,12 @@ export default function ViewChemicals() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredChemicals, setFilteredChemicals] = useState<Chemical[]>([]);
 
+  // Add state variables for selected filter options
+  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+  const [selectedQuantity, setSelectedQuantity] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<string[]>([]);
+  const [selectedPurchaseDate, setSelectedPurchaseDate] = useState<string[]>([]);
+  const [selectedExpirationDate, setSelectedExpirationDate] = useState<string[]>([]);
 
   const openModal = (chemical: Chemical) => {
     setSelectedChemical(chemical); // Set the selected chemical
@@ -112,7 +120,6 @@ export default function ViewChemicals() {
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
-
   };
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
@@ -131,7 +138,6 @@ export default function ViewChemicals() {
   };
 
 
-
   const isFocused = useIsFocused();
   const hasFetched = useRef(false);
   useEffect(() => {
@@ -147,23 +153,80 @@ export default function ViewChemicals() {
     return String(value).toLowerCase();
   };
 
-  // handle search filtering
-  useEffect(() => {
-      if (!chemicalsData) return;
-      
-      const searchLower = searchQuery.toLowerCase();
-      
-      const filtered = chemicalsData.filter((chemical: Chemical) => {
-        const nameMatch = safeString(chemical.name).includes(searchLower);
-        const casMatch = safeString(chemical.CAS).includes(searchLower);
-        const schoolMatch = safeString(chemical.school).includes(searchLower);
-        
-        return nameMatch || casMatch || schoolMatch;
+  // Helper function for date validation
+  const isValidDate = (dateString: string) => !isNaN(Date.parse(dateString));
+
+
+// Filter logic
+useEffect(() => {
+  if (!chemicalsData) return;
+
+  const searchLower = searchQuery.toLowerCase().trim();
+
+  const filtered = chemicalsData.filter((chemical: Chemical) => {
+    // 1. Enhanced Search Filter
+    const searchMatches = [
+      chemical.name,
+      chemical.CAS,
+      chemical.school,
+      `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
+    ].some(field => {
+      const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
+      const cleanSearch = searchLower.replace(/[^a-z0-9]/g, '');
+      return cleanField.includes(cleanSearch);
+    });
+
+    // 2. Status Filter with Priority
+    const statusMatches = selectedStatus.length === 0 || 
+      selectedStatus.includes(chemical.status);
+
+    // 3. Quantity Filter (case-insensitive exact match)
+    const quantityMatches = selectedQuantity.length === 0 || 
+      selectedQuantity.some(q => 
+        safeString(chemical.quantity) === safeString(q)
+      );
+
+    // 4. Location Filter (dynamic property access)
+    const locationMatches = selectedLocation.length === 0 || 
+      selectedLocation.some(locationType => {
+        const value = safeString(chemical[locationType.toLowerCase() as keyof Chemical]);
+        return value.trim() !== '';
       });
-      
-      setFilteredChemicals(filtered);
-  }, [searchQuery, chemicalsData]);
-  
+
+    // 5. Date Handling with Validation
+    const purchaseDate = isValidDate(chemical.purchase_date) ? 
+      new Date(chemical.purchase_date) : null;
+    const expirationDate = isValidDate(chemical.expiration_date) ? 
+      new Date(chemical.expiration_date) : null;
+
+    // Date Filter Logic
+    const purchaseDateMatches = selectedPurchaseDate.length === 0 || (
+      (selectedPurchaseDate.includes('Before 2020') && purchaseDate && purchaseDate < new Date('2020-01-01')) ||
+      (selectedPurchaseDate.includes('2020-2024') && purchaseDate && 
+        purchaseDate >= new Date('2020-01-01') && 
+        purchaseDate <= new Date('2024-12-31')) ||
+      (selectedPurchaseDate.includes('After 2024') && purchaseDate && purchaseDate > new Date('2024-12-31'))
+    );
+
+    const expirationDateMatches = selectedExpirationDate.length === 0 || (
+      (selectedExpirationDate.includes('Before 2025') && expirationDate && expirationDate < new Date('2025-01-01')) ||
+      (selectedExpirationDate.includes('2025-2030') && expirationDate && 
+        expirationDate >= new Date('2025-01-01') && 
+        expirationDate <= new Date('2030-12-31')) ||
+      (selectedExpirationDate.includes('After 2030') && expirationDate && expirationDate > new Date('2030-12-31'))
+    );
+
+    return searchMatches && 
+           statusMatches && 
+           quantityMatches && 
+           locationMatches && 
+           purchaseDateMatches && 
+           expirationDateMatches;
+  });
+
+  setFilteredChemicals(filtered);
+}, [searchQuery, chemicalsData, selectedStatus, selectedQuantity, 
+   selectedLocation, selectedPurchaseDate, selectedExpirationDate]);
 
   useEffect(() => {
     if (!isFocused) {
@@ -172,10 +235,11 @@ export default function ViewChemicals() {
   }, [isFocused]);
 
   const filterSections = [
-    { title: 'Status', data: ['On-site', 'Expired', 'In Transit'] },
-    { title: 'Expiration Date', data: ['Before 2025', '2025-2030', 'After 2030'] },
-    { title: 'Quantity', data: ['Low', 'Medium', 'High'] },
+    { title: 'Status', data: ['On-site', 'Off-site'] },
+    { title: 'Quantity', data: ['Low', 'Fair', 'Good'] },
     { title: 'Location', data: ['Room', 'Cabinet', 'Shelf'] },
+    { title: 'Purchase Date', data: ['Before 2020', '2020-2024', 'After 2024'] }, // Added Purchase Date filter
+    { title: 'Expiration Date', data: ['Before 2025', '2025-2030', 'After 2030'] },
   ];
 
   const [sortVisible, setSortVisible] = useState(false);
@@ -252,9 +316,6 @@ export default function ViewChemicals() {
     }
   }, [chemicalsData, selectedSort]); // Trigger sorting when data or selection changes
   
-
-
-
   return (
     <View style={styles.container}>
       <Header headerText='View Chemicals' />
@@ -449,20 +510,67 @@ export default function ViewChemicals() {
                     )}
                     renderContent={(section) => (
                       <View style={stylesFilter.accordionContent}>
-                        {section.data.map((item, index) => (
-                          <TouchableOpacity key={index} style={stylesFilter.accordionItem}>
-                            <Text>{item}</Text>
-                          </TouchableOpacity>
-                        ))}
+                        {section.data.map((item, index) => {
+                          const isSelected = (() => {
+                            switch (section.title) {
+                              case 'Status':
+                                return selectedStatus.includes(item);
+                              case 'Quantity':
+                                return selectedQuantity.includes(item);
+                              case 'Location':
+                                return selectedLocation.includes(item);
+                              case 'Purchase Date':
+                                return selectedPurchaseDate.includes(item);
+                              case 'Expiration Date':
+                                return selectedExpirationDate.includes(item);
+                              default:
+                                return false;
+                            }
+                          })();
+                          return (
+                            <TouchableOpacity
+                              key={index}
+                              style={[
+                                stylesFilter.accordionItem,
+                                isSelected && stylesFilter.selectedAccordionItem,
+                              ]}
+                              onPress={() => {
+                                switch (section.title) {
+                                  case 'Status':
+                                    setSelectedStatus(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                                    break;
+                                  case 'Quantity':
+                                    setSelectedQuantity(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                                    break;
+                                  case 'Location':
+                                    setSelectedLocation(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                                    break;
+                                  case 'Purchase Date':
+                                    setSelectedPurchaseDate(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                                    break;
+                                  case 'Expiration Date':
+                                    setSelectedExpirationDate(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                                    break;
+                                  default:
+                                    break;
+                                }
+                              }}
+                            >
+                              <Text style={[
+                                stylesFilter.accordionItemText,
+                                isSelected && stylesFilter.selectedAccordionItemText,
+                              ]}>{item}</Text>
+                            </TouchableOpacity>
+                          );
+                        })}
                       </View>
                     )}
                     onChange={(expandedSections) => setExpanded(expandedSections)} // Set active sections
                   />
-                </ScrollView>
+                  </ScrollView>
               </View>
             </BlurView>
           </Modal>
-
 
 
         </View>
@@ -716,7 +824,7 @@ const stylesFilter = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     backgroundColor: 'white',
-    padding: 20,
+    padding: 30,
     alignItems: 'center',
     elevation: 20,
     marginTop: 'auto',
@@ -744,6 +852,15 @@ const stylesFilter = StyleSheet.create({
     padding: 8,
     backgroundColor: '#fff',
     marginVertical: 2,
+  },
+  selectedAccordionItem: {
+    backgroundColor: '#4285F4', // Blue color for selected items
+  },
+  accordionItemText: {
+    color: '#000',
+  },
+  selectedAccordionItemText: {
+    color: '#fff', // White text for selected items
   },
   closeButton: {
     position: 'absolute',
