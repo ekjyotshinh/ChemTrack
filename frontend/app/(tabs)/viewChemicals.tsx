@@ -78,6 +78,8 @@ export default function ViewChemicals() {
     room: string;
     cabinet: string;
     shelf: string;
+    status: string;
+    quantity: string;
   }
 
 

@@ -25,10 +25,10 @@ export default function SignUpPage() {
 
   // Temp array of hardcoded schools
   const schools = [
-    { label: 'Encina High School', value: '1' },
-    { label: 'Sacramento High School', value: '2' },
-    { label: 'Foothill High School', value: '3' },
-    { label: 'Grant Union High School', value: '4' },
+    { label: 'Encina High School', value: 'Encina High School' },
+    { label: 'Sacramento High School', value: 'Sacramento High School' },
+    { label: 'Foothill High School', value: 'Foothill High School' },
+    { label: 'Grant Union High School', value: 'Grant Union High School' },
   ]
 
   // Function to handle the "Next" button press
