@@ -854,13 +854,13 @@ const stylesFilter = StyleSheet.create({
     marginVertical: 2,
   },
   selectedAccordionItem: {
-    backgroundColor: '#4285F4', // Blue color for selected items
+    backgroundColor: Colors.blue, // Blue color for selected items
   },
   accordionItemText: {
-    color: '#000',
+    color: Colors.black,
   },
   selectedAccordionItemText: {
-    color: '#fff', // White text for selected items
+    color: Colors.white, // White text for selected items
   },
   closeButton: {
     position: 'absolute',
