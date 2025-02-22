@@ -15,8 +15,11 @@ import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
 import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
+import ErrorPage from './errorPage';
 
 export default function ViewChemicals() {
+  const { userInfo } = useUser()
   const [name, setName] = useState<string>('')
   const [room, setRoom] = useState<string>('')
   const [shelf, setShelf] = useState<string>('')
@@ -187,7 +190,9 @@ export default function ViewChemicals() {
   }
 
   return (
-    <View style={styles.container}>
+    <>
+    {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
+      <View style={styles.container}>
       <Header headerText='Add Chemical' />
       <ScrollView style={styles.scroll}>
         <View style={styles.innerContainer}>
@@ -302,7 +307,8 @@ export default function ViewChemicals() {
 
         </View>
       </ScrollView>
-    </View>
+      </View>) : (<ErrorPage />)}
+      </>
   );
 }
 

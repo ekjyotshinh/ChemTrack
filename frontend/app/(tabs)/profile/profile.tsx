@@ -25,7 +25,7 @@ import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
 
-export default function ViewChemicals() {
+export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isEditing, setIsEditing] = useState(false);
