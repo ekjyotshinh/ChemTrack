@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Alert,
   View,
@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
-import { Linking } from 'react-native';
 import AddUserIcon from '@/assets/icons/AddUserIcon';
 import BellIcon from '@/assets/icons/BellIcon';
 import EditIcon from '@/assets/icons/EditIcon';
@@ -25,16 +24,8 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
-import * as Notifications from 'expo-notifications';
-import {
-  NotificationToken,
-  registerForPushNotifications,
-  setNotificationHandler,
-  setNotificationReceiver,
-  storeDeviceToken,
-} from '@/functions/notificationHelper';
 
-export default function ViewChemicals() {
+export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -46,10 +37,6 @@ export default function ViewChemicals() {
   const router = useRouter();
   const { userInfo, updateUserInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
-
-  const [deviceInfo, setDeviceInfo] = useState<NotificationToken | null>(null);
-  const notificationListener = useRef<any>();
-  const responseListener = useRef<any>();
 
   // Initialize name and email from user info
   useEffect(() => {
@@ -110,82 +97,6 @@ export default function ViewChemicals() {
     setName(userInfo.name);
     setIsEditing(false);
   }
-
-  // Initialize notification handlers
-  useEffect(() => {
-    // Handle received notifications
-    notificationListener.current = setNotificationReceiver((notification) => {
-      const { title, body } = notification.request.content;
-      console.log('Received notification:', { title, body });
-      // You can add custom handling here
-    });
-
-    // Handle notification responses
-    responseListener.current = setNotificationHandler((response) => {
-      const { title, body } = response.notification.request.content;
-      console.log('Notification response:', { title, body });
-      // Handle user interaction with the notification
-    });
-
-    // Cleanup listeners on unmount
-    return () => {
-      if (notificationListener.current) {
-        Notifications.removeNotificationSubscription(notificationListener.current);
-      }
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
-      }
-    };
-  }, []);
-
-  // Function to handle notification permission
-  const handleNotificationSetup = async () => {
-    console.log('Starting notification setup');
-    try {
-      // Force a new permission request regardless of current status
-      console.log('Requesting system permission...');
-      const { status } = await Notifications.requestPermissionsAsync({
-        ios: {
-          allowAlert: true,
-          allowBadge: true,
-          allowSound: true,
-        },
-      });
-      console.log('Permission status after request:', status);
-  
-      if (status === 'granted') {
-        const token = await registerForPushNotifications();
-        if (token) {
-          setDeviceInfo(token);
-          storeDeviceToken(token);
-          Alert.alert('Success', 'Notification permissions granted!');
-        }
-      } else {
-        Alert.alert(
-          'Permission Required',
-          'Please enable notifications in Settings to receive important updates',
-          [
-            { 
-              text: 'Open Settings', 
-              onPress: () => Linking.openSettings() 
-            },
-            { 
-              text: 'Cancel', 
-              style: 'cancel' 
-            }
-          ]
-        );
-      }
-    } catch (error) {
-      console.error('Error in notification setup:', error);
-      Alert.alert('Error', 'Failed to setup notifications');
-    }
-  };
-
-  // Modify your existing CustomButton for notifications to use the new handler
-  const handleNotificationsPress = () => {
-    handleNotificationSetup();
-  };
 
   return (
     <View style={styles.container}>
@@ -270,7 +181,7 @@ export default function ViewChemicals() {
                 title="Notifications"
                 color={Colors.white}
                 textColor={Colors.black}
-                onPress={handleNotificationsPress}  // Use the notification handler
+                onPress={() => router.push('/profile/notifications')}
                 width={337}
                 icon={<BellIcon width={24} height={24} color={Colors.black} />}
                 iconPosition="left"

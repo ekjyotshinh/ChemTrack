@@ -3,8 +3,17 @@ import TextInter from '@/components/TextInter'
 import Colors from '@/constants/Colors'
 import Size from '@/constants/Size'
 import { useRouter } from 'expo-router'
-import { useState } from 'react'
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
+import { useState, useEffect, useRef } from 'react'
+import { View, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, Button } from 'react-native'
+import * as Notifications from 'expo-notifications'
+import {
+  registerForPushNotifications,
+  setNotificationHandler,
+  setNotificationReceiver,
+  storeDeviceToken,
+  removeDeviceToken,
+  getStoredDeviceTokens,
+} from '@/functions/notificationHelper'
 
 // Toggle cylinder for settings
 const Toggle = ({ isBool, setIsBool }: { isBool: boolean, setIsBool: (bool: boolean) => void }) => {
@@ -48,13 +57,111 @@ const Setting = ({ title, description, isBool, setIsBool }: SettingProps) => {
     )
 }
 
-// Notifications screeen
-const Notifications = () => {
+// Notifications screen
+const NotificationsScreen = () => {
     const router = useRouter()
-    const [isEmailNotif, setIsEmailNotif] = useState(true)
-    const [isAppNotif, setIsAppNotif] = useState(true)
+    const [isEmailNotif, setIsEmailNotif] = useState(false)
+    const [isAppNotif, setIsAppNotif] = useState(false)
     const [isExpirationNotif, setIsExpirationNotif] = useState(true)
     const [isLowQuantityNotif, setIsLowQuantityNotif] = useState(true)
+
+    const notificationListener = useRef<any>()
+    const responseListener = useRef<any>()
+
+    // Initialize notification handlers
+    useEffect(() => {
+        notificationListener.current = setNotificationReceiver((notification) => {
+            const { title, body } = notification.request.content
+            console.log('Received notification:', { title, body })
+        })
+
+        responseListener.current = setNotificationHandler((response) => {
+            const { title, body } = response.notification.request.content
+            console.log('Notification response:', { title, body })
+        })
+
+        return () => {
+            if (notificationListener.current) {
+                Notifications.removeNotificationSubscription(notificationListener.current)
+            }
+            if (responseListener.current) {
+                Notifications.removeNotificationSubscription(responseListener.current)
+            }
+        }
+    }, [])
+
+    // Function to handle notification permission
+    const handleNotificationSetup = async () => {
+        console.log('Starting notification setup')
+        try {
+            console.log('Requesting system permission...')
+            const { status } = await Notifications.requestPermissionsAsync({
+                ios: {
+                    allowAlert: true,
+                    allowBadge: true,
+                    allowSound: true,
+                },
+            })
+            console.log('Permission status after request:', status)
+
+            if (status === 'granted') {
+                const token = await registerForPushNotifications()
+                if (token) {
+                    storeDeviceToken(token)
+                    Alert.alert('Success', 'Notification permissions granted!')
+                }
+            } else {
+                Alert.alert(
+                    'Permission Required',
+                    'Please enable notifications in Settings to receive important updates',
+                    [
+                        { 
+                            text: 'Open Settings', 
+                            onPress: () => Linking.openSettings() 
+                        },
+                        { 
+                            text: 'Cancel', 
+                            style: 'cancel' 
+                        }
+                    ]
+                )
+            }
+        } catch (error) {
+            console.error('Error in notification setup:', error)
+            Alert.alert('Error', 'Failed to setup notifications')
+        }
+
+    }
+    // Function to send a test notification to all stored devices
+    async function sendTestNotification() {
+        const deviceTokens = getStoredDeviceTokens(); // Retrieve stored device tokens  
+
+        if (deviceTokens.length === 0) {
+            console.log("No stored device tokens available.");
+            return;
+        }   
+
+        for (const device of deviceTokens) {
+            try {
+                await fetch('https://exp.host/--/api/v2/push/send', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: device.deviceToken, // Expo push token
+                        title: "Test Notification",
+                        body: "This is a test notification.",
+                        data: { message: "Hello from push notification!" },
+                    }),
+                });
+                console.log(`Notification sent to ${device.deviceName} (${device.deviceToken})`);
+            } catch (error) {
+                console.error(`Failed to send notification to ${device.deviceName}:`, error);
+            }
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -75,7 +182,16 @@ const Notifications = () => {
                         title={'App Notifications'}
                         description={'Receive notifications from the app.'}
                         isBool={isAppNotif}
-                        setIsBool={setIsAppNotif}
+                        setIsBool={async (value) => {
+                            setIsAppNotif(value)
+                            if (value) {
+                                await handleNotificationSetup()
+                            } else {
+                                const token = await registerForPushNotifications()
+                                if (token) removeDeviceToken()
+                            }
+                        }}                      
+
                     />
                     <Setting
                         title={'Notify for expirations'}
@@ -89,6 +205,7 @@ const Notifications = () => {
                         isBool={isLowQuantityNotif}
                         setIsBool={setIsLowQuantityNotif}
                     />
+                    <Button title="Test Notification" onPress={sendTestNotification} />
                 </View>
             </ScrollView>
         </View>
@@ -144,4 +261,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default Notifications
+export default NotificationsScreen
