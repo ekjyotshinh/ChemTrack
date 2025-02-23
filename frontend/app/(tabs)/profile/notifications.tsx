@@ -4,7 +4,7 @@ import Colors from '@/constants/Colors'
 import Size from '@/constants/Size'
 import { useRouter } from 'expo-router'
 import { useState, useEffect, useRef } from 'react'
-import { View, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, Button } from 'react-native'
+import { View, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import {
   registerForPushNotifications,
@@ -132,36 +132,7 @@ const NotificationsScreen = () => {
         }
 
     }
-    // Function to send a test notification to all stored devices
-    async function sendTestNotification() {
-        const deviceTokens = getStoredDeviceTokens(); // Retrieve stored device tokens  
 
-        if (deviceTokens.length === 0) {
-            console.log("No stored device tokens available.");
-            return;
-        }   
-
-        for (const device of deviceTokens) {
-            try {
-                await fetch('https://exp.host/--/api/v2/push/send', {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        to: device.deviceToken, // Expo push token
-                        title: "Test Notification",
-                        body: "This is a test notification.",
-                        data: { message: "Hello from push notification!" },
-                    }),
-                });
-                console.log(`Notification sent to ${device.deviceName} (${device.deviceToken})`);
-            } catch (error) {
-                console.error(`Failed to send notification to ${device.deviceName}:`, error);
-            }
-        }
-    }
 
     return (
         <View style={styles.container}>
@@ -205,7 +176,7 @@ const NotificationsScreen = () => {
                         isBool={isLowQuantityNotif}
                         setIsBool={setIsLowQuantityNotif}
                     />
-                    <Button title="Test Notification" onPress={sendTestNotification} />
+
                 </View>
             </ScrollView>
         </View>
