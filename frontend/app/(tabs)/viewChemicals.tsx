@@ -315,7 +315,7 @@ useEffect(() => {
   };
 
   useEffect(() => {
-    if (chemicalsData.length > 0) {
+    if (chemicalsData && chemicalsData.length > 0) {
       let sortedList = sortChemicals(selectedSort); // Get sorted array
   
       setSortedChemicals(sortedList); // Update sorted list state
@@ -421,7 +421,7 @@ useEffect(() => {
                 </TextInter>
               ) : (
                 <TextInter style={styles.noResultsText}>
-                  No chemicals available
+                  No chemicals available for {userInfo.school}
                 </TextInter>
               )}
             </View>
