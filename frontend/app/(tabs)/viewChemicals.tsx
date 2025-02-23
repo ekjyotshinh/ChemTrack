@@ -10,6 +10,7 @@ import CustomButton from '@/components/CustomButton';
 import Accordion from 'react-native-collapsible/Accordion'; // Add Accordion component
 import Colors from '@/constants/Colors';
 import { useIsFocused } from '@react-navigation/native';
+import * as WebBrowser from 'expo-web-browser'
 
 export default function ViewChemicals() {
 
@@ -49,14 +50,25 @@ export default function ViewChemicals() {
   const toggleFilterSheet = () => setFiltersVisible(!filtersVisible);
 
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
+  const [isPdfOpen, setPdfOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
 
   };
+
+  let testUri = '<InsertTestUri>'
+
+  const viewPdf = async () => {
+    console.log("Click registered for View Pdf")
+    setPdfOpen(!isPdfOpen);
+    await WebBrowser.openBrowserAsync(testUri);
+  }
+
+
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/v1/chemicals/`);
+      const response = await fetch(`${API_URL}/api/v1/chemicals`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch chemicals');
@@ -181,7 +193,7 @@ export default function ViewChemicals() {
                     <TouchableOpacity style={stylesPopup.actionButton}>
                       <Text style={stylesPopup.actionButtonText}>Print QR Code</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={stylesPopup.actionButton} onPress={toggleSDSBottomSheet}>
+                    <TouchableOpacity style={stylesPopup.actionButton} onPress={viewPdf}>
                       <Text style={stylesPopup.actionButtonText}>View SDS</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={stylesPopup.editButton}>
