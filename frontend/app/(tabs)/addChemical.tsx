@@ -24,7 +24,7 @@ export default function ViewChemicals() {
   const [room, setRoom] = useState<string>('')
   const [shelf, setShelf] = useState<string>('')
   const [cabinet, setCabinet] = useState<string>('')
-  const [school, setSchool] = useState<string>('')
+  const [school, setSchool] = useState<string>(userInfo && userInfo.is_admin ? userInfo.school : '')
   const [status, setStatus] = useState<string>('')
   const [quantity, setQuantity] = useState<string>('')
 
@@ -229,12 +229,14 @@ export default function ViewChemicals() {
             </View>
           </View>
 
-          <View style={styles.row}>
-            <View style={{width: '100%'}}>
-              <CustomTextHeader headerText='School' />
-              <DropdownInput data={schools} value={school} setValue={setSchool} />
+          {(userInfo && userInfo.is_master) &&
+            <View style={styles.row}>
+              <View style={{width: '100%'}}>
+                <CustomTextHeader headerText='School' />
+                <DropdownInput data={schools} value={school} setValue={setSchool} />
+              </View>
             </View>
-          </View>
+          }
 
           {/* Room, cabinet, shelf number */}
           <View style={styles.row}>
