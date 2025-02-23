@@ -203,7 +203,7 @@ export default function editChemicals() {
     setRoom('');
     setShelf('');
     setCabinet('');
-    setSchool('');
+    userInfo && userInfo.is_master && setSchool('');
     setStatus('');
     setQuantity('');
     setCasParts(['', '', '']);
@@ -250,12 +250,14 @@ export default function editChemicals() {
                 </View>
               </View>
 
+              {userInfo && userInfo.is_master && 
               <View style={styles.row}>
                 <View style={{ width: '100%' }}>
                   <CustomTextHeader headerText="School" />
                   <DropdownInput data={schools} value={school} setValue={setSchool} />
                 </View>
               </View>
+              }
 
               {/* Room, cabinet, shelf number */}
               <View style={styles.row}>
