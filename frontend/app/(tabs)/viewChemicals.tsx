@@ -18,6 +18,7 @@ import SortIcon from '@/assets/icons/SortIcon';
 import processCAS from '@/functions/ProcessCAS';
 import TextInter from '@/components/TextInter';
 import ChevronRight from '@/assets/icons/ChevronRightIcon';
+import { useUser } from '@/contexts/UserContext';
 
 // Is the chemical expired?
 const isExpired = (expirationDate: string) => {
@@ -121,10 +122,16 @@ export default function ViewChemicals() {
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
   };
+  const { userInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
+    if (!userInfo) return;
     try {
-      const response = await fetch(`${API_URL}/api/v1/chemicals`);
+      // Only master users can fetch all chemicals
+      // Otherwise, only get chemicals for the user's school
+      const endpoint = userInfo.is_master ? `${API_URL}/api/v1/chemicals` : 
+      `${API_URL}/api/v1/chemicals?school=${encodeURIComponent(userInfo.school)}`;
+      const response = await fetch(endpoint);
 
       if (!response.ok) {
         throw new Error('Failed to fetch chemicals');
