@@ -18,6 +18,7 @@ import SortIcon from '@/assets/icons/SortIcon';
 import processCAS from '@/functions/ProcessCAS';
 import TextInter from '@/components/TextInter';
 import ChevronRight from '@/assets/icons/ChevronRightIcon';
+import { useUser } from '@/contexts/UserContext';
 
 // Is the chemical expired?
 const isExpired = (expirationDate: string) => {
@@ -121,10 +122,16 @@ export default function ViewChemicals() {
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
   };
+  const { userInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
+    if (!userInfo) return;
     try {
-      const response = await fetch(`${API_URL}/api/v1/chemicals`);
+      // Only master users can fetch all chemicals
+      // Otherwise, only get chemicals for the user's school
+      const endpoint = userInfo.is_master ? `${API_URL}/api/v1/chemicals` : 
+      `${API_URL}/api/v1/chemicals?school=${encodeURIComponent(userInfo.school)}`;
+      const response = await fetch(endpoint);
 
       if (!response.ok) {
         throw new Error('Failed to fetch chemicals');
@@ -168,7 +175,7 @@ useEffect(() => {
     const searchMatches = [
       chemical.name,
       chemical.CAS,
-      chemical.school,
+      (userInfo && userInfo.is_master) && chemical.school,
       `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
     ].some(field => {
       const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
@@ -326,7 +333,8 @@ useEffect(() => {
         <View style={styles.searchContainer}>
         <TextInput 
           style={styles.searchInput} 
-          placeholder="Chemical name, CAS, or school..." 
+          placeholder={(userInfo && userInfo.is_master) ? 
+            "Chemical name, CAS, or school..." : "Chemical name or CAS" }
           placeholderTextColor={Colors.previewText}
           value={searchQuery}
           onChangeText={(text) => setSearchQuery(text)}

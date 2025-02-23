@@ -3,7 +3,6 @@ import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
-import Header from '@/components/Header';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 import UploadIcon from '@/assets/icons/UploadIcon';
@@ -16,6 +15,8 @@ import Colors from '@/constants/Colors';
 import Size from '@/constants/Size';
 import * as DocumentPicker from 'expo-document-picker';
 import BlueHeader from '@/components/BlueHeader';
+import { useUser } from '@/contexts/UserContext';
+import ErrorPage from './errorPage';
 
 export default function editChemicals() {
   const [name, setName] = useState<string>('');
@@ -33,12 +34,13 @@ export default function editChemicals() {
   let sdsName: string = "placeholderName";
 
   const router = useRouter();
-  const {id} = useLocalSearchParams();
-    // Ensure chemicalId is a string
+  const { id } = useLocalSearchParams();
+  // Ensure chemicalId is a string
   const chemicalIdString = Array.isArray(id) ? id[0] : id;
+  const { userInfo } = useUser();
   console.log(id)
 
-  
+
   const schools = [
     { label: 'Encina High School', value: 'Encina High School' },
     { label: 'Sacramento High School', value: 'Sacramento High School' },
@@ -57,7 +59,8 @@ export default function editChemicals() {
     { label: 'Low', value: 'Low' },
   ]
 
-    const replacePdf = async () => {
+  const replacePdf = async () => {
+    if (!(userInfo && (userInfo.is_admin || userInfo.is_master))) return;
     try {
       // Get pdf
       const pickedPdf = await DocumentPicker.getDocumentAsync({
@@ -88,7 +91,7 @@ export default function editChemicals() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   useEffect(() => {
-    if (chemicalIdString) {
+    if (chemicalIdString && userInfo && (userInfo.is_admin || userInfo.is_master)) {
       fetchChemicalData(chemicalIdString);
     }
   }, [chemicalIdString]);
@@ -114,7 +117,7 @@ export default function editChemicals() {
           data.CAS?.toString().substring(data.CAS?.toString().length - 3, data.CAS?.toString().length - 1),  // Second part: 2 digits before last digit
           data.CAS?.toString().substring(data.CAS?.toString().length - 1)  // Last part: last digit
         ]);
-        
+
         setPurchaseDate(data.purchase_date ? new Date(data.purchase_date) : undefined);
         setExpirationDate(data.expiration_date ? new Date(data.expiration_date) : undefined);
         setUploaded(!!data.uploaded);
@@ -127,9 +130,9 @@ export default function editChemicals() {
       Alert.alert('Error', 'Error fetching chemical data');
     }
   };
-    // Handle Back button press
+  // Handle Back button press
   const handleBackPress = () => {
-    router.push('/viewChemicals');                // Navigate back to the login page
+    router.push('/viewChemicals'); // Navigate back to the login page
   };
 
   // Handle form validation
@@ -147,7 +150,7 @@ export default function editChemicals() {
   }, allInputs);
 
   const onSave = async () => {
-    if (isFilled) {
+    if (isFilled && userInfo && (userInfo.is_admin || userInfo.is_master)) {
       const formatDate = (date: Date | null | undefined): string | undefined =>
         date ? date.toISOString().split('T')[0] : undefined;
 
@@ -200,7 +203,7 @@ export default function editChemicals() {
     setRoom('');
     setShelf('');
     setCabinet('');
-    setSchool('');
+    userInfo && userInfo.is_master && setSchool('');
     setStatus('');
     setQuantity('');
     setCasParts(['', '', '']);
@@ -214,95 +217,100 @@ export default function editChemicals() {
   };
 
   return (
-    <View style={styles.container}>
-      <BlueHeader headerText={name || 'Chemical Name'} onPress={handleBackPress} />
-      <ScrollView style={styles.scroll}>
-        <View style={styles.innerContainer}>
-          {/* Name */}
-          <HeaderTextInput headerText="Name" value={name} onChangeText={(value) => setName(value)} />
-          {/* CAS Number */}
-          <View style={{ marginTop: Size.width(10) }}>
-            <CustomTextHeader headerText="CAS Number" />
-            <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
-          </View>
+    <>
+      {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
+        <View style={styles.container}>
+          <BlueHeader headerText={name || 'Chemical Name'} onPress={handleBackPress} />
+          <ScrollView style={styles.scroll}>
+            <View style={styles.innerContainer}>
+              {/* Name */}
+              <HeaderTextInput headerText="Name" value={name} onChangeText={(value) => setName(value)} />
+              {/* CAS Number */}
+              <View style={{ marginTop: Size.width(10) }}>
+                <CustomTextHeader headerText="CAS Number" />
+                <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
+              </View>
 
-          {/* Purchase and Expiration Dates */}
-          <View style={styles.row}>
-            <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={Size.width(154)} headerText="Purchase Date" />
-            <DateInput date={expirationDate} setDate={setExpirationDate} inputWidth={Size.width(154)} headerText="Expiration Date" />
-          </View>
+              {/* Purchase and Expiration Dates */}
+              <View style={styles.row}>
+                <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={Size.width(154)} headerText="Purchase Date" />
+                <DateInput date={expirationDate} setDate={setExpirationDate} inputWidth={Size.width(154)} headerText="Expiration Date" />
+              </View>
 
-          {/* Status and Quality */}
-          <View style={styles.row}>
-            <View style={{ width: Size.width(154) }}>
-              <CustomTextHeader headerText="Status" />
-              <DropdownInput data={statuses} value={status} setValue={setStatus} />
+              {/* Status and Quality */}
+              <View style={styles.row}>
+                <View style={{ width: Size.width(154) }}>
+                  <CustomTextHeader headerText="Status" />
+                  <DropdownInput data={statuses} value={status} setValue={setStatus} />
+                </View>
+
+                <View style={{ width: Size.width(154) }}>
+                  <CustomTextHeader headerText="Quantity" />
+                  <DropdownInput data={quantities} value={quantity} setValue={setQuantity} />
+                </View>
+              </View>
+
+              {userInfo && userInfo.is_master && 
+              <View style={styles.row}>
+                <View style={{ width: '100%' }}>
+                  <CustomTextHeader headerText="School" />
+                  <DropdownInput data={schools} value={school} setValue={setSchool} />
+                </View>
+              </View>
+              }
+
+              {/* Room, cabinet, shelf number */}
+              <View style={styles.row}>
+                <HeaderTextInput headerText="Room" onChangeText={(value) => setRoom(value)} inputWidth={Size.width(111)} value={room} />
+                <HeaderTextInput headerText="Cabinet" onChangeText={(value) => setCabinet(value)} inputWidth={Size.width(88)} isNumeric value={cabinet} />
+                <HeaderTextInput headerText="Shelf" onChangeText={(value) => setShelf(value)} inputWidth={Size.width(88)} isNumeric value={shelf} />
+              </View>
+
+              {/* SDS button */}
+              <View style={{ marginTop: 10, marginBottom: 10 }}>
+                <CustomTextHeader headerText="SDS" />
+                <View style={{ alignItems: 'center' }}>
+                  <CustomButton
+                    title={uploaded ? 'File Uploaded' : 'Replace PDF'}
+                    onPress={replacePdf}
+                    width={337}
+                    icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> : <UploadIcon width={24} height={24} />}
+                    iconPosition="left"
+                    color={uploaded ? 'black' : 'white'}
+                    textColor={uploaded ? 'white' : 'black'}
+                  />
+                </View>
+              </View>
+
+              <View style={{ alignItems: 'center' }}>
+                {/* Save and Clear buttons */}
+                <CustomButton
+                  title="Save Chemical"
+                  textColor={isFilled ? 'white' : Colors.grey}
+                  color={isFilled ? Colors.blue : 'white'}
+                  onPress={onSave}
+                  width={337}
+                  icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : Colors.grey} />}
+                  iconPosition="left"
+                />
+
+                <CustomButton
+                  title="Clear"
+                  onPress={onClear}
+                  width={337}
+                  icon={<ReturnIcon width={24} height={24} />}
+                  iconPosition="left"
+                  color={Colors.red}
+                  textColor="white"
+                />
+              </View>
+
+              {/* Extra padding */}
+              <View style={{ height: 40 }} />
             </View>
-
-            <View style={{ width: Size.width(154) }}>
-              <CustomTextHeader headerText="Quantity" />
-              <DropdownInput data={quantities} value={quantity} setValue={setQuantity} />
-            </View>
-          </View>
-
-          <View style={styles.row}>
-            <View style={{width: '100%'}}>
-              <CustomTextHeader headerText="School" />
-              <DropdownInput data={schools} value={school} setValue={setSchool} />
-            </View>
-          </View>
-
-          {/* Room, cabinet, shelf number */}
-          <View style={styles.row}>
-            <HeaderTextInput headerText="Room" onChangeText={(value) => setRoom(value)} inputWidth={Size.width(111)} value={room} />
-            <HeaderTextInput headerText="Cabinet" onChangeText={(value) => setCabinet(value)} inputWidth={Size.width(88)} isNumeric value={cabinet} />
-            <HeaderTextInput headerText="Shelf" onChangeText={(value) => setShelf(value)} inputWidth={Size.width(88)} isNumeric value={shelf} />
-          </View>
-
-          {/* SDS button */}
-          <View style={{ marginTop: 10, marginBottom: 10 }}>
-            <CustomTextHeader headerText="SDS" />
-            <View style={{ alignItems: 'center' }}>
-              <CustomButton
-                title={uploaded ? 'File Uploaded' : 'Replace PDF'}
-                onPress={replacePdf}
-                width={337}
-                icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> : <UploadIcon width={24} height={24} />}
-                iconPosition="left"
-                color={uploaded ? 'black' : 'white'}
-                textColor={uploaded ? 'white' : 'black'}
-              />
-            </View>
-          </View>
-
-          <View style={{ alignItems: 'center' }}>
-            {/* Save and Clear buttons */}
-            <CustomButton
-              title="Save Chemical"
-              textColor={isFilled ? 'white' : Colors.grey}
-              color={isFilled ? Colors.blue : 'white'}
-              onPress={onSave}
-              width={337}
-              icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : Colors.grey} />}
-              iconPosition="left"
-            />
-
-            <CustomButton
-              title="Clear"
-              onPress={onClear}
-              width={337}
-              icon={<ReturnIcon width={24} height={24} />}
-              iconPosition="left"
-              color={Colors.red}
-              textColor="white"
-            />
-          </View>
-
-          {/* Extra padding */}
-          <View style={{ height: 40 }} />
-        </View>
-      </ScrollView>
-    </View>
+          </ScrollView>
+        </View>) : (<ErrorPage />)}
+    </>
   );
 }
 

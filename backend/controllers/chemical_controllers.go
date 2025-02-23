@@ -109,7 +109,7 @@ func GetChemical(c *gin.Context) {
 
 // GetChemicals godoc
 // @Summary Get all chemicals
-// @Description Get a list of all chemicals
+// @Description Get a list of all chemicals. Can query by school to filter chemicals from a specific school.
 // @Tags chemicals
 // @Produce json
 // @Success 200 {array} map[string]interface{}
@@ -117,7 +117,18 @@ func GetChemical(c *gin.Context) {
 // @Router /api/v1/chemicals/ [get]
 func GetChemicals(c *gin.Context) {
 	ctx := context.Background()
-	iter := client.Collection("chemicals").Documents(ctx)
+	school := c.DefaultQuery("school", "")
+
+	var iter *firestore.DocumentIterator
+
+	if school != "" {
+		// If school is provided, filter the chemicals by school
+		iter = client.Collection("chemicals").Where("school", "==", school).Documents(ctx)
+	} else {
+		// If no school is provided, get all chemicals
+		iter = client.Collection("chemicals").Documents(ctx)
+	}
+
 	var chemicals []map[string]interface{}
 
 	for {
@@ -220,7 +231,7 @@ func DeleteChemical(c *gin.Context) {
 	}
 
 	// Delete the QR code from Google Cloud Storage
-	helpers.DeleteFileFromGCS(ctx, "chemtrack-testing", "QRcodes/"+ chemicalID +".png")
+	helpers.DeleteFileFromGCS(ctx, "chemtrack-testing", "QRcodes/"+chemicalID+".png")
 
 	c.JSON(http.StatusOK, gin.H{"message": "Chemical deleted successfully"})
 }
