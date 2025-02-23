@@ -93,11 +93,17 @@ function getStoredDeviceTokens(): NotificationToken[] {
   return deviceTokens;
 }
 
+function removeDeviceToken() {
+  deviceTokens = [];
+  console.log('Updated device tokens:', deviceTokens);
+}
+
 export {
   NotificationToken,
   registerForPushNotifications,
   setNotificationHandler,
   setNotificationReceiver,
   storeDeviceToken,
-  getStoredDeviceTokens
+  getStoredDeviceTokens,
+  removeDeviceToken
 };
