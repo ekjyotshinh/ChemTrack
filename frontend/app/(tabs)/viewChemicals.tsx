@@ -175,7 +175,7 @@ useEffect(() => {
     const searchMatches = [
       chemical.name,
       chemical.CAS,
-      chemical.school,
+      (userInfo && userInfo.is_master) && chemical.school,
       `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
     ].some(field => {
       const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
@@ -333,7 +333,8 @@ useEffect(() => {
         <View style={styles.searchContainer}>
         <TextInput 
           style={styles.searchInput} 
-          placeholder="Chemical name, CAS, or school..." 
+          placeholder={(userInfo && userInfo.is_master) ? 
+            "Chemical name, CAS, or school..." : "Chemical name or CAS" }
           placeholderTextColor={Colors.previewText}
           value={searchQuery}
           onChangeText={(text) => setSearchQuery(text)}
