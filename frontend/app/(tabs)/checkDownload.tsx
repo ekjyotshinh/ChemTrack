@@ -1,3 +1,4 @@
+/*
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button, TouchableOpacity, Alert, Platform } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
@@ -129,3 +130,128 @@ const styles = StyleSheet.create({
     fontSize: 18
   }
 });
+*/
+
+import React, { useState } from 'react';  
+import { View, Text, StyleSheet, Button, TouchableOpacity, Alert, Platform } from 'react-native';  
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';  
+import * as FileSystem from 'expo-file-system';  
+import * as MediaLibrary from 'expo-media-library';  
+import * as Sharing from 'expo-sharing';  
+
+export default function CheckDownload() {  
+  const [facing, setFacing] = useState<CameraType>('back');  
+  const [permission, requestPermission] = useCameraPermissions();  
+
+  const pdfUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';  
+
+  const downloadPDF = async () => {  
+    try {  
+      const fileUri = FileSystem.documentDirectory + 'qr-code.pdf';  
+      const { uri } = await FileSystem.downloadAsync(pdfUrl, fileUri);  
+
+      if (Platform.OS === 'android') {  
+        const { status } = await MediaLibrary.requestPermissionsAsync();  
+        if (status !== 'granted') {  
+          Alert.alert('Permission Required', 'Need storage access to save PDF');  
+          return;  
+        }  
+
+        const asset = await MediaLibrary.createAssetAsync(uri);  
+        const album = await MediaLibrary.getAlbumAsync('Download');  
+        
+        if (album) {  
+          await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);  
+        } else {  
+          await MediaLibrary.createAlbumAsync('Download', asset, false);  
+        }  
+
+        Alert.alert('Success', 'PDF saved to Downloads folder');  
+      } else {  
+        await Sharing.shareAsync(uri, {  
+          mimeType: 'application/pdf',  
+          dialogTitle: 'Save PDF File'  
+        });  
+      }  
+    } catch (error) {  
+      Alert.alert('Error', 'Failed to download PDF');  
+      console.error(error);  
+    }  
+  };  
+
+  // Rest of your component remains unchanged  
+  if (!permission) {  
+    return <View style={styles.container}><Text>Loading...</Text></View>;  
+  }  
+
+  if (!permission.granted) {  
+    return (  
+      <View style={styles.container}>  
+        <Text style={styles.message}>Camera permission required</Text>  
+        <Button title="Grant Permission" onPress={requestPermission} />  
+        <TouchableOpacity style={styles.downloadButton} onPress={downloadPDF}>  
+          <Text style={styles.downloadButtonText}>Download PDF</Text>  
+        </TouchableOpacity>  
+      </View>  
+    );  
+  }  
+
+  return (  
+    <View style={styles.container}>  
+      <CameraView style={styles.camera} facing={facing} />  
+      <View style={styles.controlsContainer}>  
+        <TouchableOpacity  
+          style={styles.controlButton}  
+          onPress={() => setFacing(prev => prev === 'back' ? 'front' : 'back')}  
+        >  
+          <Text style={styles.controlText}>Flip Camera</Text>  
+        </TouchableOpacity>  
+      </View>  
+      <TouchableOpacity style={styles.downloadButton} onPress={downloadPDF}>  
+        <Text style={styles.downloadButtonText}>Download PDF</Text>  
+      </TouchableOpacity>  
+    </View>  
+  );  
+}  
+
+// Keep your existing StyleSheet  
+const styles = StyleSheet.create({  
+  container: {  
+    flex: 1,  
+    justifyContent: 'center',  
+    alignItems: 'center'  
+  },  
+  message: {  
+    fontSize: 16,  
+    marginBottom: 20  
+  },  
+  camera: {  
+    flex: 1,  
+    width: '100%'  
+  },  
+  controlsContainer: {  
+    position: 'absolute',  
+    top: 40,  
+    left: 20  
+  },  
+  controlButton: {  
+    backgroundColor: 'rgba(0,0,0,0.6)',  
+    padding: 15,  
+    borderRadius: 8  
+  },  
+  controlText: {  
+    color: 'white',  
+    fontSize: 18  
+  },  
+  downloadButton: {  
+    backgroundColor: '#2196F3',  
+    padding: 15,  
+    margin: 20,  
+    borderRadius: 8  
+  },  
+  downloadButtonText: {  
+    color: 'white',  
+    fontSize: 18  
+  }  
+}); 
+
