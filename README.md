@@ -121,7 +121,30 @@ By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, eff
     ```sh
     yarn start
     ```
-3. Follow the instructions in the terminal to run the app on an emulator, simulator, or physical device.
+3. Install notification dependencies:
+    ```sh
+    npm install expo-notifications expo-constants
+    ```
+
+4. Expo Project Setup:
+   - Make sure you're logged into your Expo account:
+     ```sh
+     npx expo login
+     ```
+   - Get your Expo project ID by running:
+     ```sh
+     npx expo projects
+     ```
+   - Add your Expo project ID to your .env file:
+     ```
+     EXPO_PROJECT_ID=your_project_id_here
+     ```
+   Note: Without the correct project ID in your .env file, push notifications won't work properly.
+   
+5. Testing Notifications:
+   - Download the Expo Go app from App Store (iOS) or Play Store (Android)
+   - Create and sign in to your Expo account in the Expo Go app
+   - Note: You must be signed in to the same Expo account on both your development environment and the Expo Go app for notifications to work properly.
 
 ## Testing (To Do)
 
@@ -157,3 +180,4 @@ Created in Figma
 ## Additional Information
 - For more details on the project structure and code, refer to the individual files and directories.
 - Ensure that you have the necessary environment variables set up for both the backend and frontend to function correctly.
+- The app includes push notification functionality for alerting users about chemical updates. Users will be prompted to enable notifications when first accessing the app.

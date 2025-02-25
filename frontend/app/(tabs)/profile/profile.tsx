@@ -25,7 +25,7 @@ import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
 
-export default function ViewChemicals() {
+export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -168,15 +168,17 @@ export default function ViewChemicals() {
           {/* Only show these buttons when NOT editing */}
           {!isEditing &&
             <>
-              <CustomButton
-                title="Invite User"
-                color={Colors.white}
-                textColor={Colors.black}
-                onPress={() => router.push('/profile/userPage')}
-                width={337}
-                icon={<AddUserIcon width={24} height={24} color={Colors.black} />}
-                iconPosition="left"
-              />
+              {userInfo && userInfo.is_master && (
+                <CustomButton
+                  title="Invite User"
+                  color={Colors.white}
+                  textColor={Colors.black}
+                  onPress={() => router.push('/profile/userPage')}
+                  width={337}
+                  icon={<AddUserIcon width={24} height={24} color={Colors.black} />}
+                  iconPosition="left"
+                />
+              )}
               <CustomButton
                 title="Notifications"
                 color={Colors.white}
