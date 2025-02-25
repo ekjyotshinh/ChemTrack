@@ -168,15 +168,17 @@ export default function Profile() {
           {/* Only show these buttons when NOT editing */}
           {!isEditing &&
             <>
-              <CustomButton
-                title="Invite User"
-                color={Colors.white}
-                textColor={Colors.black}
-                onPress={() => router.push('/profile/userPage')}
-                width={337}
-                icon={<AddUserIcon width={24} height={24} color={Colors.black} />}
-                iconPosition="left"
-              />
+              {userInfo && userInfo.is_master && (
+                <CustomButton
+                  title="Invite User"
+                  color={Colors.white}
+                  textColor={Colors.black}
+                  onPress={() => router.push('/profile/userPage')}
+                  width={337}
+                  icon={<AddUserIcon width={24} height={24} color={Colors.black} />}
+                  iconPosition="left"
+                />
+              )}
               <CustomButton
                 title="Notifications"
                 color={Colors.white}

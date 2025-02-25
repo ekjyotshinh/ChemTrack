@@ -18,6 +18,8 @@ import SortIcon from '@/assets/icons/SortIcon';
 import processCAS from '@/functions/ProcessCAS';
 import TextInter from '@/components/TextInter';
 import ChevronRight from '@/assets/icons/ChevronRightIcon';
+import { useUser } from '@/contexts/UserContext';
+import * as WebBrowser from 'expo-web-browser'
 
 // Is the chemical expired?
 const isExpired = (expirationDate: string) => {
@@ -28,7 +30,7 @@ const isExpired = (expirationDate: string) => {
 }
 
 // Add elipsis to long chemical names >= 30 characters
-const processChemName = ({name} : {name: string}) => {
+const processChemName = ({ name }: { name: string }) => {
   name = name.toString()
   if (name.length <= 30) {
     return name
@@ -120,11 +122,28 @@ export default function ViewChemicals() {
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
+    viewPdf(testUrl);
+
   };
+
+  // Function to view safety data sheet (SDS) in web browser
+  let testUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+
+  const viewPdf = async (testUrl: string) => {
+    console.log("Click registered for View Pdf")
+    await WebBrowser.openBrowserAsync(testUrl);
+  }
+
+  const { userInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
+    if (!userInfo) return;
     try {
-      const response = await fetch(`${API_URL}/api/v1/chemicals`);
+      // Only master users can fetch all chemicals
+      // Otherwise, only get chemicals for the user's school
+      const endpoint = userInfo.is_master ? `${API_URL}/api/v1/chemicals` :
+        `${API_URL}/api/v1/chemicals?school=${encodeURIComponent(userInfo.school)}`;
+      const response = await fetch(endpoint);
 
       if (!response.ok) {
         throw new Error('Failed to fetch chemicals');
@@ -157,76 +176,76 @@ export default function ViewChemicals() {
   const isValidDate = (dateString: string) => !isNaN(Date.parse(dateString));
 
 
-// Filter logic
-useEffect(() => {
-  if (!chemicalsData) return;
+  // Filter logic
+  useEffect(() => {
+    if (!chemicalsData) return;
 
-  const searchLower = searchQuery.toLowerCase().trim();
+    const searchLower = searchQuery.toLowerCase().trim();
 
-  const filtered = chemicalsData.filter((chemical: Chemical) => {
-    // 1. Enhanced Search Filter
-    const searchMatches = [
-      chemical.name,
-      chemical.CAS,
-      chemical.school,
-      `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
-    ].some(field => {
-      const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
-      const cleanSearch = searchLower.replace(/[^a-z0-9]/g, '');
-      return cleanField.includes(cleanSearch);
-    });
-
-    // 2. Status Filter with Priority
-    const statusMatches = selectedStatus.length === 0 || 
-      selectedStatus.includes(chemical.status);
-
-    // 3. Quantity Filter (case-insensitive exact match)
-    const quantityMatches = selectedQuantity.length === 0 || 
-      selectedQuantity.some(q => 
-        safeString(chemical.quantity) === safeString(q)
-      );
-
-    // 4. Location Filter (dynamic property access)
-    const locationMatches = selectedLocation.length === 0 || 
-      selectedLocation.some(locationType => {
-        const value = safeString(chemical[locationType.toLowerCase() as keyof Chemical]);
-        return value.trim() !== '';
+    const filtered = chemicalsData.filter((chemical: Chemical) => {
+      // 1. Enhanced Search Filter
+      const searchMatches = [
+        chemical.name,
+        chemical.CAS,
+        (userInfo && userInfo.is_master) && chemical.school,
+        `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
+      ].some(field => {
+        const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
+        const cleanSearch = searchLower.replace(/[^a-z0-9]/g, '');
+        return cleanField.includes(cleanSearch);
       });
 
-    // 5. Date Handling with Validation
-    const purchaseDate = isValidDate(chemical.purchase_date) ? 
-      new Date(chemical.purchase_date) : null;
-    const expirationDate = isValidDate(chemical.expiration_date) ? 
-      new Date(chemical.expiration_date) : null;
+      // 2. Status Filter with Priority
+      const statusMatches = selectedStatus.length === 0 ||
+        selectedStatus.includes(chemical.status);
 
-    // Date Filter Logic
-    const purchaseDateMatches = selectedPurchaseDate.length === 0 || (
-      (selectedPurchaseDate.includes('Before 2020') && purchaseDate && purchaseDate < new Date('2020-01-01')) ||
-      (selectedPurchaseDate.includes('2020-2024') && purchaseDate && 
-        purchaseDate >= new Date('2020-01-01') && 
-        purchaseDate <= new Date('2024-12-31')) ||
-      (selectedPurchaseDate.includes('After 2024') && purchaseDate && purchaseDate > new Date('2024-12-31'))
-    );
+      // 3. Quantity Filter (case-insensitive exact match)
+      const quantityMatches = selectedQuantity.length === 0 ||
+        selectedQuantity.some(q =>
+          safeString(chemical.quantity) === safeString(q)
+        );
 
-    const expirationDateMatches = selectedExpirationDate.length === 0 || (
-      (selectedExpirationDate.includes('Before 2025') && expirationDate && expirationDate < new Date('2025-01-01')) ||
-      (selectedExpirationDate.includes('2025-2030') && expirationDate && 
-        expirationDate >= new Date('2025-01-01') && 
-        expirationDate <= new Date('2030-12-31')) ||
-      (selectedExpirationDate.includes('After 2030') && expirationDate && expirationDate > new Date('2030-12-31'))
-    );
+      // 4. Location Filter (dynamic property access)
+      const locationMatches = selectedLocation.length === 0 ||
+        selectedLocation.some(locationType => {
+          const value = safeString(chemical[locationType.toLowerCase() as keyof Chemical]);
+          return value.trim() !== '';
+        });
 
-    return searchMatches && 
-           statusMatches && 
-           quantityMatches && 
-           locationMatches && 
-           purchaseDateMatches && 
-           expirationDateMatches;
-  });
+      // 5. Date Handling with Validation
+      const purchaseDate = isValidDate(chemical.purchase_date) ?
+        new Date(chemical.purchase_date) : null;
+      const expirationDate = isValidDate(chemical.expiration_date) ?
+        new Date(chemical.expiration_date) : null;
 
-  setFilteredChemicals(filtered);
-}, [searchQuery, chemicalsData, selectedStatus, selectedQuantity, 
-   selectedLocation, selectedPurchaseDate, selectedExpirationDate]);
+      // Date Filter Logic
+      const purchaseDateMatches = selectedPurchaseDate.length === 0 || (
+        (selectedPurchaseDate.includes('Before 2020') && purchaseDate && purchaseDate < new Date('2020-01-01')) ||
+        (selectedPurchaseDate.includes('2020-2024') && purchaseDate &&
+          purchaseDate >= new Date('2020-01-01') &&
+          purchaseDate <= new Date('2024-12-31')) ||
+        (selectedPurchaseDate.includes('After 2024') && purchaseDate && purchaseDate > new Date('2024-12-31'))
+      );
+
+      const expirationDateMatches = selectedExpirationDate.length === 0 || (
+        (selectedExpirationDate.includes('Before 2025') && expirationDate && expirationDate < new Date('2025-01-01')) ||
+        (selectedExpirationDate.includes('2025-2030') && expirationDate &&
+          expirationDate >= new Date('2025-01-01') &&
+          expirationDate <= new Date('2030-12-31')) ||
+        (selectedExpirationDate.includes('After 2030') && expirationDate && expirationDate > new Date('2030-12-31'))
+      );
+
+      return searchMatches &&
+        statusMatches &&
+        quantityMatches &&
+        locationMatches &&
+        purchaseDateMatches &&
+        expirationDateMatches;
+    });
+
+    setFilteredChemicals(filtered);
+  }, [searchQuery, chemicalsData, selectedStatus, selectedQuantity,
+    selectedLocation, selectedPurchaseDate, selectedExpirationDate]);
 
   useEffect(() => {
     if (!isFocused) {
@@ -256,7 +275,7 @@ useEffect(() => {
   // Sorting function
   const sortChemicals = (option: string) => {
     let sortedList = [...chemicalsData];
-  
+
     switch (option) {
       case "Lowest quantity first":
         sortedList.sort((a, b) => {
@@ -297,25 +316,25 @@ useEffect(() => {
     }
     return sortedList; // Return the sorted array instead of modifying state here
   };
-  
+
 
 
   // Handle option selection
   const handleSortSelection = (option: string) => {
     setSelectedSort(option); // Move checkmark
     sortChemicals(option); // Sort list dynamically
-    setSortVisible(false); 
+    setSortVisible(false);
   };
 
   useEffect(() => {
-    if (chemicalsData.length > 0) {
+    if (chemicalsData && chemicalsData.length > 0) {
       let sortedList = sortChemicals(selectedSort); // Get sorted array
-  
+
       setSortedChemicals(sortedList); // Update sorted list state
       setFilteredChemicals(sortedList); // Ensure displayed list is sorted
     }
   }, [chemicalsData, selectedSort]); // Trigger sorting when data or selection changes
-  
+
   return (
     <View style={styles.container}>
       <Header headerText='View Chemicals' />
@@ -324,13 +343,14 @@ useEffect(() => {
       <View style={styles.modifyChemicalList}>
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-        <TextInput 
-          style={styles.searchInput} 
-          placeholder="Chemical name, CAS, or school..." 
-          placeholderTextColor={Colors.previewText}
-          value={searchQuery}
-          onChangeText={(text) => setSearchQuery(text)}
-        />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={(userInfo && userInfo.is_master) ?
+              "Chemical name, CAS, or school..." : "Chemical name or CAS"}
+            placeholderTextColor={Colors.previewText}
+            value={searchQuery}
+            onChangeText={(text) => setSearchQuery(text)}
+          />
           <TouchableOpacity style={styles.searchButton}>
             <SearchIcon />
           </TouchableOpacity>
@@ -347,7 +367,7 @@ useEffect(() => {
             iconPosition='right'
             isSpaceBetween={true}
           />
-          
+
           <CustomButton
             title={'Sort By'}
             onPress={() => setSortVisible(!sortVisible)}
@@ -387,9 +407,9 @@ useEffect(() => {
                 <View style={styles.btnContainer}>
                   <View style={{ flex: 1, marginRight: 8 }}>
                     <TextInter style={styles.chemicalName}>
-                      {processChemName({name: chemical.name || 'Unknown'})}
+                      {processChemName({ name: chemical.name || 'Unknown' })}
                     </TextInter>
-                    
+
                     <TextInter style={styles.chemicalCAS}>
                       <TextInter style={{ fontWeight: 'bold' }}>CAS: </TextInter>
                       {processCAS(chemical.CAS) || 'N/A'}
@@ -413,7 +433,7 @@ useEffect(() => {
                 </TextInter>
               ) : (
                 <TextInter style={styles.noResultsText}>
-                  No chemicals available
+                  No chemicals available for {userInfo.school}
                 </TextInter>
               )}
             </View>
@@ -567,7 +587,7 @@ useEffect(() => {
                     )}
                     onChange={(expandedSections) => setExpanded(expandedSections)} // Set active sections
                   />
-                  </ScrollView>
+                </ScrollView>
               </View>
             </BlurView>
           </Modal>
