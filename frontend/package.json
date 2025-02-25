@@ -17,6 +17,7 @@
     "@expo/vector-icons": "^14.0.2",
     "@gorhom/bottom-sheet": "^5.0.5",
     "@react-native-community/datetimepicker": "8.2.0",
+    "@react-native-community/netinfo": "^11.4.1",
     "@react-native-picker/picker": "^2.9.0",
     "@react-navigation/native": "^7.0.14",
     "expo": "^52.0.28",
