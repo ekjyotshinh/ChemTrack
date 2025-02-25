@@ -890,7 +890,7 @@ const sharedStyles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 24,
-    color: Colors.darkgrey,
+    color: Colors.grey,
   },
   modalHeader: {
     fontSize: 22,
