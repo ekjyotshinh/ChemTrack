@@ -419,7 +419,7 @@ const handleResetFilters = () => {
         <View style={stylesSort.dropdown}>
           {sortOptions.map((option, index) => (
             <TouchableOpacity key={index} style={stylesSort.option} onPress={() => handleSortSelection(option)}>
-              <Text>{selectedSort === option ? "✓ " : ""} {option}</Text>
+              <TextInter>{selectedSort === option ? "✓ " : ""} {option}</TextInter>
             </TouchableOpacity>
           ))}
         </View>
@@ -488,9 +488,9 @@ const handleResetFilters = () => {
             <View style={stylesSort.modalContainer}>
               <View style={stylesSort.modalView}>
                 <TouchableOpacity onPress={closeSortModal} style={stylesSort.closeButton}>
-                  <Text style={stylesSort.closeButtonText}>✕</Text>
+                  <TextInter style={stylesSort.closeButtonText}>✕</TextInter>
                 </TouchableOpacity>
-                <Text style={stylesSort.modalHeader}>Sort Options</Text>
+                <TextInter style={stylesSort.modalHeader}>Sort Options</TextInter>
 
                 {/* Dropdown for Sorting Options */}
                 <View style={stylesSort.dropdownContainer}>
@@ -506,7 +506,7 @@ const handleResetFilters = () => {
                         sortOption === option && stylesSort.selectedOption, // Highlight selected option
                       ]}
                     >
-                      <Text style={stylesSort.optionText}>{option}</Text>
+                      <TextInter style={stylesSort.optionText}>{option}</TextInter>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -554,7 +554,7 @@ const handleResetFilters = () => {
                 style={sharedStyles.closeButton} 
                 onPress={closeFilterModal}
               >
-                <Text style={sharedStyles.closeButtonText}>✕</Text>
+                <TextInter style={sharedStyles.closeButtonText}>✕</TextInter>
               </TouchableOpacity>
 
               {/* Header */}
@@ -578,7 +578,7 @@ const handleResetFilters = () => {
                           ]}
                           onPress={() => handleFilterSelect(section.title, option)}
                         >
-                          <Text style={sharedStyles.optionText}>{option}</Text>
+                          <TextInter style={sharedStyles.optionText}>{option}</TextInter>
                           {isSelected && <Text style={sharedStyles.checkmark}>✓</Text>}
                         </TouchableOpacity>
                       );
@@ -617,9 +617,9 @@ const handleResetFilters = () => {
         onClose={() => setIsSDSBottomSheetOpen(false)}
       >
         <View style={stylesSDS.container}>
-          <Text style={stylesSDS.headerText}>SDS</Text>
+          <TextInter style={stylesSDS.headerText}>SDS</TextInter>
           <TouchableOpacity style={stylesSDS.downloadButton}>
-            <Text style={stylesSDS.downloadButtonText}>Download</Text>
+            <TextInter style={stylesSDS.downloadButtonText}>Download</TextInter>
           </TouchableOpacity>
         </View>
       </BottomSheet>
