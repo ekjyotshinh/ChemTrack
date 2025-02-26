@@ -56,7 +56,8 @@ const InviteUserPage: React.FC = () => {
                     body: JSON.stringify({
                         to: email,
                         subject: 'ChemTrack User Invitation',
-                        body: `You have been invited to join ChemTrack as a ${userType}. Click the link below to sign up.\n\n[Sign Up Here](http://${process.env.EXPO_PUBLIC_API_URL}/signup?email=${email}&userType=${userType})`,
+                        body:`You have been invited to join ChemTrack as a ${userType}. Click the link below to sign up.\n\n[Sign Up Here](chemtrack://signup?email=${email}&userType=${userType})`
+                        ,
                     }),
                 });
 
