@@ -10,6 +10,7 @@ import TextInter from '@/components/TextInter';
 import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
 import * as Linking from 'expo-linking';
 
+import Size from '@/constants/Size';
 
 export default function HomePageView() {
   const router = useRouter(); // Initialize the router
@@ -45,34 +46,37 @@ export default function HomePageView() {
       </View>
 
       {/* Button Section */}
-      <CustomButton 
-        title="Scan QR Code" 
-        onPress={() => router.push('/scanQRCode')} 
-        width={337} 
+      <CustomButton
+        title="Scan QR Code"
+        onPress={() => router.push('/scanQRCode')}
+        width={337}
         icon={<QRCodeIcon width={24} height={24} />}
         iconPosition='left'
       />
-      <CustomButton 
-        title="View Chemicals" 
-        onPress={() => router.push('/viewChemicals')} 
+      <CustomButton
+        title="View Chemicals"
+        onPress={() => router.push('/viewChemicals')}
         width={337}
-        icon = {<EyeIcon width={24} height={24} />}
+        icon={<EyeIcon width={24} height={24} />}
         iconPosition="left"
       />
-      <CustomButton 
-        title="Add Chemical" 
-        onPress={() => router.push('/addChemical')} 
-        width={337} 
-        icon = {<PlusIcon width={24} height={24} />}
-        iconPosition="left" 
+      {userInfo && (userInfo.is_admin || userInfo.is_master) && (
+        <CustomButton
+          title="Add Chemical"
+          onPress={() => router.push('/addChemical')}
+          width={337}
+          icon={<PlusIcon width={24} height={24} />}
+          iconPosition="left"
+        />)}
+      <CustomButton
+        title="My Account"
+        onPress={() => router.push('/profile/profile')}
+        width={337}
+        icon={<UserIcon width={24} height={24} />}
+        iconPosition="left"
       />
-      <CustomButton 
-        title="My Account" 
-        onPress={() => router.push('/profile/profile')} 
-        width={337} 
-        icon={<UserIcon width = {24} height = {24}/>} 
-        iconPosition="left" 
-      />
+
+      {/* TODO: Make sure to remove in prod */}
       <CustomButton 
         title="Only for testing purpose" 
         onPress={() => router.push('/checkDownload')} 
@@ -88,6 +92,7 @@ export default function HomePageView() {
         icon={<UserIcon width={24} height={24} />}
         iconPosition="left"
       />
+      <View style={{ height: Size.height(65) }} />
     </View>
   );
 }
@@ -95,26 +100,24 @@ export default function HomePageView() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'flex-start', 
-    backgroundColor: '#F5F5F5', 
-    paddingLeft: '10%', 
-    paddingTop: 40, 
+    backgroundColor: Colors.offwhite,
+    paddingHorizontal: Size.width(33),
+    
   },
   textContainer: {
-    alignItems: 'flex-start', 
-    marginBottom: 40, 
+    alignSelf: 'flex-start',
+    marginBottom: Size.height(60),
   },
   welcomeText: {
-    fontSize: 50,
+    fontSize: Size.width(50),
     fontWeight: 'bold',
-    color: Colors.blue, 
-    marginBottom: 10,
+    color: Colors.blue,
   },
   usernameText: {
-    fontSize: 40,
+    fontSize: Size.width(40),
     fontWeight: 'bold',
-    color: 'black', 
-    marginBottom: 20,
+    color: Colors.black,
   },
 });

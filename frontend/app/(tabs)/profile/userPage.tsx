@@ -19,6 +19,8 @@ import Size from '@/constants/Size';
 import BlueHeader from '@/components/BlueHeader';
 import { useRouter } from 'expo-router';
 import emailRegex from '@/functions/EmailRegex';
+import { useUser } from '@/contexts/UserContext';
+import ErrorPage from '../errorPage';
 
 const InviteUserPage: React.FC = () => {
     const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -30,6 +32,8 @@ const InviteUserPage: React.FC = () => {
     emailRegex({ email, setIsValidEmail });
 
     const [allFieldsFilled, setAllFieldsFilled] = useState(false);
+
+    const { userInfo } = useUser();
 
     // Make sure that all fields are filled
     useEffect(() => {
@@ -44,6 +48,10 @@ const InviteUserPage: React.FC = () => {
         if (email && school && userType) {
             if (!isValidEmail) {
                 Alert.alert('Error', 'Please enter a valid email address');
+                return;
+            }
+            if (!userInfo.is_master) {
+                Alert.alert('Error', 'You do not have permission to invite users');
                 return;
             }
             try {
@@ -90,110 +98,116 @@ const InviteUserPage: React.FC = () => {
     const router = useRouter()
 
     return (
-        <View style={styles.safeArea}>
-            {/* Title */}
-            <BlueHeader headerText={'Invite User'} onPress={() => router.push('/profile/profile')} />
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.container}>
-                
+        <>
+            {userInfo && userInfo.is_master ? (
+                <View style={styles.safeArea}>
+                    {/* Title */}
+                    <BlueHeader
+                        headerText={'Invite User'}
+                        onPress={() => router.push('/profile/profile')}
+                    />
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                        style={styles.container}>
 
-                <ScrollView
-                    contentContainerStyle={styles.scrollContainer}
-                    bounces={false}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <View style={styles.content}>
-                        {/* Form Fields */}
-                        <View style={{ alignItems: 'center' }}>
-                            <HeaderTextInput
-                                onChangeText={email => setEmail(email)}
-                                headerText={'Email'}
-                                value={email}
-                                inputWidth={Size.width(340)}
-                                hasIcon={true}
-                                keyboardType='email-address'
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                            />
-                            <View style={{ height: Size.height(10) }} />
-                            <HeaderTextInput
-                                onChangeText={school => setSchool(school)}
-                                headerText={'School'}
-                                value={school}
-                                inputWidth={Size.width(340)}
-                                hasIcon={true}
-                            />
-                            <View style={{ height: Size.height(10) }} />
 
-                            {/* User Type Selection with Icons */}
-                            <View>
-                                <CustomTextHeader headerText={'User Type'} />
+                        <ScrollView
+                            contentContainerStyle={styles.scrollContainer}
+                            bounces={false}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <View style={styles.content}>
+                                {/* Form Fields */}
+                                <View style={{ alignItems: 'center' }}>
+                                    <HeaderTextInput
+                                        onChangeText={email => setEmail(email)}
+                                        headerText={'Email'}
+                                        value={email}
+                                        inputWidth={Size.width(340)}
+                                        hasIcon={true}
+                                        keyboardType='email-address'
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                    />
+                                    <View style={{ height: Size.height(10) }} />
+                                    <HeaderTextInput
+                                        onChangeText={school => setSchool(school)}
+                                        headerText={'School'}
+                                        value={school}
+                                        inputWidth={Size.width(340)}
+                                        hasIcon={true}
+                                    />
+                                    <View style={{ height: Size.height(10) }} />
 
-                                <CustomButton
-                                    title="Master"
-                                    onPress={() => setUserType('Master')}
-                                    textColor={userType != 'Master' ? Colors.black : Colors.white}
-                                    color={userType != 'Master' ? Colors.white : Colors.blue}
-                                    width={337}
-                                    icon={
-                                        <MasterUserIcon
-                                            width={24}
-                                            height={24}
-                                            color={userType != 'Master' ? Colors.black : Colors.white}
-                                        />}
-                                    iconPosition="left"
-                                />
+                                    {/* User Type Selection with Icons */}
+                                    <View>
+                                        <CustomTextHeader headerText={'User Type'} />
 
-                                <CustomButton
-                                    title="Admin"
-                                    onPress={() => setUserType('Admin')}
-                                    textColor={userType != 'Admin' ? Colors.black : Colors.white}
-                                    color={userType != 'Admin' ? Colors.white : Colors.blue}
-                                    width={337}
-                                    icon={
-                                        <AdminUserIcon
-                                            width={24}
-                                            height={24}
-                                            color={userType != 'Admin' ? Colors.black : Colors.white}
-                                        />}
-                                    iconPosition="left"
-                                />
+                                        <CustomButton
+                                            title="Master"
+                                            onPress={() => setUserType('Master')}
+                                            textColor={userType != 'Master' ? Colors.black : Colors.white}
+                                            color={userType != 'Master' ? Colors.white : Colors.blue}
+                                            width={337}
+                                            icon={
+                                                <MasterUserIcon
+                                                    width={24}
+                                                    height={24}
+                                                    color={userType != 'Master' ? Colors.black : Colors.white}
+                                                />}
+                                            iconPosition="left"
+                                        />
+
+                                        <CustomButton
+                                            title="Admin"
+                                            onPress={() => setUserType('Admin')}
+                                            textColor={userType != 'Admin' ? Colors.black : Colors.white}
+                                            color={userType != 'Admin' ? Colors.white : Colors.blue}
+                                            width={337}
+                                            icon={
+                                                <AdminUserIcon
+                                                    width={24}
+                                                    height={24}
+                                                    color={userType != 'Admin' ? Colors.black : Colors.white}
+                                                />}
+                                            iconPosition="left"
+                                        />
+                                    </View>
+
+
+                                    {/* Custom Buttons */}
+                                    <View style={styles.buttonContainer}>
+                                        <CustomButton
+                                            title="Send Invite"
+                                            onPress={handleSendInvite}
+                                            textColor={!allFieldsFilled ? Colors.grey : Colors.white}
+                                            color={!allFieldsFilled ? Colors.white : Colors.blue}
+                                            width={337}
+                                            icon={
+                                                <SendIcon
+                                                    width={24}
+                                                    height={24}
+                                                    color={!allFieldsFilled ? Colors.grey : Colors.white}
+                                                />}
+                                            iconPosition="left"
+                                        />
+
+                                        <CustomButton
+                                            title="Clear"
+                                            onPress={handleClear}
+                                            color={Colors.red}
+                                            width={337}
+                                            icon={<ReturnIcon width={24} height={24} />}
+                                            iconPosition='left'
+                                        />
+                                    </View>
+                                </View>
                             </View>
 
-
-                            {/* Custom Buttons */}
-                            <View style={styles.buttonContainer}>
-                                <CustomButton
-                                    title="Send Invite"
-                                    onPress={handleSendInvite}
-                                    textColor={!allFieldsFilled ? Colors.grey : Colors.white}
-                                    color={!allFieldsFilled ? Colors.white : Colors.blue}
-                                    width={337}
-                                    icon={
-                                        <SendIcon
-                                            width={24}
-                                            height={24}
-                                            color={!allFieldsFilled ? Colors.grey : Colors.white}
-                                        />}
-                                    iconPosition="left"
-                                />
-
-                                <CustomButton
-                                    title="Clear"
-                                    onPress={handleClear}
-                                    color={Colors.red}
-                                    width={337}
-                                    icon={<ReturnIcon width={24} height={24} />}
-                                    iconPosition='left'
-                                />
-                            </View>
-                        </View>
-                    </View>
-
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </View>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
+                </View>) : (<ErrorPage />)}
+        </>
     );
 };
 
@@ -201,13 +215,13 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: Colors.offwhite,
-        alignItems: 'center',       
+        alignItems: 'center',
     },
     container: {
-        width: '100%',      
+        width: '100%',
     },
     scrollContainer: {
-        flexGrow: 1,    
+        flexGrow: 1,
     },
     content: {
         flex: 1,
