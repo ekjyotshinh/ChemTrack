@@ -10,6 +10,7 @@ import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
 import DropdownInput from '@/components/inputFields/DropdownInput';
 import CustomButton from '@/components/CustomButton';
 import BlueHeader from '@/components/BlueHeader';
+import emailRegex from '@/functions/EmailRegex';
 
 // Define the SignUpPage component
 export default function SignUpPage() {
@@ -19,12 +20,15 @@ export default function SignUpPage() {
   const [selectedSchool, setSelectedSchool] = useState('');
   const router = useRouter();  // Initialize router for navigation
 
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  emailRegex({ email, setIsValidEmail });
+
   // Temp array of hardcoded schools
   const schools = [
-    { label: 'Encina High School', value: '1' },
-    { label: 'Sacramento High School', value: '2' },
-    { label: 'Foothill High School', value: '3' },
-    { label: 'Grant Union High School', value: '4' },
+    { label: 'Encina High School', value: 'Encina High School' },
+    { label: 'Sacramento High School', value: 'Sacramento High School' },
+    { label: 'Foothill High School', value: 'Foothill High School' },
+    { label: 'Grant Union High School', value: 'Grant Union High School' },
   ]
 
   // Function to handle the "Next" button press
@@ -79,13 +83,13 @@ export default function SignUpPage() {
           <CustomButton
             iconPosition='right'
             title='Next'
-            color={(!email && !password && !selectedSchool) ? Colors.white : Colors.blue}
-            textColor={(!email && !password && !selectedSchool) ? Colors.grey : Colors.white}
+            color={(!isValidEmail || !password || !selectedSchool) ? Colors.white : Colors.blue}
+            textColor={(!isValidEmail || !password || !selectedSchool) ? Colors.grey : Colors.white}
             icon={
               <Ionicons
                 name="arrow-forward"
                 size={24}
-                color={(!email && !password && !selectedSchool) ? Colors.grey : Colors.white}
+                color={(!isValidEmail || !password || !selectedSchool) ? Colors.grey : Colors.white}
               />}
             onPress={handleNextPress}
             width={337}

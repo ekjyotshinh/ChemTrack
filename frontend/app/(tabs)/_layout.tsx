@@ -9,6 +9,7 @@ import NavHome from '@/assets/icons/navbar/NavHome';
 import NavView from '@/assets/icons/navbar/NavView';
 import NavScan from '@/assets/icons/navbar/NavScan';
 import { Platform } from 'react-native';
+import { useUser } from '@/contexts/UserContext';
 
 // TabBarIcon component for displaying icons in the bottom tabs
 function TabBarIcon(props: {
@@ -20,7 +21,7 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const isAndroid = Platform.OS === 'android'
-
+  const { userInfo } = useUser()
   return (
     <Tabs
       screenOptions={{
@@ -31,77 +32,142 @@ export default function TabLayout() {
           paddingTop: 10
         },
 
-        tabBarActiveTintColor: 'black', 
-        tabBarInactiveTintColor: 'white', 
+        tabBarActiveTintColor: 'black',
+        tabBarInactiveTintColor: 'white',
         tabBarHideOnKeyboard: true,
         headerShown: false,
       }}
     >
+      {/* If the user is admin or master, show all tabs */}
+      {[...(userInfo && (userInfo.is_admin || userInfo.is_master) ? [
+        <Tabs.Screen
+          key={0}
+          name="scanQRCode"
+          options={{
+            title: 'Scan',
+            tabBarIcon: ({ focused }) => (
+              <NavScan
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
 
-      {/* Scan QR Code Tab */}
-      <Tabs.Screen
-        name="scanQRCode"
-        options={{
-          title: 'Scan',
-          tabBarIcon: ({ focused }) => (
-            <NavScan
-              color={focused ? 'black' : 'white'}
-            />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          key={1}
+          name="viewChemicals"
+          options={{
+            title: 'View',
+            tabBarIcon: ({ focused }) => (
+              <NavView
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
 
-      {/* View Chemical Tab */}
-      <Tabs.Screen
-        name="viewChemicals"
-        options={{
-          title: 'View',
-          tabBarIcon: ({ focused }) => (
-            <NavView
-              color={focused ? 'black' : 'white'}
-            />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          key={2}
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ focused }) => (
+              <NavHome
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
 
-      {/* Home Tab */}
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => (
-            <NavHome
-              color={focused ? 'black' : 'white'}
-            />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          key={3}
+          name="addChemical"
+          options={{
+            title: 'Add',
+            tabBarIcon: ({ focused }) => (
+              <NavAdd
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
 
-      {/* Add Chemical Tab */}
-      <Tabs.Screen
-        name="addChemical"
-        options={{
-          title: 'Add',
-          tabBarIcon: ({ focused }) => (
-            <NavAdd
-              color={focused ? 'black' : 'white'}
-            />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          key={4}
+          name="profile/profile"
+          options={{
+            title: 'Account',
+            tabBarIcon: ({ focused }) => (
+              <NavProfile
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />
 
-      {/* Profile Tab */}
-      <Tabs.Screen
-        name="profile/profile"
-        options={{
-          title: 'Account',
-          tabBarIcon: ({ focused }) => (
-            <NavProfile
-              color={focused ? 'black' : 'white'}
-            />
-          ),
-        }}
-      />
+      ] : [
+        // If the user is not admin or master, hide the Add Chemical tab and reorder
+        <Tabs.Screen
+          key={0}
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ focused }) => (
+              <NavHome
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
+
+        <Tabs.Screen
+          key={1}
+          name="scanQRCode"
+          options={{
+            title: 'Scan',
+            tabBarIcon: ({ focused }) => (
+              <NavScan
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
+
+        <Tabs.Screen
+          key={2}
+          name="viewChemicals"
+          options={{
+            title: 'View',
+            tabBarIcon: ({ focused }) => (
+              <NavView
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
+
+        <Tabs.Screen
+          key={3}
+          name="profile/profile"
+          options={{
+            title: 'Account',
+            tabBarIcon: ({ focused }) => (
+              <NavProfile
+                color={focused ? 'black' : 'white'}
+              />
+            ),
+          }}
+        />,
+
+        <Tabs.Screen
+          key={4}
+          name="addChemical"
+          options={{
+            href: null,
+          }}
+        />,
+      ])
+      ]}
 
       {/* Hidden User Page Tab */}
       <Tabs.Screen
@@ -114,6 +180,14 @@ export default function TabLayout() {
       {/* Hidden Reset Password Tab */}
       <Tabs.Screen
         name="profile/resetPassword"
+        options={{
+          href: null,
+        }}
+      />
+
+      {/* Hidden Notifications Tab */}
+      <Tabs.Screen
+        name="profile/notifications"
         options={{
           href: null,
         }}
@@ -134,6 +208,14 @@ export default function TabLayout() {
           href: null,
         }}
       />
-      </Tabs>
+
+      {/* Hidden Error/Unauthorized Tab */}
+      <Tabs.Screen
+        name="errorPage"
+        options={{
+          href: null,
+        }}
+      />
+    </Tabs>
   );
 }

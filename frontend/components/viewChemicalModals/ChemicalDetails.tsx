@@ -10,6 +10,7 @@ import CustomEditIcon from '@/assets/icons/EditIcon';
 import ModalContainer from './ModalContainer';
 import processCAS from '@/functions/ProcessCAS';
 import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
 
 interface chemicalDetailProps {
     property: string
@@ -52,6 +53,8 @@ interface Chemical {
     room: string;
     cabinet: string;
     shelf: string;
+    status: string;
+    quantity: string;
 }
 
 interface props {
@@ -59,7 +62,7 @@ interface props {
     toggleSDSBottomSheet: () => void
     modalVisible: boolean
     closeModal: () => void
-    router: ReturnType<typeof useRouter>; 
+    router: ReturnType<typeof useRouter>;
 }
 
 const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal, router }: props) => {
@@ -92,6 +95,8 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
         }
     }
 
+    const { userInfo } = useUser()
+
     return (
         <ModalContainer modalVisible={modalVisible} closeModal={closeModal}>
             <ScrollContainer>
@@ -122,8 +127,8 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                     <ChemicalDetail property={'Shelf: '} value={selectedChemical.shelf} margin={gapSize} />
 
                     {/* Status & Quantity */}
-                    <ChemicalDetail property={'Status: '} value={'On-site'} color={getStatusColor('On-site')} />
-                    <ChemicalDetail property={'Quantity: '} value={'Good'} color={getQuantityColor('Good')} margin={gapSize} />
+                    <ChemicalDetail property={'Status: '} value={selectedChemical.status} color={getStatusColor(selectedChemical.status)} />
+                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity} color={getQuantityColor(selectedChemical.quantity)} margin={gapSize} />
 
                     {/* Buttons */}
                     <View style={stylesPopup.buttonContainer}>
@@ -147,19 +152,20 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             height={47}
                             fontSize={14}
                         />
-                        <CustomButton
-                            title={'Edit Information'}
-                            icon={<CustomEditIcon color={Colors.white} />}
-                            onPress={() => {
-                                closeModal();  // Close the modal
-                                const chemicalId = selectedChemical.id;
-                                router.push(`/editChemical?id=${chemicalId}`); 
-                            }}
-                            color={Colors.blue}
-                            width={270}
-                            height={47}
-                            fontSize={14}
-                        />
+                        {userInfo && (userInfo.is_admin || userInfo.is_master) &&
+                            <CustomButton
+                                title={'Edit Information'}
+                                icon={<CustomEditIcon color={Colors.white} />}
+                                onPress={() => {
+                                    closeModal();  // Close the modal
+                                    const chemicalId = selectedChemical.id;
+                                    router.push(`/editChemical?id=${chemicalId}`);
+                                }}
+                                color={Colors.blue}
+                                width={270}
+                                height={47}
+                                fontSize={14}
+                            />}
                     </View>
 
                 </>)}
