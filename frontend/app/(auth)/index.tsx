@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
+import { useEffect } from 'react';
+import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import TextInter from '@/components/TextInter';
 import Size from '@/constants/Size';
@@ -7,6 +9,27 @@ import Colors from '@/constants/Colors';
 
 export default function StartPage() {
   const router = useRouter();
+
+
+  useEffect(() => {
+      const handleDeepLink = (event: { url: string }) => {
+          console.log("Received deep link:", event.url);
+          let { path, queryParams } = Linking.parse(event.url);
+
+          if (path === 'signup' && queryParams?.email) {
+              router.push({
+                  pathname: '/signupPage1',
+                  params: { email: queryParams.email, userType: queryParams.userType },
+              });
+          }
+      };
+
+      const subscription = Linking.addEventListener('url', handleDeepLink);
+
+      return () => {
+          subscription.remove();
+      };
+  }, []);
 
   return (
     <View style={styles.container}>
