@@ -564,7 +564,7 @@ const handleResetFilters = () => {
               <ScrollView style={sharedStyles.dropdownContainer}>
                 {filterSections.map((section) => (
                   <View key={section.title} style={sharedStyles.section}>
-                    <Text style={sharedStyles.sectionTitle}>{section.title}</Text>
+                    <TextInter style={sharedStyles.sectionTitle}>{section.title}</TextInter>
                     
                     {section.data.map((option) => {
                       const isSelected = getIsSelected(section.title, option);
