@@ -97,6 +97,49 @@ export default function ViewChemicals() {
   const [selectedSort, setSelectedSort] = useState("Newest first (by date)"); // Default sorting option
   const [sortedChemicals, setSortedChemicals] = useState<Chemical[]>([]);
 
+  // Add these above your component return statement
+const getIsSelected = (sectionTitle: string, option: string) => {
+  switch(sectionTitle) {
+    case 'Status': return selectedStatus.includes(option);
+    case 'Quantity': return selectedQuantity.includes(option);
+    case 'Purchase Date': return selectedPurchaseDate.includes(option);
+    case 'Expiration Date': return selectedExpirationDate.includes(option);
+    default: return false;
+  }
+};
+
+const handleFilterSelect = (sectionTitle: string, option: string) => {
+  switch(sectionTitle) {
+    case 'Status':
+      setSelectedStatus(prev => 
+        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
+      );
+      break;
+    case 'Quantity':
+      setSelectedQuantity(prev => 
+        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
+      );
+      break;
+    case 'Purchase Date':
+      setSelectedPurchaseDate(prev => 
+        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
+      );
+      break;
+    case 'Expiration Date':
+      setSelectedExpirationDate(prev => 
+        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
+      );
+      break;
+  }
+};
+
+const handleResetFilters = () => {
+  setSelectedStatus([]);
+  setSelectedQuantity([]);
+  setSelectedPurchaseDate([]);
+  setSelectedExpirationDate([]);
+};
+
   //Search functionality
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredChemicals, setFilteredChemicals] = useState<Chemical[]>([]);
@@ -104,7 +147,6 @@ export default function ViewChemicals() {
   // Add state variables for selected filter options
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const [selectedQuantity, setSelectedQuantity] = useState<string[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<string[]>([]);
   const [selectedPurchaseDate, setSelectedPurchaseDate] = useState<string[]>([]);
   const [selectedExpirationDate, setSelectedExpirationDate] = useState<string[]>([]);
 
@@ -205,18 +247,11 @@ export default function ViewChemicals() {
           safeString(chemical.quantity) === safeString(q)
         );
 
-      // 4. Location Filter (dynamic property access)
-      const locationMatches = selectedLocation.length === 0 ||
-        selectedLocation.some(locationType => {
-          const value = safeString(chemical[locationType.toLowerCase() as keyof Chemical]);
-          return value.trim() !== '';
-        });
-
-      // 5. Date Handling with Validation
-      const purchaseDate = isValidDate(chemical.purchase_date) ?
-        new Date(chemical.purchase_date) : null;
-      const expirationDate = isValidDate(chemical.expiration_date) ?
-        new Date(chemical.expiration_date) : null;
+    // 4. Date Handling with Validation
+    const purchaseDate = isValidDate(chemical.purchase_date) ? 
+      new Date(chemical.purchase_date) : null;
+    const expirationDate = isValidDate(chemical.expiration_date) ? 
+      new Date(chemical.expiration_date) : null;
 
       // Date Filter Logic
       const purchaseDateMatches = selectedPurchaseDate.length === 0 || (
@@ -235,17 +270,16 @@ export default function ViewChemicals() {
         (selectedExpirationDate.includes('After 2030') && expirationDate && expirationDate > new Date('2030-12-31'))
       );
 
-      return searchMatches &&
-        statusMatches &&
-        quantityMatches &&
-        locationMatches &&
-        purchaseDateMatches &&
-        expirationDateMatches;
-    });
+    return searchMatches && 
+           statusMatches && 
+           quantityMatches && 
+           purchaseDateMatches && 
+           expirationDateMatches;
+  });
 
-    setFilteredChemicals(filtered);
-  }, [searchQuery, chemicalsData, selectedStatus, selectedQuantity,
-    selectedLocation, selectedPurchaseDate, selectedExpirationDate]);
+  setFilteredChemicals(filtered);
+}, [searchQuery, chemicalsData, selectedStatus, selectedQuantity, 
+  selectedPurchaseDate, selectedExpirationDate]);
 
   useEffect(() => {
     if (!isFocused) {
@@ -256,7 +290,6 @@ export default function ViewChemicals() {
   const filterSections = [
     { title: 'Status', data: ['On-site', 'Off-site'] },
     { title: 'Quantity', data: ['Low', 'Fair', 'Good'] },
-    { title: 'Location', data: ['Room', 'Cabinet', 'Shelf'] },
     { title: 'Purchase Date', data: ['Before 2020', '2020-2024', 'After 2024'] }, // Added Purchase Date filter
     { title: 'Expiration Date', data: ['Before 2025', '2025-2030', 'After 2030'] },
   ];
@@ -386,7 +419,7 @@ export default function ViewChemicals() {
         <View style={stylesSort.dropdown}>
           {sortOptions.map((option, index) => (
             <TouchableOpacity key={index} style={stylesSort.option} onPress={() => handleSortSelection(option)}>
-              <Text>{selectedSort === option ? "✓ " : ""} {option}</Text>
+              <TextInter>{selectedSort === option ? "✓ " : ""} {option}</TextInter>
             </TouchableOpacity>
           ))}
         </View>
@@ -455,9 +488,9 @@ export default function ViewChemicals() {
             <View style={stylesSort.modalContainer}>
               <View style={stylesSort.modalView}>
                 <TouchableOpacity onPress={closeSortModal} style={stylesSort.closeButton}>
-                  <Text style={stylesSort.closeButtonText}>✕</Text>
+                  <TextInter style={stylesSort.closeButtonText}>✕</TextInter>
                 </TouchableOpacity>
-                <Text style={stylesSort.modalHeader}>Sort Options</Text>
+                <TextInter style={stylesSort.modalHeader}>Sort Options</TextInter>
 
                 {/* Dropdown for Sorting Options */}
                 <View style={stylesSort.dropdownContainer}>
@@ -473,7 +506,7 @@ export default function ViewChemicals() {
                         sortOption === option && stylesSort.selectedOption, // Highlight selected option
                       ]}
                     >
-                      <Text style={stylesSort.optionText}>{option}</Text>
+                      <TextInter style={stylesSort.optionText}>{option}</TextInter>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -507,92 +540,72 @@ export default function ViewChemicals() {
             </View>
           </Modal>
 
-          {/* Filter Modal */}
+  {/* Replace your current Filter Modal with this */}
           <Modal
-            animationType="slide"
-            transparent={true}
-            visible={filtersVisible}
-            onRequestClose={closeFilterModal}
-          >
-            <BlurView intensity={50} style={stylesFilter.blurContainer}>
-              <View style={[stylesFilter.modalView, { height: '75%' }]}>
-                <TouchableOpacity style={stylesFilter.closeButton} onPress={closeFilterModal}>
-                  <Text style={stylesFilter.closeButtonText}>✕</Text>
-                </TouchableOpacity>
-                <ScrollView contentContainerStyle={stylesFilter.modalContent}>
-                  <Accordion
-                    sections={filterSections}
-                    activeSections={expanded} // Manage active sections
-                    renderHeader={(section) => (
-                      <View style={stylesFilter.accordionHeader}>
-                        <Text>{section.title}</Text>
-                      </View>
-                    )}
-                    renderContent={(section) => (
-                      <View style={stylesFilter.accordionContent}>
-                        {section.data.map((item, index) => {
-                          const isSelected = (() => {
-                            switch (section.title) {
-                              case 'Status':
-                                return selectedStatus.includes(item);
-                              case 'Quantity':
-                                return selectedQuantity.includes(item);
-                              case 'Location':
-                                return selectedLocation.includes(item);
-                              case 'Purchase Date':
-                                return selectedPurchaseDate.includes(item);
-                              case 'Expiration Date':
-                                return selectedExpirationDate.includes(item);
-                              default:
-                                return false;
-                            }
-                          })();
-                          return (
-                            <TouchableOpacity
-                              key={index}
-                              style={[
-                                stylesFilter.accordionItem,
-                                isSelected && stylesFilter.selectedAccordionItem,
-                              ]}
-                              onPress={() => {
-                                switch (section.title) {
-                                  case 'Status':
-                                    setSelectedStatus(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
-                                    break;
-                                  case 'Quantity':
-                                    setSelectedQuantity(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
-                                    break;
-                                  case 'Location':
-                                    setSelectedLocation(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
-                                    break;
-                                  case 'Purchase Date':
-                                    setSelectedPurchaseDate(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
-                                    break;
-                                  case 'Expiration Date':
-                                    setSelectedExpirationDate(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              }}
-                            >
-                              <Text style={[
-                                stylesFilter.accordionItemText,
-                                isSelected && stylesFilter.selectedAccordionItemText,
-                              ]}>{item}</Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    )}
-                    onChange={(expandedSections) => setExpanded(expandedSections)} // Set active sections
-                  />
-                </ScrollView>
+          animationType="slide"
+          transparent
+          visible={filtersVisible}
+          onRequestClose={closeFilterModal}
+        >
+          <View style={sharedStyles.modalContainer}>
+            <View style={sharedStyles.modalView}>
+              {/* Close Button */}
+              <TouchableOpacity 
+                style={sharedStyles.closeButton} 
+                onPress={closeFilterModal}
+              >
+                <TextInter style={sharedStyles.closeButtonText}>✕</TextInter>
+              </TouchableOpacity>
+
+              {/* Header */}
+              <Text style={sharedStyles.modalHeader}>Filter Options</Text>
+
+              {/* Filter Sections */}
+              <ScrollView style={sharedStyles.dropdownContainer}>
+                {filterSections.map((section) => (
+                  <View key={section.title} style={sharedStyles.section}>
+                    <TextInter style={sharedStyles.sectionTitle}>{section.title}</TextInter>
+                    
+                    {section.data.map((option) => {
+                      const isSelected = getIsSelected(section.title, option);
+                      
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[
+                            sharedStyles.optionItem,
+                            isSelected && sharedStyles.selectedOption
+                          ]}
+                          onPress={() => handleFilterSelect(section.title, option)}
+                        >
+                          <TextInter style={sharedStyles.optionText}>{option}</TextInter>
+                          {isSelected && <Text style={sharedStyles.checkmark}>✓</Text>}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                ))}
+              </ScrollView>
+
+              {/* Footer Buttons */}
+              <View style={sharedStyles.footer}>
+                <CustomButton
+                  title="Reset All"
+                  onPress={handleResetFilters}
+                  color={Colors.lightgrey}
+                  textColor={Colors.black}
+                  width={160}
+                />
+                <CustomButton
+                  title="Apply Filters"
+                  onPress={closeFilterModal}
+                  color={Colors.blue}
+                  width={160}
+                />
               </View>
-            </BlurView>
-          </Modal>
-
-
+            </View>
+          </View>
+        </Modal>
         </View>
       </ScrollView>
       {/* View SDS Bottom Sheet component */}
@@ -604,9 +617,9 @@ export default function ViewChemicals() {
         onClose={() => setIsSDSBottomSheetOpen(false)}
       >
         <View style={stylesSDS.container}>
-          <Text style={stylesSDS.headerText}>SDS</Text>
+          <TextInter style={stylesSDS.headerText}>SDS</TextInter>
           <TouchableOpacity style={stylesSDS.downloadButton}>
-            <Text style={stylesSDS.downloadButtonText}>Download</Text>
+            <TextInter style={stylesSDS.downloadButtonText}>Download</TextInter>
           </TouchableOpacity>
         </View>
       </BottomSheet>
@@ -836,62 +849,81 @@ const stylesSort = StyleSheet.create({
   },
 });
 
-
 // Styles for the modal and accordion
-const stylesFilter = StyleSheet.create({
-  modalView: {
-    width: '100%',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: 'white',
-    padding: 30,
-    alignItems: 'center',
-    elevation: 20,
-    marginTop: 'auto',
-  },
-  modalContent: {
-    padding: 20,
-    backgroundColor: "#f0f0f0", // Example color
-    borderRadius: 10,
-    alignItems: "center",
-  },
-
-  blurContainer: {
+const sharedStyles = StyleSheet.create({
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  dropdownContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  section: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.blue,
+    marginBottom: 12,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightgrey,
   },
-  accordionHeader: {
-    backgroundColor: '#f2f2f2',
-    padding: 10,
+  selectedOption: {
+    backgroundColor: '#f5f5f5',
   },
-  accordionContent: {
-    padding: 10,
-  },
-  accordionItem: {
-    padding: 8,
-    backgroundColor: '#fff',
-    marginVertical: 2,
-  },
-  selectedAccordionItem: {
-    backgroundColor: Colors.blue, // Blue color for selected items
-  },
-  accordionItemText: {
+  optionText: {
+    fontSize: 16,
     color: Colors.black,
   },
-  selectedAccordionItemText: {
-    color: Colors.white, // White text for selected items
+  checkmark: {
+    color: Colors.blue,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
   },
   closeButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 16,
+    right: 16,
+    zIndex: 1,
   },
   closeButtonText: {
-    fontSize: 20,
-    color: '#555',
+    fontSize: 24,
+    color: Colors.grey,
+  },
+  modalHeader: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: Colors.blue,
+    marginBottom: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightgrey,
   },
 });
+
+
 const stylesSDS = StyleSheet.create({
   bottomSheetBackground: {
     backgroundColor: '#fff',
