@@ -10,7 +10,10 @@
     "test": "jest --watchAll"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/frontend/$1"
+    }
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.3",
