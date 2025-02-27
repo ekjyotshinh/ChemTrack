@@ -10,10 +10,7 @@
     "test": "jest --watchAll"
   },
   "jest": {
-    "preset": "jest-expo",
-    "moduleNameMapper": {
-      "^@/(.*)$": ""
-    }
+    "preset": "jest-expo"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.3",
