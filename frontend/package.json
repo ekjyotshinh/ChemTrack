@@ -12,7 +12,7 @@
   "jest": {
     "preset": "jest-expo",
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/frontend/$1"
+      "^@/(.*)$": ""
     }
   },
   "dependencies": {
