@@ -15,7 +15,7 @@ A chemical inventory manager with QR code scanning built for schools.
 - [Running the Project](#running-the-project)
   - [Backend](#running-the-backend)
   - [Frontend](#running-the-frontend)
-- [Testing](#testing-to-do)
+- [Testing](#testing)
 - [Deployment](#deployment-to-do)
 - [API Endpoints](#api-endpoints)
 - [UI Images](#ui-images)
@@ -146,7 +146,21 @@ By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, eff
    - Create and sign in to your Expo account in the Expo Go app
    - Note: You must be signed in to the same Expo account on both your development environment and the Expo Go app for notifications to work properly.
 
-## Testing (To Do)
+## Testing
+### Backend Testing
+- Run unit tests for backend functions:
+  ```sh
+  go test ./...
+  ```
+- Use Postman or curl to manually test API endpoints.
+
+### Frontend Testing
+- Run unit tests for UI components using Jest:
+  ```sh
+  npm test
+  ```
+
+
 
 ## Deployment (To Do)
 1. Requirements
