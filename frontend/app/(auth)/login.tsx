@@ -100,6 +100,7 @@ export default function LoginPage() {
             keyboardType='email-address'
             autoCapitalize='none'
             hasIcon={true}
+            testID="email-input"
           />
 
           <View style={{ height: Size.height(10) }} />
@@ -111,6 +112,7 @@ export default function LoginPage() {
             secureTextEntry={true}
             autoCapitalize='none'
             hasIcon={true}
+            testID="password-input"
           />
 
           <View style={{ height: Size.height(90) }} />
