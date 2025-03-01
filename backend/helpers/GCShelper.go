@@ -2,7 +2,7 @@ package helpers
 
 import (
 	"context"
-
+	"fmt"
 	"google.golang.org/api/option"
 
 	"io"
@@ -11,7 +11,35 @@ import (
 	"cloud.google.com/go/storage"
 )
 
-// uploadFileToGCS uploads a file to Google Cloud Storage
+// UploadFileToGCSFromReader uploads a file directly to Google Cloud Storage from an io.Reader.
+func UploadFileToGCSFromReader(ctx context.Context, bucketName, objectName string, file io.Reader) (string, error) {
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
+	if err != nil {
+		return "", fmt.Errorf("failed to create storage client: %w", err)
+	}
+	defer client.Close()
+
+	// Define the bucket and object
+	bucket := client.Bucket(bucketName)
+	obj := bucket.Object(objectName)
+
+	// Create a new writer for uploading the file
+	wc := obj.NewWriter(ctx)
+	defer wc.Close()
+
+	// Copy file data from io.Reader to GCS
+	if _, err = io.Copy(wc, file); err != nil {
+		return "", fmt.Errorf("failed to copy file to GCS: %w", err)
+	}
+
+	// Construct the public URL for accessing the file
+	publicURL := fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
+
+	return publicURL, nil
+}
+
+//@TODO: Replace THIS function with the one above, so we can get rid of the folders. @AggressiveGas
+// uploadFileToGCS uploads a file to Google Cloud Storage  
 func UploadFileToGCS(ctx context.Context, bucketName, objectName, filePath string) error {
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
 	if err != nil {

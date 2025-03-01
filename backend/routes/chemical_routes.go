@@ -15,4 +15,5 @@ func RegisterRoutesChemical(router *gin.Engine) {
 	r.GET("/chemicals/:id", controllers.GetChemical)     // Get a specific chemical by ID
 	r.PUT("/chemicals/:id", controllers.UpdateChemical)  // Update a chemical by ID
 	r.DELETE("/chemicals/:id", controllers.DeleteChemical) // Delete a chemical by ID
+
 }
