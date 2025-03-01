@@ -33,8 +33,6 @@ func main() {
 
 	// Initialize Firestore
 	routes.InitFirestore()
-	// create a subroutine
-	go startBackgroundJobs()
 
 	// Register routes
 	routes.RegisterRoutesUser(router)
