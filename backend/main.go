@@ -33,13 +33,12 @@ func main() {
 
 	// Initialize Firestore
 	routes.InitFirestore()
-	// create a subroutine
-	go startBackgroundJobs()
 
 	// Register routes
 	routes.RegisterRoutesUser(router)
 	routes.RegisterRoutesChemical(router)
 	routes.RegisterRoutesEmail(router)
+	routes.RegisterRoutesFiles(router)
 	//routes.RegisterRoutesQRCode(router)
 
 	// Swagger Documentation: http://localhost:8080/swagger/index.html
