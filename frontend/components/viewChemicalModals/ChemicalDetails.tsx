@@ -72,23 +72,13 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
     // Determine color based on location status
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'On-site':
-                return Colors.blue
-            case 'Off-site':
-                return Colors.red
-            default:
-                return 'black'
-        }
-    }
-
-    // Determine color based on quantity level
-    const getQuantityColor = (quantity: string) => {
-        switch (quantity) {
             case 'Good':
                 return Colors.green
             case 'Fair':
                 return Colors.blue
             case 'Low':
+                return Colors.yellow
+            case 'Off-site':
                 return Colors.red
             default:
                 return 'black'
@@ -128,7 +118,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
 
                     {/* Status & Quantity */}
                     <ChemicalDetail property={'Status: '} value={selectedChemical.status} color={getStatusColor(selectedChemical.status)} />
-                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity} color={getQuantityColor(selectedChemical.quantity)} margin={gapSize} />
+                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity}  margin={gapSize} />
 
                     {/* Buttons */}
                     <View style={stylesPopup.buttonContainer}>
