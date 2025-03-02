@@ -17,11 +17,13 @@ export default function DropdownInput({ data, value, setValue } : DropdownProps)
 
     const onChange = (item : any) => {
         setValue(item.value)
-        if (item.label === 'On-site' || item.label === 'Fair') {
+        if (item.label === 'Fair') {
             setTextColor(Colors.blue)
         } else if (item.label === 'Good') {
-            setTextColor('#05F140')
-        } else if (item.label == 'Low' || item.label == 'Off-site') {
+            setTextColor(Colors.green)
+        } else if (item.label == 'Low') {
+            setTextColor(Colors.yellow)
+        } else if (item.label == 'Off-site'){
             setTextColor(Colors.red)
         } else {
             setTextColor('black')
