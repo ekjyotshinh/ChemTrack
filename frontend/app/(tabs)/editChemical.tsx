@@ -26,6 +26,7 @@ export default function editChemicals() {
   const [school, setSchool] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('');
+  const [unit, setUnit] = useState<string>('');
   const [casParts, setCasParts] = useState<string[]>(['', '', '']);
   const [purchaseDate, setPurchaseDate] = useState<Date>();
   const [expirationDate, setExpirationDate] = useState<Date>();
@@ -35,11 +36,8 @@ export default function editChemicals() {
 
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  // Ensure chemicalId is a string
   const chemicalIdString = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUser();
-  console.log(id)
-
 
   const schools = [
     { label: 'Encina High School', value: 'Encina High School' },
@@ -49,15 +47,19 @@ export default function editChemicals() {
   ]
 
   const statuses = [
-    { label: 'On-site', value: 'On-site' },
-    { label: 'Off-site', value: 'Off-site' },
-  ]
-
-  const quantities = [
     { label: 'Good', value: 'Good' },
     { label: 'Fair', value: 'Fair' },
     { label: 'Low', value: 'Low' },
-  ]
+    { label: 'Off-site', value: 'Off-site' },
+  ];
+
+  const units = [
+    { label: 'mL', value: 'mL' },
+    { label: 'L', value: 'L' },
+    { label: 'KL', value: 'KL' },
+    { label: 'g', value: 'g' },
+    { label: 'kg', value: 'kg' },
+  ];
 
   const replacePdf = async () => {
     if (!(userInfo && (userInfo.is_admin || userInfo.is_master))) return;
@@ -111,7 +113,9 @@ export default function editChemicals() {
         setCabinet(data.cabinet?.toString() || '');
         setSchool(data.school || '');
         setStatus(data.status || '');
-        setQuantity(data.quantity || '');
+        const quantityArray = data.quantity.split(' '); // split the quantity into the numerical part and unit
+        setQuantity(quantityArray[0] || '');
+        setUnit(quantityArray[1] || '');
         setCasParts([
           data.CAS?.toString().substring(0, data.CAS?.toString().length - 3),  // First part: all digits except last 3
           data.CAS?.toString().substring(data.CAS?.toString().length - 3, data.CAS?.toString().length - 1),  // Second part: 2 digits before last digit
@@ -136,7 +140,7 @@ export default function editChemicals() {
   };
 
   // Handle form validation
-  const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity];
+  const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity, unit];
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate];
   const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded];
   const [isFilled, setIsFilled] = useState<boolean>(false);
@@ -161,7 +165,7 @@ export default function editChemicals() {
         purchase_date: formatDate(purchaseDate),
         expiration_date: formatDate(expirationDate),
         status,
-        quantity,
+        quantity: [quantity, unit].filter(Boolean).join(' '),
         room,
         shelf: parseInt(shelf, 10),
         cabinet: parseInt(cabinet, 10),
@@ -182,6 +186,7 @@ export default function editChemicals() {
         const responseData = await response.json();
 
         if (response.ok) {
+          onClear
           console.log('Chemical updated successfully:', responseData);
           Alert.alert('Success', 'Chemical information updated');
           router.push('/');
@@ -206,6 +211,7 @@ export default function editChemicals() {
     userInfo && userInfo.is_master && setSchool('');
     setStatus('');
     setQuantity('');
+    setUnit(''),
     setCasParts(['', '', '']);
     setPurchaseDate(undefined);
     setExpirationDate(undefined);
@@ -239,14 +245,17 @@ export default function editChemicals() {
 
               {/* Status and Quality */}
               <View style={styles.row}>
-                <View style={{ width: Size.width(154) }}>
+                <View style={{ width: Size.width(111) }}>
                   <CustomTextHeader headerText="Status" />
                   <DropdownInput data={statuses} value={status} setValue={setStatus} />
                 </View>
 
-                <View style={{ width: Size.width(154) }}>
-                  <CustomTextHeader headerText="Quantity" />
-                  <DropdownInput data={quantities} value={quantity} setValue={setQuantity} />
+                <View style={{ width: Size.width(88) }}>
+                  <HeaderTextInput headerText="Quantity" onChangeText={(value) => setQuantity(value)} inputWidth={Size.width(80)} isNumeric value={quantity}/>
+                </View>
+                <View style={{ width: Size.width(88) }}>
+                  <CustomTextHeader headerText="Unit" />
+                  <DropdownInput data={units} value={unit} setValue={setUnit}  />
                 </View>
               </View>
 
