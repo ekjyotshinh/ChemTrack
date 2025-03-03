@@ -12,13 +12,16 @@ import (
 
 // User represents the structure of a user
 type User struct {
-	First    string `json:"first"`
-	Last     string `json:"last"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	School   string `json:"school"`
-	IsAdmin  bool   `json:"is_admin"`  // Flag for admin
-	IsMaster bool   `json:"is_master"` // Flag for master
+	First    		string `json:"first"`
+	Last     		string `json:"last"`
+	Email    		string `json:"email"`
+	Password 		string `json:"password"`
+	School   		string `json:"school"`
+	ExpoPushToken 	string `json:"expo_push_token"`
+	IsAdmin  		bool   `json:"is_admin"`  // Flag for admin
+	IsMaster 		bool   `json:"is_master"` // Flag for master
+	AllowEmail		bool    `json:"allow_email"`// flag for email notifications
+	AllowPush		bool    `json:"allow_push"`// flag for push notifications
 }
 
 var client *firestore.Client
@@ -66,13 +69,16 @@ func AddUser(c *gin.Context) {
 
 	ctx := context.Background()
 	doc, _, err := client.Collection("users").Add(ctx, map[string]interface{}{
-		"first":     user.First,
-		"last":      user.Last,
-		"email":     user.Email,
-		"password":  hashedPassword, // Store hashed password
-		"school":    user.School,
-		"is_admin":  user.IsAdmin,
-		"is_master": user.IsMaster,
+		"first":     		user.First,
+		"last":      		user.Last,
+		"email":     		user.Email,
+		"password":  		hashedPassword, // Store hashed password
+		"school":    		user.School,
+		"is_admin":  		user.IsAdmin,
+		"is_master": 		user.IsMaster,
+		"expo_push_token": 	user.ExpoPushToken,
+		"allow_email":		user.AllowEmail,
+		"allow_push":		user.AllowPush,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user"})
@@ -185,8 +191,13 @@ func UpdateUser(c *gin.Context) {
 	if user.School != "" {
 		updateData["school"] = user.School
 	}
+	if user.ExpoPushToken != "" {
+		updateData["expo_push_token"] = user.ExpoPushToken
+	}
 	updateData["is_admin"] = user.IsAdmin
 	updateData["is_master"] = user.IsMaster
+	updateData["allow_email"] = user.AllowEmail
+	updateData["allow_push"] = user.AllowPush
 
 	ctx := context.Background()
 	_, err := client.Collection("users").Doc(userID).Set(ctx, updateData, firestore.MergeAll)
@@ -257,13 +268,16 @@ func Login(c *gin.Context) {
 
 	// Return user info upon successful login
 	response := gin.H{
-		"first":     user["first"],
-		"last":      user["last"],
-		"email":     user["email"],
-		"school":    user["school"],
-		"is_admin":  user["is_admin"],
-		"is_master": user["is_master"],
-		"id":        userID,
+		"first":     		user["first"],
+		"last":      		user["last"],
+		"email":     		user["email"],
+		"school":    		user["school"],
+		"is_admin":  		user["is_admin"],
+		"is_master": 		user["is_master"],
+		"allow_email":  	user["allow_email"],
+		"allow_push": 		user["allow_push"],
+		"expo_push_token":	user["expo_push_token"],
+		"id":        		userID,
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": response})
