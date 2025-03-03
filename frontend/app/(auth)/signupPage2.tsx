@@ -68,6 +68,8 @@ export default function SignUpPage2() {
           is_master: false,
           school: selectedSchoolValue,
           id: data.user.id,
+          allow_email: false,
+          allow_push: false,
         });
         router.replace('/(tabs)');
       } else {
