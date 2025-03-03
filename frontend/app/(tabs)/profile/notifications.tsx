@@ -62,11 +62,12 @@ const Setting = ({ title, description, isBool, setIsBool }: SettingProps) => {
 const NotificationsScreen = () => {
     const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const router = useRouter()
-    const [isEmailNotif, setIsEmailNotif] = useState(false)
-    const [isAppNotif, setIsAppNotif] = useState(false)
+    const { userInfo, updateUserInfo } = useUser();
+    const [isEmailNotif, setIsEmailNotif] = useState(userInfo.allow_email)
+    const [isAppNotif, setIsAppNotif] = useState(userInfo.allow_push)
     const [isExpirationNotif, setIsExpirationNotif] = useState(true)
     const [isLowQuantityNotif, setIsLowQuantityNotif] = useState(true)
-    const { userInfo, updateUserInfo } = useUser();
+
 
     const notificationListener = useRef<any>()
     const responseListener = useRef<any>()
@@ -111,8 +112,8 @@ const NotificationsScreen = () => {
                 const token = await registerForPushNotifications()
                 if (token) {
                     const res = await storeDeviceToken(token,userInfo.id)
-                    if (res){
-                        updateUserPreferences({ allow_push: true });
+                    if (!res){
+                        Alert.alert('Error', 'Failed to store device token')
                     }
                 }
             } else {
@@ -139,28 +140,41 @@ const NotificationsScreen = () => {
     }
 
     const updateUserPreferences = async (preferences: {
-        allow_email?: boolean,
-        allow_push?: boolean
+        allow_email?: boolean;
+        allow_push?: boolean;
     }) => {
         try {
-            console.log(preferences)
+            const updatedPreferences = {
+                allow_email: preferences.allow_email ?? userInfo.allow_email,
+                allow_push: preferences.allow_push ?? userInfo.allow_push,          
+                is_admin: userInfo.is_admin,    // currently if these flags are not passed we set them to false
+                is_master: userInfo.is_master,  // currently if these flags are not passed we set them to false
+            };
+
             const response = await fetch(`${API_URL}/api/v1/users/${userInfo.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(preferences),
-            }); 
+                body: JSON.stringify(updatedPreferences),
+            });
 
             if (!response.ok) {
                 throw new Error('Failed to update preferences');
             }
 
+            updateUserInfo({
+                ...userInfo,
+                allow_email: updatedPreferences.allow_email,
+                allow_push: updatedPreferences.allow_push,
+            });
             console.log('User preferences updated successfully');
-            Alert.alert('Success', 'Your preferences has been updated!');
+            Alert.alert('Success', 'Your preferences have been updated!');
+            return true;
         } catch (error) {
             console.error('Error updating user preferences:', error);
             Alert.alert('Error', 'Failed to update notification preferences.');
+            return false;
         }
-    };  
+    };
 
     return (
         <View style={styles.container}>
@@ -176,8 +190,8 @@ const NotificationsScreen = () => {
                         description={'Receive notifications via email.'}
                         isBool={isEmailNotif}
                         setIsBool={async (value) => {
-                            setIsEmailNotif(value);
-                            await updateUserPreferences({allow_email: value });
+                            const success = await updateUserPreferences({ allow_email: value });
+                            if (success) setIsEmailNotif(value);
                         }}
                     />
                     <Setting
@@ -185,14 +199,12 @@ const NotificationsScreen = () => {
                         description={'Receive notifications from the app.'}
                         isBool={isAppNotif}
                         setIsBool={async (value) => {
-                            setIsAppNotif(value)
                             if (value) {
-                                await handleNotificationSetup()
-                            } else {
-                                await updateUserPreferences({ allow_push: value });
-                            }
-                        }}                      
-
+                                await handleNotificationSetup();
+                            } 
+                            const success = await updateUserPreferences({ allow_push: value });
+                            if (success) setIsAppNotif(value);
+                        }}
                     />
                     <Setting
                         title={'Notify for expirations'}
