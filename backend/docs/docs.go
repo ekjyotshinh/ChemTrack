@@ -477,6 +477,18 @@ const docTemplate = `{
                     "description": "Flag for master",
                     "type": "boolean"
                 },
+                "allow_push": {
+                    "description": "Flag for push notification preference",
+                    "type": "boolean"
+                },
+                  "allow_email": {
+                    "description": "Flag for email notification preference",
+                    "type": "boolean"
+                },
+                  "expo_push_token": {
+                    "description": "Device token for push notification",
+                    "type": "string"
+                },
                 "last": {
                     "type": "string"
                 },
