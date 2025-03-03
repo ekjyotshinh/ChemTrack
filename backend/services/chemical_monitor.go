@@ -117,29 +117,39 @@ func CheckCriticalChemicalStatus() {
 		}
 
 		if alertMessage != "" {
-			emails, err := GetAdminAndMasterEmails(school)
+			emails, expoTokens, err := GetAdminMasterEmailsAndTokens(school)
 			if err != nil {
 			    fmt.Println("Error fetching admin and master emails:", err)
 			    return
 			}
+			fmt.Println(emails)
+			fmt.Println(expoTokens)
 
-			if len(emails) > 0 {
-				for _,email := range emails{
-					subject := fmt.Sprintf("Chemical Alert Report for %s", school)
-					helpers.SendEmailHelper(email, subject, alertMessage)
-				}
-			}
+    		if len(emails) > 0 {
+    		    for _, email := range emails {
+    		        subject := fmt.Sprintf("Chemical Alert Report for %s", school)
+    		        helpers.SendEmailHelper(email, subject, alertMessage)
+					fmt.Println(email, err)
+    		    }
+    		}
+		
+    		if len(expoTokens) > 0 {
+    		    subject := fmt.Sprintf("Chemical Alert Report for %s", school)
+    		    for _, token := range expoTokens {
+    		        helpers.SendPushNotification(token, subject, alertMessage)
+					fmt.Println(token, err)
+    		    }
+    		}
 		}
 	}
 }
 
-
-
-func GetAdminAndMasterEmails(school string) ([]string, error) {
+// Fetch admin and master emails along with their Expo push tokens
+func GetAdminMasterEmailsAndTokens(school string) ([]string, []string, error) {
     ctx := context.Background()
-    emailSet := make(map[string]struct{}) // Set to store unique emails
+    emailSet := make(map[string]struct{})
+    expoTokenSet := make(map[string]struct{}) 
 
-    // Query for users who are either admins for the school or masters user(in that case we just semd out the email irrespective of the)
     queries := []firestore.Query{
         client.Collection("users").Where("is_admin", "==", true).Where("school", "==", school),
         client.Collection("users").Where("is_master", "==", true),
@@ -153,11 +163,19 @@ func GetAdminAndMasterEmails(school string) ([]string, error) {
                 break
             }
             if err != nil {
-                return nil, err
+                return nil, nil, err
             }
             user := doc.Data()
             if email, ok := user["email"].(string); ok {
-                emailSet[email] = struct{}{} 
+                if allowEmail, exists := user["allow_email"].(bool); exists && allowEmail {
+                    emailSet[email] = struct{}{}
+                }
+            }
+            if expoToken, ok := user["expo_push_token"].(string); ok {
+				if allowPush, exists := user["allow_push"].(bool); exists && allowPush {
+                    expoTokenSet[expoToken] = struct{}{}
+                }
+                
             }
         }
     }
@@ -168,5 +186,10 @@ func GetAdminAndMasterEmails(school string) ([]string, error) {
         emails = append(emails, email)
     }
 
-    return emails, nil
+    expoTokens := make([]string, 0, len(expoTokenSet))
+    for token := range expoTokenSet {
+        expoTokens = append(expoTokens, token)
+    }
+
+    return emails, expoTokens, nil
 }
