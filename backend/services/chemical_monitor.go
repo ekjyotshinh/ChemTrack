@@ -122,14 +122,10 @@ func CheckCriticalChemicalStatus() {
 			    fmt.Println("Error fetching admin and master emails:", err)
 			    return
 			}
-			fmt.Println(emails)
-			fmt.Println(expoTokens)
-
     		if len(emails) > 0 {
     		    for _, email := range emails {
     		        subject := fmt.Sprintf("Chemical Alert Report for %s", school)
     		        helpers.SendEmailHelper(email, subject, alertMessage)
-					fmt.Println(email, err)
     		    }
     		}
 		
@@ -137,7 +133,6 @@ func CheckCriticalChemicalStatus() {
     		    subject := fmt.Sprintf("Chemical Alert Report for %s", school)
     		    for _, token := range expoTokens {
     		        helpers.SendPushNotification(token, subject, alertMessage)
-					fmt.Println(token, err)
     		    }
     		}
 		}

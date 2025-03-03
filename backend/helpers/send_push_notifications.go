@@ -54,6 +54,5 @@ func SendPushNotification(deviceToken, title, body string) error {
 		return fmt.Errorf("failed to send notification, status: %s", resp.Status)
 	}
 
-	fmt.Println("Notification sent successfully!")
 	return nil
 }
