@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router'
 import { useState, useEffect, useRef } from 'react'
 import { View, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native'
 import * as Notifications from 'expo-notifications'
+import { useUser } from '@/contexts/UserContext';
 import {
   registerForPushNotifications,
   setNotificationHandler,
@@ -59,11 +60,13 @@ const Setting = ({ title, description, isBool, setIsBool }: SettingProps) => {
 
 // Notifications screen
 const NotificationsScreen = () => {
+    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const router = useRouter()
     const [isEmailNotif, setIsEmailNotif] = useState(false)
     const [isAppNotif, setIsAppNotif] = useState(false)
     const [isExpirationNotif, setIsExpirationNotif] = useState(true)
     const [isLowQuantityNotif, setIsLowQuantityNotif] = useState(true)
+    const { userInfo, updateUserInfo } = useUser();
 
     const notificationListener = useRef<any>()
     const responseListener = useRef<any>()
@@ -107,8 +110,10 @@ const NotificationsScreen = () => {
             if (status === 'granted') {
                 const token = await registerForPushNotifications()
                 if (token) {
-                    storeDeviceToken(token)
-                    Alert.alert('Success', 'Notification permissions granted!')
+                    const res = await storeDeviceToken(token,userInfo.id)
+                    if (res){
+                        updateUserPreferences({ allow_push: true });
+                    }
                 }
             } else {
                 Alert.alert(
@@ -133,6 +138,29 @@ const NotificationsScreen = () => {
 
     }
 
+    const updateUserPreferences = async (preferences: {
+        allow_email?: boolean,
+        allow_push?: boolean
+    }) => {
+        try {
+            console.log(preferences)
+            const response = await fetch(`${API_URL}/api/v1/users/${userInfo.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(preferences),
+            }); 
+
+            if (!response.ok) {
+                throw new Error('Failed to update preferences');
+            }
+
+            console.log('User preferences updated successfully');
+            Alert.alert('Success', 'Your preferences has been updated!');
+        } catch (error) {
+            console.error('Error updating user preferences:', error);
+            Alert.alert('Error', 'Failed to update notification preferences.');
+        }
+    };  
 
     return (
         <View style={styles.container}>
@@ -147,7 +175,10 @@ const NotificationsScreen = () => {
                         title={'Email Notifications'}
                         description={'Receive notifications via email.'}
                         isBool={isEmailNotif}
-                        setIsBool={setIsEmailNotif}
+                        setIsBool={async (value) => {
+                            setIsEmailNotif(value);
+                            await updateUserPreferences({allow_email: value });
+                        }}
                     />
                     <Setting
                         title={'App Notifications'}
@@ -158,8 +189,7 @@ const NotificationsScreen = () => {
                             if (value) {
                                 await handleNotificationSetup()
                             } else {
-                                const token = await registerForPushNotifications()
-                                if (token) removeDeviceToken()
+                                await updateUserPreferences({ allow_push: value });
                             }
                         }}                      
 
