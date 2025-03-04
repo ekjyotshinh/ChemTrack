@@ -56,7 +56,7 @@ export default function editChemicals() {
   const units = [
     { label: 'mL', value: 'mL' },
     { label: 'L', value: 'L' },
-    { label: 'KL', value: 'KL' },
+    { label: 'kL', value: 'kL' },
     { label: 'g', value: 'g' },
     { label: 'kg', value: 'kg' },
   ];
