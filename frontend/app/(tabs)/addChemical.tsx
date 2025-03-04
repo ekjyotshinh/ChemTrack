@@ -27,6 +27,7 @@ export default function ViewChemicals() {
   const [school, setSchool] = useState<string>(userInfo && userInfo.is_admin ? userInfo.school : '')
   const [status, setStatus] = useState<string>('')
   const [quantity, setQuantity] = useState<string>('')
+  const [unit, setUnit] = useState<string>('');
 
   const [casParts, setCasParts] = useState<string[]>(['', '', ''])
 
@@ -44,7 +45,7 @@ export default function ViewChemicals() {
 
   const [isFilled, setIsFilled] = useState<boolean>(false)
 
-  const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity]
+  const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity, unit]
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
   const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded]
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -73,15 +74,19 @@ export default function ViewChemicals() {
   ]
 
   const statuses = [
-    { label: 'On-site', value: 'On-site' },
-    { label: 'Off-site', value: 'Off-site' },
-  ]
-
-  const quantities = [
     { label: 'Good', value: 'Good' },
     { label: 'Fair', value: 'Fair' },
     { label: 'Low', value: 'Low' },
-  ]
+    { label: 'Off-site', value: 'Off-site' },
+  ];
+
+  const units = [
+    { label: 'mL', value: 'mL' },
+    { label: 'L', value: 'L' },
+    { label: 'kL', value: 'kL' },
+    { label: 'g', value: 'g' },
+    { label: 'kg', value: 'kg' },
+  ];
 
   // Upload pdf
 
@@ -129,7 +134,7 @@ export default function ViewChemicals() {
         purchase_date: formatDate(purchaseDate), // Format the date as "YYYY-MM-DD"
         expiration_date: formatDate(expirationDate),
         status,
-        quantity,
+        quantity: [quantity, unit].filter(Boolean).join(' '),
         room,
         shelf: parseInt(shelf, 10), // Convert shelf to integer (if it's a number)
         cabinet: parseInt(cabinet, 10), // Convert cabinet to integer (if it's a number)
@@ -218,14 +223,17 @@ export default function ViewChemicals() {
 
           {/* Status and Quality */}
           <View style={styles.row}>
-            <View style={{ width: Size.width(154) }}>
+            <View style={{ width: Size.width(111) }}>
               <CustomTextHeader headerText='Status' />
               <DropdownInput data={statuses} value={status} setValue={setStatus} />
             </View>
 
-            <View style={{ width: Size.width(154) }}>
-              <CustomTextHeader headerText='Quantity' />
-              <DropdownInput data={quantities} value={quantity} setValue={setQuantity} />
+            <View style={{ width: Size.width(88) }}>
+              <HeaderTextInput headerText="Quantity" onChangeText={(value) => setQuantity(value)} inputWidth={Size.width(80)} isNumeric value={quantity}/>
+            </View>
+            <View style={{ width: Size.width(88) }}>
+              <CustomTextHeader headerText="Unit" />
+              <DropdownInput data={units} value={unit} setValue={setUnit}  />
             </View>
           </View>
 

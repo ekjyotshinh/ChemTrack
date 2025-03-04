@@ -50,7 +50,7 @@ func CheckCriticalChemicalStatus() {
 		CAS, ok1 := data["CAS"]
 		school, ok2 := data["school"].(string)
 		expField, ok3 := data["expiration_date"]
-		quantity, ok4 := data["quantity"].(string)
+		status, ok4 := data["status"].(string)
 
 		if !ok1 || !ok2 || !ok3 || !ok4 {
 			log.Printf("Skipping invalid document: %v", data)
@@ -74,7 +74,7 @@ func CheckCriticalChemicalStatus() {
 		chemicalData := map[string]interface{}{
 			"CAS":             CAS,
 			"expiration_date": expirationDate,
-			"quantity":        quantity,
+			"status":        status,
 		}
 		schoolMap[school] = append(schoolMap[school], chemicalData)
 	}
@@ -85,7 +85,7 @@ func CheckCriticalChemicalStatus() {
 		for _, chemical := range chemicals {
 			expirationDate := chemical["expiration_date"].(time.Time)
 
-			if chemical["quantity"] == "Low" {
+			if chemical["status"] == "Low" {
 				alertMessage += fmt.Sprintf(
 					"🔴 LOW STOCK ALERT\n<br>"+
 						"- CAS Number: %v\n<br>"+
@@ -139,7 +139,7 @@ func GetAdminAndMasterEmails(school string) ([]string, error) {
     ctx := context.Background()
     emailSet := make(map[string]struct{}) // Set to store unique emails
 
-    // Query for users who are either admins for the school or masters user(in that case we just semd out the email irrespective of the)
+    // Query for users who are either admins for the school or masters user(in that case we just send out the email irrespective of the school)
     queries := []firestore.Query{
         client.Collection("users").Where("is_admin", "==", true).Where("school", "==", school),
         client.Collection("users").Where("is_master", "==", true),

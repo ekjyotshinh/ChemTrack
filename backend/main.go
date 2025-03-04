@@ -12,7 +12,7 @@ import (
     _ "github.com/ekjyotshinh/ChemTrack/backend/docs" // Import generated docs
 	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
-    "github.com/ekjyotshinh/ChemTrack/backend/services"
+    //"github.com/ekjyotshinh/ChemTrack/backend/services"
 )
 
 func main() {
@@ -61,7 +61,7 @@ func startBackgroundJobs() {
 
     for {
         log.Println("Running CheckCriticalChemicalStatus...")
-        services.CheckCriticalChemicalStatus()
+        //services.CheckCriticalChemicalStatus()
         log.Println("Finished execution. Waiting for next cycle...")
         <-ticker.C
     }

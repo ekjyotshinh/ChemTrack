@@ -79,9 +79,9 @@ export default function ViewChemicals() {
     room: string;
     cabinet: string;
     shelf: string;
-    status: string; // Added
-    quantity: string; // Added
-    location: string; // Added
+    status: string; 
+    quantity: string; 
+    location: string; 
   }
 
 
@@ -101,7 +101,6 @@ export default function ViewChemicals() {
 const getIsSelected = (sectionTitle: string, option: string) => {
   switch(sectionTitle) {
     case 'Status': return selectedStatus.includes(option);
-    case 'Quantity': return selectedQuantity.includes(option);
     case 'Purchase Date': return selectedPurchaseDate.includes(option);
     case 'Expiration Date': return selectedExpirationDate.includes(option);
     default: return false;
@@ -112,11 +111,6 @@ const handleFilterSelect = (sectionTitle: string, option: string) => {
   switch(sectionTitle) {
     case 'Status':
       setSelectedStatus(prev => 
-        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
-      );
-      break;
-    case 'Quantity':
-      setSelectedQuantity(prev => 
         prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
       );
       break;
@@ -135,7 +129,6 @@ const handleFilterSelect = (sectionTitle: string, option: string) => {
 
 const handleResetFilters = () => {
   setSelectedStatus([]);
-  setSelectedQuantity([]);
   setSelectedPurchaseDate([]);
   setSelectedExpirationDate([]);
 };
@@ -146,7 +139,6 @@ const handleResetFilters = () => {
 
   // Add state variables for selected filter options
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
-  const [selectedQuantity, setSelectedQuantity] = useState<string[]>([]);
   const [selectedPurchaseDate, setSelectedPurchaseDate] = useState<string[]>([]);
   const [selectedExpirationDate, setSelectedExpirationDate] = useState<string[]>([]);
 
@@ -241,13 +233,7 @@ const handleResetFilters = () => {
       const statusMatches = selectedStatus.length === 0 ||
         selectedStatus.includes(chemical.status);
 
-      // 3. Quantity Filter (case-insensitive exact match)
-      const quantityMatches = selectedQuantity.length === 0 ||
-        selectedQuantity.some(q =>
-          safeString(chemical.quantity) === safeString(q)
-        );
-
-    // 4. Date Handling with Validation
+    // 3. Date Handling with Validation
     const purchaseDate = isValidDate(chemical.purchase_date) ? 
       new Date(chemical.purchase_date) : null;
     const expirationDate = isValidDate(chemical.expiration_date) ? 
@@ -272,13 +258,12 @@ const handleResetFilters = () => {
 
     return searchMatches && 
            statusMatches && 
-           quantityMatches && 
            purchaseDateMatches && 
            expirationDateMatches;
   });
 
   setFilteredChemicals(filtered);
-}, [searchQuery, chemicalsData, selectedStatus, selectedQuantity, 
+}, [searchQuery, chemicalsData, selectedStatus, 
   selectedPurchaseDate, selectedExpirationDate]);
 
   useEffect(() => {
@@ -288,8 +273,7 @@ const handleResetFilters = () => {
   }, [isFocused]);
 
   const filterSections = [
-    { title: 'Status', data: ['On-site', 'Off-site'] },
-    { title: 'Quantity', data: ['Low', 'Fair', 'Good'] },
+    { title: 'Status', data: ['Low', 'Fair', 'Good', 'Off-site'] },
     { title: 'Purchase Date', data: ['Before 2020', '2020-2024', 'After 2024'] }, // Added Purchase Date filter
     { title: 'Expiration Date', data: ['Before 2025', '2025-2030', 'After 2030'] },
   ];
@@ -298,7 +282,8 @@ const handleResetFilters = () => {
   const sortOptions = [
     "Newest first (by date)",
     "Oldest first (by date)",
-    "Highest quantity first",
+    "Status (High to Low)",
+    "Status (Low to High)",
     "Lowest quantity first",
     "A-Z",
     "Z-A",
@@ -310,17 +295,16 @@ const handleResetFilters = () => {
     let sortedList = [...chemicalsData];
 
     switch (option) {
-      case "Lowest quantity first":
+      case "Status (Low to High)":
         sortedList.sort((a, b) => {
           const priority = { Low: 1, Fair: 2, Good: 3 }; // Define order
-          return (priority[a['quantity']] || 4) - (priority[b['quantity']] || 4);
+          return (priority[a['status']] || 4) - (priority[b['status']] || 4);
         });
-        break;
-
-      case "Highest quantity first":
+        break
+      case "Status (High to Low)":
         sortedList.sort((a, b) => {
           const priority = { Good: 1, Fair: 2, Low: 3 }; // Reverse order
-          return (priority[a['quantity']] || 4) - (priority[b['quantity']] || 4);
+          return (priority[a['status']] || 4) - (priority[b['status']] || 4);
         });
         break;
       case "Newest first (by date)":

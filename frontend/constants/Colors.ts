@@ -9,6 +9,7 @@ const Colors = {
   blue: '#0F82FF',
   red: '#FF0035',
   green: '#05F140',
+  yellow: '#FFC107',
 
   // usually used for borders and text/icon color
   grey: '#BFBFBF',
