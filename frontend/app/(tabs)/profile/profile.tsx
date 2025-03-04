@@ -72,6 +72,10 @@ export default function Profile() {
           first: firstName,
           last: lastName,
           email,
+          is_admin: userInfo.is_admin, // currently if these flags are not passed we set them to false
+          is_master: userInfo.is_master, // currently if these flags are not passed we set them to false
+          allow_email: userInfo.allow_email, // currently if these flags are not passed we set them to false
+          allow_push: userInfo.allow_push, // currently if these flags are not passed we set them to false
         }),
       });
 

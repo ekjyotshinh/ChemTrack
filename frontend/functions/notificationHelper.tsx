@@ -78,7 +78,7 @@ function setNotificationReceiver(handler: (notification: Notifications.Notificat
 // Store for temporary device tokens (replace with DB storage later)
 let deviceTokens: NotificationToken[] = [];
 
-function storeDeviceToken(token: NotificationToken) {
+async function storeDeviceToken(token: NotificationToken, userId: string) {
   // Check if token already exists
   const existingTokenIndex = deviceTokens.findIndex(t => t.deviceToken === token.deviceToken);
   if (existingTokenIndex >= 0) {
@@ -87,6 +87,26 @@ function storeDeviceToken(token: NotificationToken) {
     deviceTokens.push(token);
   }
   console.log('Stored device tokens:', deviceTokens);
+  try {
+    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
+    const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        expo_push_token: token.deviceToken,
+      }),
+    });
+
+    if (!response.ok) {
+      return false
+    }
+
+    console.log('User preferences updated successfully');
+    return true
+  } catch (error) {
+    console.error('Error updating user preferences:', error);
+    return false
+  }
 }
 
 function getStoredDeviceTokens(): NotificationToken[] {

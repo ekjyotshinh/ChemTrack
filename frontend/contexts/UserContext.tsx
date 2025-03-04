@@ -8,6 +8,8 @@ interface UserInfo {
   is_master: boolean;
   school: string;
   id: string;
+  allow_email: boolean;
+  allow_push: boolean;
 }
 
 // Create a Context with a default empty user object
@@ -22,6 +24,8 @@ const UserContext = createContext<{
     is_master: false,
     school: '',
     id: '',
+    allow_email: false,
+    allow_push: false,
   },
   updateUserInfo: () => { },
 });
@@ -44,6 +48,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     is_master: false,
     school: '',
     id: '',
+    allow_email: false,
+    allow_push: false,
   });
 
   const updateUserInfo = (newUserInfo: UserInfo) => {
