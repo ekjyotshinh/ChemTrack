@@ -17,7 +17,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import BlueHeader from '@/components/BlueHeader';
 import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
-import fetchSchools from '@/functions/fetchSchool';
+import fetchSchoolList from '@/functions/fetchSchool';
 
 export default function editChemicals() {
   const [name, setName] = useState<string>('');
@@ -40,7 +40,7 @@ export default function editChemicals() {
   const chemicalIdString = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUser();
 
-  const [schoolList, setSchoolList] = useState<any>(null);
+  const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
 
   const statuses = [
     { label: 'Good', value: 'Good' },
@@ -93,21 +93,10 @@ export default function editChemicals() {
       fetchChemicalData(chemicalIdString);
       // Only fetch school list if user is master
       if (userInfo.is_master) {
-        fetchSchoolList();
+        fetchSchoolList({setSchoolList});
       }
     }
   }, [chemicalIdString]);
-
-  // Fetch the list of schools from the API
-  const fetchSchoolList = async () => {
-    try {
-      const list = await fetchSchools();
-      setSchoolList(list);
-    } catch (error) {
-      console.error('Error fetching schools:', error);
-      Alert.alert('Error', 'Error fetching schools');
-    }
-  };
 
   // Fetch the chemical data from the API based on the chemicalId
   const fetchChemicalData = async (id: string) => {
@@ -270,7 +259,7 @@ export default function editChemicals() {
                 </View>
               </View>
 
-              {userInfo && userInfo.is_master && schoolList &&
+              {userInfo && userInfo.is_master &&
               <View style={styles.row}>
                 <View style={{ width: '100%' }}>
                   <CustomTextHeader headerText="School" />

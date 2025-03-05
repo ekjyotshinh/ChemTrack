@@ -1,5 +1,7 @@
 // Reusable function to fetch schools from the backend API
 
+import { Alert } from "react-native";
+
 const fetchSchools = async () => {
     const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     try {
@@ -17,6 +19,17 @@ const fetchSchools = async () => {
         console.error('Error fetching schools');
         return []
     }
-}
+};
 
-export default fetchSchools;
+// Fetch the list of schools from the API
+const fetchSchoolList = async ({ setSchoolList }: { setSchoolList: (list: any) => void }) => {
+    try {
+        const list = await fetchSchools();
+        setSchoolList(list);
+    } catch (error) {
+        console.error('Error fetching schools:', error);
+        Alert.alert('Error', 'Error fetching schools');
+    }
+};
+
+export default fetchSchoolList;
