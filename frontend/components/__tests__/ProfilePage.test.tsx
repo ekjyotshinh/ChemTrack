@@ -39,7 +39,10 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
-import ProfilePage from '@/app/(tabs)/profile/profile'
+import Profile from '@/app/(tabs)/profile/profile';
+
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+
 
 /*Functions:
 Edit and Update Info Button:
@@ -64,22 +67,76 @@ Test ids:
 // less components
 
 
-// Mock Placeholder setup
+// Mock Placeholder setup for User information and Routing
+jest.mock('@/contexts/UserContext', () => ({
+    useUser: jest.fn(),
+}));
 
-// User Context
+jest.mock('expo-router', () => ({
+    useRouter: jest.fn(),
+}));
 
-// Router
 
 // Tests
-describe('ProfilePage', () => {
-    // Base Profile Page
-    test('Profile Base Page Renders', () => { });
+describe('Profile', () => {
+    // Web Page Info for Testing
+    let updateUserInfo: jest.Mock;
+    let router: { replace: jest.Mock; push: jest.Mock };
+
+    // Setup Mock data before and clear up after testing
+    beforeEach(() => {
+        updateUserInfo = jest.fn();
+        router = { replace: jest.fn(), push: jest.fn() };
+        (useUser as jest.Mock).mockReturnValue({ updateUserInfo });
+        (useRouter as jest.Mock).mockReturnValue(router);
+        jest.spyOn(Alert, 'alert');
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    // Base User Profile Page
+    test('Profile Base Page Renders', () => {
+        const { getByText, getByTestId } = render(<Profile />);
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toBeTruthy();
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toBeTruthy(); // text is part of HeaderInputText, so the user's name would render too technically
+        expect(getByText('Email')).toBeTruthy();
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
+    });
+    /* 
+    // Base Master User Profile Page
+    test('Profile Base Page Renders', () => {
+        const { getByText, getByTestId } = render(<Profile />);
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toBeTruthy();
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toBeTruthy();
+        expect(getByText('Email')).toBeTruthy();
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Invite User')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
+    });
+
     // Edit Page
     test('Profile Edit Info Page Renders', () => {
+        const { getByText } = render(<Profile />);
         // Simulate button clicks
         // POST API
         // Finish update
         // Cancel update
+        expect(getByText('Cancel Edit')).toBeTruthy();
+        expect(getByText('Finish Updating')).toBeTruthy();
+        expect(getByText('Cancel Edit')).toBeTruthy();
     });
     // Changed layout of page when edited
 
@@ -93,6 +150,8 @@ describe('ProfilePage', () => {
         // Accept 
         // Decline
         // Router
-    });
+        const { getByTestId } = render(<Profile />);
+        //expect(getByTestId('confirmModal')); issues finding right now
+    });*/
 
 });

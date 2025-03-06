@@ -124,7 +124,9 @@ export default function Profile() {
           {/* Avatar Section */}
           <View style={styles.avatarContainer}>
             <View style={styles.avatarImage}>
-              <TextInter style={styles.avatarText}>
+              <TextInter
+                style={styles.avatarText}
+                testID="initialsInput">
                 {userInfo?.name ? getInitials(userInfo.name) : ''}
               </TextInter>
             </View>
