@@ -41,7 +41,7 @@ import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
 import Profile from '@/app/(tabs)/profile/profile';
 
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react-native';
 
 
 /*Functions:
@@ -102,7 +102,7 @@ describe('Profile', () => {
         expect(getByText('My Account')).toBeTruthy();
         expect(getByTestId('initialsInput')).toBeTruthy();
         expect(getByText('Edit')).toBeTruthy();
-        expect(getByText('Name')).toBeTruthy(); // text is part of HeaderInputText, so the user's name would render too technically
+        expect(getByText('Name')).toBeTruthy(); // text is part of HeaderInputText, so the user's name would render too technically, could be disable b/c of isEditing variable
         expect(getByText('Email')).toBeTruthy();
         expect(getByText('Update Info')).toBeTruthy();
         expect(getByText('Notifications')).toBeTruthy();
@@ -126,19 +126,69 @@ describe('Profile', () => {
         expect(getByText('Log Out')).toBeTruthy();
 
     });
+    */
 
-    // Edit Page
-    test('Profile Edit Info Page Renders', () => {
-        const { getByText } = render(<Profile />);
-        // Simulate button clicks
-        // POST API
-        // Finish update
-        // Cancel update
-        expect(getByText('Cancel Edit')).toBeTruthy();
+    // Edit Page: Simulate Edit button click and Update Info button
+    test('Profile Edit Info Page Renders with Blue Edit Text', () => {
+        const { getByText, getByTestId } = render(<Profile />);
+
+        // Simulate Edit Text being clicked
+        fireEvent.press(getByText('Edit'));
+        // Confirm page changed
+        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit');
         expect(getByText('Finish Updating')).toBeTruthy();
-        expect(getByText('Cancel Edit')).toBeTruthy();
+        let updateText = screen.getAllByText('Cancel Edit')[1]; // Get the 2nd 'Cancel Edit' text in the custom button
+        expect(updateText).toBeTruthy;
+
+        // Revert to based page by clicking Edit text again
+        fireEvent.press(getByTestId('editButton')); // Get the blue text 
+
+        // Check if base profile page renders back
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toBeTruthy();
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toBeTruthy();
+        expect(getByText('Email')).toBeTruthy();
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
     });
+
+    test('Profile Edit Info Page Renders with Update Info button', () => {
+        const { getByText, getByTestId } = render(<Profile />);
+
+        // Simulate Update Info button being pressed
+        fireEvent.press(getByText('Update Info'));
+        // Check render
+        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit');
+        expect(getByText('Finish Updating')).toBeTruthy();
+        let updateText = screen.getAllByText('Cancel Edit')[1]; // Get the 2nd 'Cancel Edit' text in the custom button
+        expect(updateText).toBeTruthy;
+        // Cancel update with the Custom button
+        fireEvent.press(updateText); // Get the button text
+
+        // Check if base profile page renders back
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toBeTruthy();
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toBeTruthy();
+        expect(getByText('Email')).toBeTruthy();
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
+    });
+
+
     // Changed layout of page when edited
+    /*
+
+    // Test POST API for Update Info button
+    test('Update Info POST API', () => {});
+
 
     // Routing
     // Simulate clicks and return to Profile page
