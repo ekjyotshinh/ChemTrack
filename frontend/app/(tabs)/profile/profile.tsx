@@ -121,7 +121,9 @@ export default function Profile() {
 
           {/* Name and Email Inputs */}
           <View>
-            <TouchableOpacity onPress={isEditing ? handleCancel : () => setIsEditing(true)}>
+            <TouchableOpacity
+              onPress={isEditing ? handleCancel : () => setIsEditing(true)}
+              testID='editButton'>
               <Text style={styles.editText}>
                 {isEditing ? 'Cancel Edit' : 'Edit'}
               </Text>
