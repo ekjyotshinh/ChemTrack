@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Keyboard } from 'react-native';
 import { BlurView } from 'expo-blur';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
@@ -136,11 +136,26 @@ const handleResetFilters = () => {
   //Search functionality
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredChemicals, setFilteredChemicals] = useState<Chemical[]>([]);
+  const [isSearching, setIsSearching] = useState(false); // New state to track search status
 
   // Add state variables for selected filter options
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const [selectedPurchaseDate, setSelectedPurchaseDate] = useState<string[]>([]);
   const [selectedExpirationDate, setSelectedExpirationDate] = useState<string[]>([]);
+
+  // Function to handle search button click
+  const handleSearch = () => {
+    // Hide keyboard
+    Keyboard.dismiss();
+    
+    // Set searching status to true to indicate search is being performed
+    setIsSearching(true);
+    
+    // The actual filtering is already handled by the useEffect below
+    // This function mainly focuses on UI feedback (hiding keyboard, etc.)
+    
+    console.log("Search performed for:", searchQuery);
+  };
 
   const openModal = (chemical: Chemical) => {
     setSelectedChemical(chemical); // Set the selected chemical
@@ -263,6 +278,8 @@ const handleResetFilters = () => {
   });
 
   setFilteredChemicals(filtered);
+  // Reset searching status after filtering is complete  
+  setIsSearching(false);
 }, [searchQuery, chemicalsData, selectedStatus, 
   selectedPurchaseDate, selectedExpirationDate]);
 
@@ -367,8 +384,9 @@ const handleResetFilters = () => {
             placeholderTextColor={Colors.previewText}
             value={searchQuery}
             onChangeText={(text) => setSearchQuery(text)}
+            onSubmitEditing={handleSearch} // trigger search on submit/enter
           />
-          <TouchableOpacity style={styles.searchButton}>
+          <TouchableOpacity style={styles.searchButton}onPress={handleSearch}>
             <SearchIcon />
           </TouchableOpacity>
         </View>
@@ -444,7 +462,11 @@ const handleResetFilters = () => {
             ))
           ) : (
             <View style={styles.noResultsContainer}>
-              {searchQuery ? (
+              {isSearching ? (
+                <TextInter style={styles.noResultsText}>
+                  Searching...
+                </TextInter>
+              ) : searchQuery ? (
                 <TextInter style={styles.noResultsText}>
                   No chemicals found matching "{searchQuery}"
                 </TextInter>
