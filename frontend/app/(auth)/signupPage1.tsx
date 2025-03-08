@@ -1,6 +1,6 @@
 // Import necessary libraries and components
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Dimensions, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Dimensions, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
@@ -11,6 +11,7 @@ import DropdownInput from '@/components/inputFields/DropdownInput';
 import CustomButton from '@/components/CustomButton';
 import BlueHeader from '@/components/BlueHeader';
 import emailRegex from '@/functions/EmailRegex';
+import fetchSchoolList from '@/functions/fetchSchool';
 
 // Define the SignUpPage component
 export default function SignUpPage() {
@@ -22,14 +23,6 @@ export default function SignUpPage() {
 
   const [isValidEmail, setIsValidEmail] = useState(false);
   emailRegex({ email, setIsValidEmail });
-
-  // Temp array of hardcoded schools
-  const schools = [
-    { label: 'Encina High School', value: 'Encina High School' },
-    { label: 'Sacramento High School', value: 'Sacramento High School' },
-    { label: 'Foothill High School', value: 'Foothill High School' },
-    { label: 'Grant Union High School', value: 'Grant Union High School' },
-  ]
 
   // Function to handle the "Next" button press
   const handleNextPress = () => {
@@ -43,6 +36,12 @@ export default function SignUpPage() {
   const handleBackPress = () => {
     router.push('/login');                // Navigate back to the login page
   };
+
+  const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
+
+  useEffect(() => {
+    fetchSchoolList({setSchoolList});
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -75,7 +74,7 @@ export default function SignUpPage() {
             <View style={{ height: Size.height(10) }} />
 
             <CustomTextHeader headerText='School' />
-            <DropdownInput data={schools} value={selectedSchool} setValue={setSelectedSchool} />
+            <DropdownInput data={schoolList} value={selectedSchool} setValue={setSelectedSchool} />
 
           </View>
           <View style={{ height: Size.height(300) }} />

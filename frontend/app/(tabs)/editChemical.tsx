@@ -17,6 +17,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import BlueHeader from '@/components/BlueHeader';
 import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
+import fetchSchoolList from '@/functions/fetchSchool';
 
 export default function editChemicals() {
   const [name, setName] = useState<string>('');
@@ -39,12 +40,7 @@ export default function editChemicals() {
   const chemicalIdString = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUser();
 
-  const schools = [
-    { label: 'Encina High School', value: 'Encina High School' },
-    { label: 'Sacramento High School', value: 'Sacramento High School' },
-    { label: 'Foothill High School', value: 'Foothill High School' },
-    { label: 'Grant Union High School', value: 'Grant Union High School' },
-  ]
+  const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
 
   const statuses = [
     { label: 'Good', value: 'Good' },
@@ -95,6 +91,10 @@ export default function editChemicals() {
   useEffect(() => {
     if (chemicalIdString && userInfo && (userInfo.is_admin || userInfo.is_master)) {
       fetchChemicalData(chemicalIdString);
+      // Only fetch school list if user is master
+      if (userInfo.is_master) {
+        fetchSchoolList({setSchoolList});
+      }
     }
   }, [chemicalIdString]);
 
@@ -259,11 +259,11 @@ export default function editChemicals() {
                 </View>
               </View>
 
-              {userInfo && userInfo.is_master && 
+              {userInfo && userInfo.is_master &&
               <View style={styles.row}>
                 <View style={{ width: '100%' }}>
                   <CustomTextHeader headerText="School" />
-                  <DropdownInput data={schools} value={school} setValue={setSchool} />
+                  <DropdownInput data={schoolList} value={school} setValue={setSchool} />
                 </View>
               </View>
               }
