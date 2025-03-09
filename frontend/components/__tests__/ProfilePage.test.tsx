@@ -6,7 +6,7 @@ pic: Currently just intials and "box"
 edit text (changeable: check functions)
 name
 email
-update (switch to finish update and cancel update)
+update Info (switch to finish update and cancel update)
 Invite user
 Notifications
 Reset Password
@@ -41,7 +41,7 @@ import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
 import Profile from '@/app/(tabs)/profile/profile';
 
-import { render, fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, screen, waitFor, getQueriesForElement } from '@testing-library/react-native';
 
 
 /*Functions:
@@ -55,23 +55,58 @@ Logging out:
     pops modal and select
 
 */
-// Note: note apis: POST
-// and user context
+// Note: note apis: POST and user context
 /*
 Test ids:
     Name input
     email input
 */
 
-// Regular User
-// less components
-
 
 // Mock Placeholder setup for User information and Routing
+
 jest.mock('@/contexts/UserContext', () => ({
     useUser: jest.fn(),
 }));
 
+// Define User types and data
+// Based on user context file
+interface UserInfo {
+    name: string;
+    email: string;
+    is_admin: boolean;
+    is_master: boolean;
+    school: string;
+    id: string;
+    allow_email: boolean;
+    allow_push: boolean;
+};
+
+const mockUser: UserInfo = {
+    name: 'Test User',
+    email: 'user@example.com',
+    is_admin: false,
+    is_master: false,
+    school: 'Test School',
+    id: '123',
+    allow_email: true,
+    allow_push: false,
+};
+(useUser as jest.Mock).mockReturnValue({ userInfo: mockUser });
+
+const mockMaster: UserInfo = {
+    name: 'Test Admin',
+    email: 'admin@example.com',
+    is_admin: true,
+    is_master: true,
+    school: 'Test School',
+    id: '1234',
+    allow_email: true,
+    allow_push: false,
+};
+(useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+
+// Mock router
 jest.mock('expo-router', () => ({
     useRouter: jest.fn(),
 }));
@@ -96,8 +131,11 @@ describe('Profile', () => {
         jest.clearAllMocks();
     });
 
-    // Base User Profile Page
-    test('Profile Base Page Renders', () => {
+    // Base Regular User Profile Page
+    test('Regular User Profile Page Renders', () => {
+        // Setup normal user
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockUser });
+        // Render page
         const { getByText, getByTestId } = render(<Profile />);
         expect(getByText('My Account')).toBeTruthy();
         expect(getByTestId('initialsInput')).toBeTruthy();
@@ -105,14 +143,20 @@ describe('Profile', () => {
         expect(getByText('Name')).toBeTruthy(); // text is part of HeaderInputText, so the user's name would render too technically, could be disable b/c of isEditing variable
         expect(getByText('Email')).toBeTruthy();
         expect(getByText('Update Info')).toBeTruthy();
+        //expect(getByText('Update Info')).toHaveProp('CustomButton', CustomEditIcon);
+        // editicon = function customediticon
         expect(getByText('Notifications')).toBeTruthy();
         expect(getByText('Reset Password')).toBeTruthy();
         expect(getByText('Log Out')).toBeTruthy();
 
     });
-    /* 
+
     // Base Master User Profile Page
-    test('Profile Base Page Renders', () => {
+    // Only difference is the Invite User button
+    test('Admin Master Page Renders', () => {
+        // Render Admin User
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        // Render page
         const { getByText, getByTestId } = render(<Profile />);
         expect(getByText('My Account')).toBeTruthy();
         expect(getByTestId('initialsInput')).toBeTruthy();
@@ -126,12 +170,68 @@ describe('Profile', () => {
         expect(getByText('Log Out')).toBeTruthy();
 
     });
-    */
 
-    // Edit Page: Simulate Edit button click and Update Info button
-    test('Profile Edit Info Page Renders with Blue Edit Text', () => {
+
+    // Edit Page: Simulate Edit button click and Update Info button for User
+    test('User Edit Info Page Renders with Blue Edit and Update Info Buttons', () => {
+        // Render User
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockUser })
+
         const { getByText, getByTestId } = render(<Profile />);
+        // Simulate Edit Text being clicked
+        fireEvent.press(getByText('Edit'));
+        // Confirm page changed
+        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit'); // The blue Edit text
+        expect(getByText('Finish Updating')).toBeTruthy();
+        let updateText = screen.getAllByText('Cancel Edit')[1]; // Check the 2nd 'Cancel Edit' text in the custom button
+        expect(updateText).toBeTruthy;
 
+        // Revert to based page by clicking Edit text again
+        fireEvent.press(getByTestId('editButton')); // Get the blue text 
+
+        // Check if base profile page renders back
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toBeTruthy();
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toBeTruthy();
+        expect(getByText('Email')).toBeTruthy();
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
+
+        // Check the Update Info button
+        // Simulate Update Info button being clicked
+        fireEvent.press(getByText('Update Info'));
+        // Confirm page changed
+        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit'); // The blue Edit text
+        expect(getByText('Finish Updating')).toBeTruthy();
+        let updateText2 = screen.getAllByText('Cancel Edit')[1]; // Check the 2nd 'Cancel Edit' text in the custom button
+        expect(updateText2).toBeTruthy;
+
+        // Revert to based page by clicking Edit text again
+        fireEvent.press(updateText2); // Click the Cancel Edit button 
+
+        // Check if base profile page renders back
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toBeTruthy();
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toBeTruthy();
+        expect(getByText('Email')).toBeTruthy();
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
+    });
+
+    // Edit Page: Simulate Edit button click and Update Info button for Master
+    test('Master Edit Info Page Renders with Blue Edit Text', () => {
+        // Render User
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster })
+
+        const { getByText, getByTestId } = render(<Profile />);
         // Simulate Edit Text being clicked
         fireEvent.press(getByText('Edit'));
         // Confirm page changed
@@ -150,24 +250,22 @@ describe('Profile', () => {
         expect(getByText('Name')).toBeTruthy();
         expect(getByText('Email')).toBeTruthy();
         expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Invite User')).toBeTruthy();
         expect(getByText('Notifications')).toBeTruthy();
         expect(getByText('Reset Password')).toBeTruthy();
         expect(getByText('Log Out')).toBeTruthy();
 
-    });
-
-    test('Profile Edit Info Page Renders with Update Info button', () => {
-        const { getByText, getByTestId } = render(<Profile />);
-
-        // Simulate Update Info button being pressed
+        // Check the Update Info button
+        // Simulate Update Info button being clicked
         fireEvent.press(getByText('Update Info'));
-        // Check render
-        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit');
+        // Confirm page changed
+        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit'); // The blue Edit text
         expect(getByText('Finish Updating')).toBeTruthy();
-        let updateText = screen.getAllByText('Cancel Edit')[1]; // Get the 2nd 'Cancel Edit' text in the custom button
-        expect(updateText).toBeTruthy;
-        // Cancel update with the Custom button
-        fireEvent.press(updateText); // Get the button text
+        let updateText2 = screen.getAllByText('Cancel Edit')[1]; // Check the 2nd 'Cancel Edit' text in the custom button
+        expect(updateText2).toBeTruthy;
+
+        // Revert to based page by clicking Edit text again
+        fireEvent.press(updateText2); // Click the Cancel Edit button 
 
         // Check if base profile page renders back
         expect(getByText('My Account')).toBeTruthy();
@@ -176,24 +274,81 @@ describe('Profile', () => {
         expect(getByText('Name')).toBeTruthy();
         expect(getByText('Email')).toBeTruthy();
         expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Invite User')).toBeTruthy();
         expect(getByText('Notifications')).toBeTruthy();
         expect(getByText('Reset Password')).toBeTruthy();
         expect(getByText('Log Out')).toBeTruthy();
 
     });
 
+    // Test for Updating Name and Email Info Information
+    test('Update Info for Regular User Properly', async () => {
+        // Setup fetch response for Name and Email after change
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () =>
+                    Promise.resolve({
+                        user: {
+                            first: 'New',
+                            last: 'Regular',
+                            email: 'regular@example.com',
+                            is_admin: false,
+                            is_master: false,
+                            school: 'Test School',
+                            id: '123',
+                        },
+                    }),
+            })
+        ) as jest.Mock;
 
-    // Changed layout of page when edited
+        const { getByText, getByTestId } = render(<Profile />);
+        // Simulate Update Info button being pressed
+        fireEvent.press(getByText('Update Info'));
+        // Check screen renders
+        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit');
+        expect(getByText('Finish Updating')).toBeTruthy();
+        let updateText = screen.getAllByText('Cancel Edit')[1]; // Get the 2nd 'Cancel Edit' text in the custom button
+        expect(updateText).toBeTruthy;
+        // Simulate Name and email changes
+        fireEvent.changeText(getByText('Name'), 'New Regular');
+        fireEvent.changeText(getByText('Email'), 'regular@example.com');
+
+        // Confirm Changes with button click
+        fireEvent.press(getByText('Finish Updating'));
+
+        // Confirm PUT API worked
+        await waitFor(() => {
+            // Ensure user context is updated with correct data
+            expect(updateUserInfo).toHaveBeenCalledWith({
+                name: 'New Regular',
+                email: 'regular@example.com',
+                is_admin: false,
+                is_master: false,
+                school: 'Test School',
+                id: '123',
+            });
+        });
+
+        // Check if base profile page renders back with new Name and Email
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toBeTruthy();
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toHaveDisplayValue('New Regular');
+        expect(getByText('Email')).toHaveDisplayValue('regular@example.com');
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
+    });
+
+    //test('Alert for Updating Info for Regular User Incorrectly', () => { });
     /*
-
-    // Test POST API for Update Info button
-    test('Update Info POST API', () => {});
-
-
     // Routing
     // Simulate clicks and return to Profile page
     // 4 pages 
-
+ 
     // Logout
     test('Logout Modal Renders', () => {
         // Simulate button clicks
