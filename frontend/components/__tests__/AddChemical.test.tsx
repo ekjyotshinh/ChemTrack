@@ -92,8 +92,14 @@ describe('AddChemical', () => {
         const { getByText, getByTestId, queryByTestId, queryByText } = render(<AddChemical />);
 
         expect(getByText('Add Chemical')).toBeTruthy();
+
         expect(getByText('Name')).toBeTruthy();
+        expect(getByTestId('name-input')).toBeTruthy();
+        
         expect(getByText('CAS Number')).toBeTruthy();
+        expect(getByTestId('cas-0')).toBeTruthy();
+        expect(getByTestId('cas-1')).toBeTruthy();
+        expect(getByTestId('cas-2')).toBeTruthy();
 
         expect(getByText('Purchase Date')).toBeTruthy();
         expect(getByTestId('purchase-date')).toBeTruthy();
@@ -133,8 +139,14 @@ describe('AddChemical', () => {
         const { getByText, getByTestId } = render(<AddChemical />);
 
         expect(getByText('Add Chemical')).toBeTruthy();
+        
         expect(getByText('Name')).toBeTruthy();
+        expect(getByTestId('name-input')).toBeTruthy();
+        
         expect(getByText('CAS Number')).toBeTruthy();
+        expect(getByTestId('cas-0')).toBeTruthy();
+        expect(getByTestId('cas-1')).toBeTruthy();
+        expect(getByTestId('cas-2')).toBeTruthy();
 
         expect(getByText('Purchase Date')).toBeTruthy();
         expect(getByTestId('purchase-date')).toBeTruthy();
@@ -204,10 +216,10 @@ describe('AddChemical', () => {
         const { getByTestId } = render(<AddChemical />);
         await act(async () => {
             fireEvent.press(getByTestId('purchase-date'));
+        });
 
-            await waitFor(() => {
-                expect(getByTestId('purchase-date-picker')).toBeTruthy();
-            });
+        await waitFor(() => {
+            expect(getByTestId('purchase-date-picker')).toBeTruthy();
         });
     });
 
@@ -216,10 +228,10 @@ describe('AddChemical', () => {
         const { getByTestId } = render(<AddChemical />);
         await act(async () => {
             fireEvent.press(getByTestId('purchase-date'));
-
-            await waitFor(() => {
-                expect(getByTestId('purchase-date-picker')).toBeTruthy();
-            });
+        });
+        
+        await waitFor(() => {
+            expect(getByTestId('purchase-date-picker')).toBeTruthy();
         });
     });
 
@@ -228,10 +240,10 @@ describe('AddChemical', () => {
         const { getByTestId } = render(<AddChemical />);
         await act(async () => {
             fireEvent.press(getByTestId('expiration-date'));
-
-            await waitFor(() => {
-                expect(getByTestId('expiration-date-picker')).toBeTruthy();
-            });
+        });
+        
+        await waitFor(() => {
+            expect(getByTestId('expiration-date-picker')).toBeTruthy();
         });
     });
 
@@ -240,11 +252,30 @@ describe('AddChemical', () => {
         const { getByTestId } = render(<AddChemical />);
         await act(async () => {
             fireEvent.press(getByTestId('expiration-date'));
+        });
 
-            await waitFor(() => {
-                expect(getByTestId('expiration-date-picker')).toBeTruthy();
-            });
+        await waitFor(() => {
+            expect(getByTestId('expiration-date-picker')).toBeTruthy();
         });
     });
+
+
+    // /* --TEST CLEAR BUTTON-- */
+
+    // test('ADMIN: Test expiration date picker modal', async () => {
+    //     (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+    //     const { getByTestId, getByText } = render(<AddChemical />);
+    //     await act(async () => {
+    //         fireEvent.changeText(getByTestId('email-input'), 'johndoe@example.com');
+    //         fireEvent.changeText(getByTestId('password-input'), 'password123');
+    //         fireEvent.press(getByText('Log In'));
+
+    //         await waitFor(() => {
+    //             expect(getByTestId('expiration-date-picker')).toBeTruthy();
+    //         });
+    //     });
+    // });
+
+
 
 });

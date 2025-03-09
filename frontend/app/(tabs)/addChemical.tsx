@@ -187,6 +187,7 @@ export default function AddChemical() {
     setPurchaseDate(undefined)
     setExpirationDate(undefined)
     setUploaded(false)
+    setUnit('')
   }
 
   const onUpload = () => {
@@ -207,12 +208,13 @@ export default function AddChemical() {
             headerText='Name'
             value={name}
             onChangeText={(value: string) => { setName(value) }}
+            testID='name-input'
           />
 
           {/* CAS Number */}
           <View style={{ marginTop: Size.width(10) }}>
             <CustomTextHeader headerText='CAS Number' />
-            <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
+            <CasTextBoxes casParts={casParts} setCasParts={setCasParts} testIDs={['cas-0','cas-1','cas-2']} />
           </View>
 
           {/* Purchase and Expiration Dates */}
