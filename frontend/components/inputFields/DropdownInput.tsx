@@ -7,12 +7,13 @@ interface DropdownProps {
     data: {
         label: string
         value: string
-    }[],
-    value: string
-    setValue: React.Dispatch<React.SetStateAction<string>>
+    }[];
+    value: string;
+    setValue: React.Dispatch<React.SetStateAction<string>>;
+    testID?: string;
 }
 
-export default function DropdownInput({ data, value, setValue } : DropdownProps) {
+export default function DropdownInput({ data, value, setValue, testID } : DropdownProps) {
     const [textColor, setTextColor] = useState<string>('black')
 
     const onChange = (item : any) => {
@@ -44,7 +45,8 @@ export default function DropdownInput({ data, value, setValue } : DropdownProps)
             valueField='value' 
             onChange={item => {
                 onChange(item)
-            }} 
+            }}
+            testID={testID || ''}
         />
     )
 }

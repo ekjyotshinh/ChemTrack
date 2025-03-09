@@ -12,9 +12,10 @@ interface DateProps {
     setDate: React.Dispatch<React.SetStateAction<Date | undefined>>,
     headerText: string,
     inputWidth: number,
+    testID?: string,
 }
 
-export default function DateInput({ date, setDate, headerText, inputWidth }: DateProps) {
+export default function DateInput({ date, setDate, headerText, inputWidth, testID }: DateProps) {
     const [show, setShow] = useState<boolean>(false)
     const isAndroid = Platform.OS === 'android'
 
@@ -23,7 +24,7 @@ export default function DateInput({ date, setDate, headerText, inputWidth }: Dat
         setDate(newDate)
     }
     return (
-        <View style={{ width: inputWidth || '100%' }}>
+        <View style={{ width: inputWidth || '100%' }} testID={testID || ''}>
             <CustomTextHeader headerText={headerText} />
             <View style={styles.container}>
                 <TouchableOpacity style={styles.btn} onPress={() => { setShow(!show) }}>
