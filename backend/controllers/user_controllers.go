@@ -12,16 +12,16 @@ import (
 
 // User represents the structure of a user
 type User struct {
-	First    		string `json:"first"`
-	Last     		string `json:"last"`
-	Email    		string `json:"email"`
-	Password 		string `json:"password"`
-	School   		string `json:"school"`
-	ExpoPushToken 	string `json:"expo_push_token"`
-	IsAdmin  		bool   `json:"is_admin"`  // Flag for admin
-	IsMaster 		bool   `json:"is_master"` // Flag for master
-	AllowEmail		bool    `json:"allow_email"`// flag for email notifications
-	AllowPush		bool    `json:"allow_push"`// flag for push notifications
+	First         string `json:"first"`
+	Last          string `json:"last"`
+	Email         string `json:"email"`
+	Password      string `json:"password"`
+	School        string `json:"school"`
+	ExpoPushToken string `json:"expo_push_token"`
+	IsAdmin       bool   `json:"is_admin"`    // Flag for admin
+	IsMaster      bool   `json:"is_master"`   // Flag for master
+	AllowEmail    bool   `json:"allow_email"` // flag for email notifications
+	AllowPush     bool   `json:"allow_push"`  // flag for push notifications
 }
 
 var client *firestore.Client
@@ -69,16 +69,16 @@ func AddUser(c *gin.Context) {
 
 	ctx := context.Background()
 	doc, _, err := client.Collection("users").Add(ctx, map[string]interface{}{
-		"first":     		user.First,
-		"last":      		user.Last,
-		"email":     		user.Email,
-		"password":  		hashedPassword, // Store hashed password
-		"school":    		user.School,
-		"is_admin":  		user.IsAdmin,
-		"is_master": 		user.IsMaster,
-		"expo_push_token": 	user.ExpoPushToken,
-		"allow_email":		user.AllowEmail,
-		"allow_push":		user.AllowPush,
+		"first":           user.First,
+		"last":            user.Last,
+		"email":           user.Email,
+		"password":        hashedPassword, // Store hashed password
+		"school":          user.School,
+		"is_admin":        user.IsAdmin,
+		"is_master":       user.IsMaster,
+		"expo_push_token": user.ExpoPushToken,
+		"allow_email":     user.AllowEmail,
+		"allow_push":      user.AllowPush,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user"})
@@ -121,6 +121,51 @@ func GetUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, users)
+}
+
+// GetUserSchools godoc
+// @Summary Get all distinct schools from users
+// @Description Get a list of distinct schools from every users
+// @Tags users
+// @Produce json
+// @Success 200 {array} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/v1/users/schools [get]
+func GetUserSchools(c *gin.Context) {
+	if client == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Firestore client is not initialized"})
+		return
+	}
+
+	ctx := context.Background()
+	iter := client.Collection("users").Documents(ctx)
+
+	// store unique schools in a set
+	schoolSet := make(map[string]struct{})
+
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+			return
+		}
+		user := doc.Data()
+		// ensure school exists and is a string then add to set
+		if school, ok := user["school"].(string); ok {
+			schoolSet[school] = struct{}{}
+		}
+	}
+
+	// convert set to slice
+	var schools []string
+	for school := range schoolSet {
+		schools = append(schools, school)
+	}
+
+	c.JSON(http.StatusOK, schools)
 }
 
 // GetUser godoc
@@ -268,16 +313,16 @@ func Login(c *gin.Context) {
 
 	// Return user info upon successful login
 	response := gin.H{
-		"first":     		user["first"],
-		"last":      		user["last"],
-		"email":     		user["email"],
-		"school":    		user["school"],
-		"is_admin":  		user["is_admin"],
-		"is_master": 		user["is_master"],
-		"allow_email":  	user["allow_email"],
-		"allow_push": 		user["allow_push"],
-		"expo_push_token":	user["expo_push_token"],
-		"id":        		userID,
+		"first":           user["first"],
+		"last":            user["last"],
+		"email":           user["email"],
+		"school":          user["school"],
+		"is_admin":        user["is_admin"],
+		"is_master":       user["is_master"],
+		"allow_email":     user["allow_email"],
+		"allow_push":      user["allow_push"],
+		"expo_push_token": user["expo_push_token"],
+		"id":              userID,
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": response})

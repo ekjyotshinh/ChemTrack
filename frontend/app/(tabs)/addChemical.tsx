@@ -17,6 +17,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
+import fetchSchoolList from '@/functions/fetchSchool';
 
 export default function AddChemical() {
   const { userInfo } = useUser()
@@ -66,12 +67,11 @@ export default function AddChemical() {
     }
   }, allInputs)
 
-  const schools = [
-    { label: 'Encina High School', value: 'Encina High School' },
-    { label: 'Sacramento High School', value: 'Sacramento High School' },
-    { label: 'Foothill High School', value: 'Foothill High School' },
-    { label: 'Grant Union High School', value: 'Grant Union High School' },
-  ]
+  const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
+
+  useEffect(() => {
+    fetchSchoolList({setSchoolList});
+  }, []);
 
   const statuses = [
     { label: 'Good', value: 'Good' },
@@ -261,7 +261,7 @@ export default function AddChemical() {
             <View style={styles.row}>
               <View style={{width: '100%'}}>
                 <CustomTextHeader headerText='School' />
-                <DropdownInput data={schools} value={school} setValue={setSchool} testID='school-dropdown' />
+                <DropdownInput data={schoolList} value={school} setValue={setSchool} testID='school-dropdown' />
               </View>
             </View>
           }
