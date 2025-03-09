@@ -49,7 +49,6 @@ const mockMaster: UserInfo = {
     allow_push: false,
 };
 
-// Mocking dependencies to control their behavior during tests
 jest.mock('@/contexts/UserContext', () => ({
     useUser: jest.fn(),
 }));
@@ -64,15 +63,17 @@ describe('AddChemical', () => {
     let router: { replace: jest.Mock; push: jest.Mock };
 
     beforeEach(() => {
-        // Mocking functions for user context and navigation
         router = { replace: jest.fn(), push: jest.fn() };
         (useRouter as jest.Mock).mockReturnValue(router);
-        jest.spyOn(Alert, 'alert'); // Mock Alert.alert to prevent actual alerts during tests
+        jest.spyOn(Alert, 'alert');
     });
 
     afterEach(() => {
-        jest.clearAllMocks(); // Clear all mocks after each test to prevent test contamination
+        jest.clearAllMocks();
     });
+
+
+    /* --TEST UI COMPONENTS RENDERING-- */
 
     test('VIEW ONLY: Renders all components', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockViewOnly });
@@ -144,7 +145,7 @@ describe('AddChemical', () => {
 
         expect(getByText('Quantity')).toBeTruthy();
         expect(getByTestId('quantity-input')).toBeTruthy();
-        
+
         // Should render school
         expect(getByText('School')).toBeTruthy();
         expect(getByTestId('school-dropdown')).toBeTruthy();
@@ -166,4 +167,67 @@ describe('AddChemical', () => {
         expect(getByText('Save Chemical')).toBeTruthy();
         expect(getByText('Clear')).toBeTruthy();
     });
+
+
+    /* --TEST ADD CHEMICAL WITHOUT ANY VALUES INPUTTED-- */
+
+    test('ADMIN: Prevent add chemical without entering in all fields', async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+        const { getByText } = render(<AddChemical />);
+        fireEvent.press(getByText('Save Chemical'));
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields!');
+        });
+    });
+
+    test('MASTER: Prevent add chemical without entering in all fields', async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText } = render(<AddChemical />);
+        fireEvent.press(getByText('Save Chemical'));
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields!');
+        });
+    });
+
+
+    /* --TEST DATE PICKER COMPONENT RENDERING-- */
+
+    test('ADMIN: Test purchase date picker modal', async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+        const { getByTestId } = render(<AddChemical />);
+        fireEvent.press(getByTestId('purchase-date'));
+        await waitFor(() => {
+            expect(getByTestId('purchase-date-picker')).toBeTruthy();
+        });
+    });
+
+    test('ADMIN: Test expiration date picker modal', async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+        const { getByTestId } = render(<AddChemical />);
+        fireEvent.press(getByTestId('expiration-date'));
+        await waitFor(() => {
+            expect(getByTestId('expiration-date-picker')).toBeTruthy();
+        });
+    });
+
+    test('MASTER: Test date picker modal', async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByTestId } = render(<AddChemical />);
+        fireEvent.press(getByTestId('purchase-date'));
+        await waitFor(() => {
+            expect(getByTestId('purchase-date-picker')).toBeTruthy();
+        });
+    });
+
+    test('MASTER: Test expiration date picker modal', async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByTestId } = render(<AddChemical />);
+        fireEvent.press(getByTestId('expiration-date'));
+        await waitFor(() => {
+            expect(getByTestId('expiration-date-picker')).toBeTruthy();
+        });
+    });
+
+
+    
 });

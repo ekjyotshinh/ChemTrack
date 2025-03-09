@@ -24,10 +24,10 @@ export default function DateInput({ date, setDate, headerText, inputWidth, testI
         setDate(newDate)
     }
     return (
-        <View style={{ width: inputWidth || '100%' }} testID={testID || ''}>
+        <View style={{ width: inputWidth || '100%' }}>
             <CustomTextHeader headerText={headerText} />
             <View style={styles.container}>
-                <TouchableOpacity style={styles.btn} onPress={() => { setShow(!show) }}>
+                <TouchableOpacity style={styles.btn} onPress={() => { setShow(!show) }} testID={testID || ''}>
                     <View style={styles.content}>
                         {/* Format the date into a string */}
                         <TextInter style={{ textAlignVertical: 'center' }}>
@@ -46,6 +46,7 @@ export default function DateInput({ date, setDate, headerText, inputWidth, testI
                         mode="date"
                         display={'spinner'}
                         onChange={(e: any, newDate: Date | undefined) => { onChange(newDate) }}
+                        testID={testID + '-picker' || ''}
                     /> : 
                     // on iOS use DateTimePickerModal becauase date selection looks better on 
                     // iOS than with RNDateTimePicker
@@ -55,6 +56,7 @@ export default function DateInput({ date, setDate, headerText, inputWidth, testI
                         mode='date'
                         onConfirm={onChange}
                         onCancel={() => { setShow(!show) }}
+                        testID={testID + '-picker' || ''}
                     />
                 }
             </View>
