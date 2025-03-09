@@ -37,27 +37,30 @@ export default function DateInput({ date, setDate, headerText, inputWidth, testI
                     </View>
                 </TouchableOpacity>
 
-                {
-                    // use RNDateTimePicker for Android since spinner is nice
-                    isAndroid ? show && <RNDateTimePicker
-                        // use current date is user hasn't entered anything yet
-                        // otherwise, default to user input
-                        value={date ?? new Date()}
-                        mode="date"
-                        display={'spinner'}
-                        onChange={(e: any, newDate: Date | undefined) => { onChange(newDate) }}
-                        testID={testID + '-picker' || ''}
-                    /> : 
-                    // on iOS use DateTimePickerModal becauase date selection looks better on 
-                    // iOS than with RNDateTimePicker
-                    <DateTimePickerModal
-                        date={date ?? new Date()}
-                        isVisible={show}
-                        mode='date'
-                        onConfirm={onChange}
-                        onCancel={() => { setShow(!show) }}
-                        testID={testID + '-picker' || ''}
-                    />
+                {      
+                    isAndroid ? show &&
+                        // use RNDateTimePicker for Android since spinner is nice
+                        <View testID={testID + '-picker' || ''}>
+                            <RNDateTimePicker
+                                // use current date is user hasn't entered anything yet
+                                // otherwise, default to user input
+                                value={date ?? new Date()}
+                                mode="date"
+                                display={'spinner'}
+                                onChange={(e: any, newDate: Date | undefined) => { onChange(newDate) }} 
+                            />
+                        </View> : show &&
+                        // on iOS use DateTimePickerModal becauase date selection looks better on 
+                        // iOS than with RNDateTimePicker
+                        <View testID={testID + '-picker' || ''}>
+                            <DateTimePickerModal
+                                date={date ?? new Date()}
+                                isVisible={show}
+                                mode='date'
+                                onConfirm={onChange}
+                                onCancel={() => { setShow(!show) }}
+                            />
+                        </View>
                 }
             </View>
         </View>

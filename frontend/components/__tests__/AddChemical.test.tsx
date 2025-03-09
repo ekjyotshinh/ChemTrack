@@ -3,7 +3,7 @@ import AddChemical from '@/app/(tabs)/addChemical';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act, cleanup } from '@testing-library/react-native';
 
 interface UserInfo {
     name: string;
@@ -70,6 +70,7 @@ describe('AddChemical', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        cleanup();
     });
 
 
@@ -169,23 +170,29 @@ describe('AddChemical', () => {
     });
 
 
-    /* --TEST ADD CHEMICAL WITHOUT ANY VALUES INPUTTED-- */
+    // /* --TEST ADD CHEMICAL WITHOUT ANY VALUES INPUTTED-- */
 
     test('ADMIN: Prevent add chemical without entering in all fields', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
         const { getByText } = render(<AddChemical />);
-        fireEvent.press(getByText('Save Chemical'));
-        await waitFor(() => {
-            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields!');
+        await act(async () => {
+            fireEvent.press(getByText('Save Chemical'));
+
+            await waitFor(() => {
+                expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields!');
+            });
         });
     });
 
     test('MASTER: Prevent add chemical without entering in all fields', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
         const { getByText } = render(<AddChemical />);
-        fireEvent.press(getByText('Save Chemical'));
-        await waitFor(() => {
-            expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields!');
+        await act(async () => {
+            fireEvent.press(getByText('Save Chemical'));
+
+            await waitFor(() => {
+                expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields!');
+            });
         });
     });
 
@@ -195,39 +202,49 @@ describe('AddChemical', () => {
     test('ADMIN: Test purchase date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
         const { getByTestId } = render(<AddChemical />);
-        fireEvent.press(getByTestId('purchase-date'));
-        await waitFor(() => {
-            expect(getByTestId('purchase-date-picker')).toBeTruthy();
-        });
-    });
+        await act(async () => {
+            fireEvent.press(getByTestId('purchase-date'));
 
-    test('ADMIN: Test expiration date picker modal', async () => {
-        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
-        const { getByTestId } = render(<AddChemical />);
-        fireEvent.press(getByTestId('expiration-date'));
-        await waitFor(() => {
-            expect(getByTestId('expiration-date-picker')).toBeTruthy();
+            await waitFor(() => {
+                expect(getByTestId('purchase-date-picker')).toBeTruthy();
+            });
         });
     });
 
     test('MASTER: Test date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
         const { getByTestId } = render(<AddChemical />);
-        fireEvent.press(getByTestId('purchase-date'));
-        await waitFor(() => {
-            expect(getByTestId('purchase-date-picker')).toBeTruthy();
+        await act(async () => {
+            fireEvent.press(getByTestId('purchase-date'));
+
+            await waitFor(() => {
+                expect(getByTestId('purchase-date-picker')).toBeTruthy();
+            });
+        });
+    });
+
+    test('ADMIN: Test expiration date picker modal', async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+        const { getByTestId } = render(<AddChemical />);
+        await act(async () => {
+            fireEvent.press(getByTestId('expiration-date'));
+
+            await waitFor(() => {
+                expect(getByTestId('expiration-date-picker')).toBeTruthy();
+            });
         });
     });
 
     test('MASTER: Test expiration date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
         const { getByTestId } = render(<AddChemical />);
-        fireEvent.press(getByTestId('expiration-date'));
-        await waitFor(() => {
-            expect(getByTestId('expiration-date-picker')).toBeTruthy();
+        await act(async () => {
+            fireEvent.press(getByTestId('expiration-date'));
+
+            await waitFor(() => {
+                expect(getByTestId('expiration-date-picker')).toBeTruthy();
+            });
         });
     });
 
-
-    
 });
