@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import AddChemical from '@/app/(tabs)/addChemical';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
+import { Alert, TouchableOpacity, View } from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
 import { render, fireEvent, waitFor, act, cleanup } from '@testing-library/react-native';
+import { debug } from '@testing-library/react-native/build/helpers/debug';
 
 interface UserInfo {
     name: string;
@@ -59,6 +61,14 @@ jest.mock('expo-router', () => ({
 
 jest.mock("expo-font");
 
+jest.mock("expo-document-picker", () => ({
+    getDocumentAsync: jest.fn(),
+}));
+
+jest.spyOn(View.prototype, 'measureInWindow').mockImplementation((cb) => {
+    cb(18, 113, 357, 50)
+});
+
 describe('AddChemical', () => {
     let router: { replace: jest.Mock; push: jest.Mock };
 
@@ -95,7 +105,7 @@ describe('AddChemical', () => {
 
         expect(getByText('Name')).toBeTruthy();
         expect(getByTestId('name-input')).toBeTruthy();
-        
+
         expect(getByText('CAS Number')).toBeTruthy();
         expect(getByTestId('cas-0')).toBeTruthy();
         expect(getByTestId('cas-1')).toBeTruthy();
@@ -139,10 +149,10 @@ describe('AddChemical', () => {
         const { getByText, getByTestId } = render(<AddChemical />);
 
         expect(getByText('Add Chemical')).toBeTruthy();
-        
+
         expect(getByText('Name')).toBeTruthy();
         expect(getByTestId('name-input')).toBeTruthy();
-        
+
         expect(getByText('CAS Number')).toBeTruthy();
         expect(getByTestId('cas-0')).toBeTruthy();
         expect(getByTestId('cas-1')).toBeTruthy();
@@ -209,72 +219,140 @@ describe('AddChemical', () => {
     });
 
 
-    /* --TEST DATE PICKER COMPONENT RENDERING-- */
+    /* --TEST PURCHASE DATE PICKER COMPONENT RENDERING-- */
 
     test('ADMIN: Test purchase date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
-        const { getByTestId } = render(<AddChemical />);
-        await act(async () => {
-            fireEvent.press(getByTestId('purchase-date'));
-        });
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
 
-        await waitFor(() => {
-            expect(getByTestId('purchase-date-picker')).toBeTruthy();
-        });
+        const { getByTestId, getByText } = render(<AddChemical />);
+
+        fireEvent.press(getByTestId("purchase-date"));
+        expect(await getByTestId("purchase-date-picker")).toBeTruthy();
+        fireEvent.press(getByText("Confirm"));
+        expect(await getByText(date)).toBeTruthy();
     });
 
     test('MASTER: Test date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
-        const { getByTestId } = render(<AddChemical />);
-        await act(async () => {
-            fireEvent.press(getByTestId('purchase-date'));
-        });
-        
-        await waitFor(() => {
-            expect(getByTestId('purchase-date-picker')).toBeTruthy();
-        });
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
+
+        const { getByTestId, getByText } = render(<AddChemical />);
+
+        fireEvent.press(getByTestId("purchase-date"));
+        expect(await getByTestId("purchase-date-picker")).toBeTruthy();
+        fireEvent.press(getByText("Confirm"));
+        expect(await getByText(date)).toBeTruthy();
     });
+
+
+    /* --TEST EXPIRATION DATE PICKER COMPONENT RENDERING-- */
 
     test('ADMIN: Test expiration date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
-        const { getByTestId } = render(<AddChemical />);
-        await act(async () => {
-            fireEvent.press(getByTestId('expiration-date'));
-        });
-        
-        await waitFor(() => {
-            expect(getByTestId('expiration-date-picker')).toBeTruthy();
-        });
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
+
+        const { getByTestId, getByText } = render(<AddChemical />);
+
+        fireEvent.press(getByTestId("expiration-date"));
+        expect(await getByTestId("expiration-date-picker")).toBeTruthy();
+        fireEvent.press(getByText("Confirm"));
+        expect(await getByText(date)).toBeTruthy();
     });
 
     test('MASTER: Test expiration date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
-        const { getByTestId } = render(<AddChemical />);
-        await act(async () => {
-            fireEvent.press(getByTestId('expiration-date'));
-        });
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
 
-        await waitFor(() => {
-            expect(getByTestId('expiration-date-picker')).toBeTruthy();
-        });
+        const { getByTestId, getByText } = render(<AddChemical />);
+
+        fireEvent.press(getByTestId("expiration-date"));
+        expect(await getByTestId("expiration-date-picker")).toBeTruthy();
+        fireEvent.press(getByText("Confirm"));
+        expect(await getByText(date)).toBeTruthy();
     });
 
 
-    // /* --TEST CLEAR BUTTON-- */
+    /* --TEST CLEAR BUTTON-- */
 
-    // test('ADMIN: Test expiration date picker modal', async () => {
-    //     (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
-    //     const { getByTestId, getByText } = render(<AddChemical />);
-    //     await act(async () => {
-    //         fireEvent.changeText(getByTestId('email-input'), 'johndoe@example.com');
-    //         fireEvent.changeText(getByTestId('password-input'), 'password123');
-    //         fireEvent.press(getByText('Log In'));
+    test("ADMIN: Test clear button", async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
 
-    //         await waitFor(() => {
-    //             expect(getByTestId('expiration-date-picker')).toBeTruthy();
-    //         });
-    //     });
-    // });
+        const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
+
+        fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
+        fireEvent.changeText(getByTestId('cas-0'), '1234');
+        fireEvent.changeText(getByTestId('cas-1'), '56');
+        fireEvent.changeText(getByTestId('cas-2'), '7');
+
+        fireEvent.press(getByTestId("purchase-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("expiration-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("status-dropdown"));
+        const selectedStatus = getByText('Good');
+        await waitFor(() => expect(selectedStatus).toBeDefined());
+        fireEvent.press(selectedStatus);
+        await waitFor(() => expect.objectContaining({
+            label: 'Good',
+            value: 'Good'
+        }));
+
+        fireEvent.changeText(getByTestId('quantity-input'), '1');
+
+
+        fireEvent.press(getByTestId("unit-dropdown"));
+        const selectedUnit = getByText('kg');
+        await waitFor(() => expect(selectedUnit).toBeDefined());
+        fireEvent.press(selectedUnit);
+        await waitFor(() => expect.objectContaining({
+            label: 'kg',
+            value: 'kg'
+        }));
+
+        fireEvent.changeText(getByTestId('room-input'), '102A');
+        fireEvent.changeText(getByTestId('cabinet-input'), '1');
+        fireEvent.changeText(getByTestId('shelf-input'), '420');
+
+        (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({
+            canceled: false,
+            assets: [
+                {
+                    name: 'test.pdf',
+                    uri: 'file:///test.pdf',
+                    mimeType: 'application/pdf',
+                    size: 12345,
+                },
+            ],
+        });
+
+        fireEvent.press(getByText('Upload'));
+        expect(await findByText('File Uploaded')).toBeTruthy();
+
+        fireEvent.press(getByText("Clear"));
+
+        // All values should be cleared
+        expect(getByTestId('name-input')).toHaveDisplayValue('');
+        expect(getByTestId('cas-0')).toHaveDisplayValue('');
+        expect(getByTestId('cas-1')).toHaveDisplayValue('');
+        expect(getByTestId('cas-2')).toHaveDisplayValue('');
+        expect(queryByText(date)).toBeNull();
+        expect(queryByText("Good")).toBeNull();
+        expect(getByTestId('quantity-input')).toHaveDisplayValue('');
+        expect(queryByText("kg")).toBeNull();
+        expect(getByTestId('room-input')).toHaveDisplayValue('');
+        expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
+        expect(getByTestId('shelf-input')).toHaveDisplayValue('');
+        expect(getByText('Upload')).toBeTruthy();
+    });
 
 
 
