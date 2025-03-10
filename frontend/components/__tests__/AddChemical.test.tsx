@@ -360,7 +360,7 @@ describe('AddChemical', () => {
         (fetchSchoolList as jest.Mock).mockImplementation(({ setSchoolList }) => {
             setSchoolList([{ label: 'Mock High School', value: 'Mock High School' }]);
         });
-        
+
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
@@ -400,7 +400,7 @@ describe('AddChemical', () => {
         }));
 
         await waitFor(() => expect(fetchSchoolList).toHaveBeenCalled());
-        
+
         fireEvent.press(getByTestId("school-dropdown"));
         const selectedSchool = getByText('Mock High School');
         await waitFor(() => expect(selectedSchool).toBeDefined());
@@ -448,5 +448,237 @@ describe('AddChemical', () => {
     });
 
 
+    /* --TEST SAVE CHEMICAL BUTTON-- */
+
+    test("ADMIN: Test save chemical button", async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+
+        // Simulate adding chemical call
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({ message: "Chemical added successfully" }),
+            })
+        ) as jest.Mock;
+
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
+
+        const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
+
+        fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
+        fireEvent.changeText(getByTestId('cas-0'), '1234');
+        fireEvent.changeText(getByTestId('cas-1'), '56');
+        fireEvent.changeText(getByTestId('cas-2'), '7');
+
+        fireEvent.press(getByTestId("purchase-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("expiration-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("status-dropdown"));
+        const selectedStatus = getByText('Good');
+        await waitFor(() => expect(selectedStatus).toBeDefined());
+        fireEvent.press(selectedStatus);
+        await waitFor(() => expect.objectContaining({
+            label: 'Good',
+            value: 'Good'
+        }));
+
+        fireEvent.changeText(getByTestId('quantity-input'), '1');
+
+        fireEvent.press(getByTestId("unit-dropdown"));
+        const selectedUnit = getByText('kg');
+        await waitFor(() => expect(selectedUnit).toBeDefined());
+        fireEvent.press(selectedUnit);
+        await waitFor(() => expect.objectContaining({
+            label: 'kg',
+            value: 'kg'
+        }));
+
+        fireEvent.changeText(getByTestId('room-input'), '102A');
+        fireEvent.changeText(getByTestId('cabinet-input'), '1');
+        fireEvent.changeText(getByTestId('shelf-input'), '420');
+
+        (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({
+            canceled: false,
+            assets: [
+                {
+                    name: 'test.pdf',
+                    uri: 'file:///test.pdf',
+                    mimeType: 'application/pdf',
+                    size: 12345,
+                },
+            ],
+        });
+
+        fireEvent.press(getByText('Upload'));
+        expect(await findByText('File Uploaded')).toBeTruthy();
+
+        fireEvent.press(getByText('Save Chemical'));
+        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+
+        const expectedData = {
+            name: 'Mock Chemical',
+            cas: 1234567,
+            purchase_date: date,
+            expiration_date: date,
+            status: 'Good',
+            quantity: '1 kg',
+            room: '102A',
+            cabinet: 1,
+            shelf: 420,
+            school: 'Test School',
+        }
+        
+        // Does the data match the expected data?
+        const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
+        const requestBody = JSON.parse(fetchCall[1].body);
+        expect(requestBody).toMatchObject(expectedData);
+
+        // Clear all values
+        waitFor(() => {
+            expect(getByTestId('name-input')).toHaveDisplayValue('');
+            expect(getByTestId('cas-0')).toHaveDisplayValue('');
+            expect(getByTestId('cas-1')).toHaveDisplayValue('');
+            expect(getByTestId('cas-2')).toHaveDisplayValue('');
+            expect(queryByText(date)).toBeNull();
+            expect(queryByText("Good")).toBeNull();
+            expect(getByTestId('quantity-input')).toHaveDisplayValue('');
+            expect(queryByText("kg")).toBeNull();
+            expect(getByTestId('room-input')).toHaveDisplayValue('');
+            expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
+            expect(getByTestId('shelf-input')).toHaveDisplayValue('');
+            expect(getByText('Upload')).toBeTruthy();
+        });
+
+        // Check for success alert and re-routing
+        expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical information added');
+        expect(router.push).toHaveBeenCalledWith('/');
+    });
+
+    test("MASTER: Test save chemical button", async () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        (fetchSchoolList as jest.Mock).mockImplementation(({ setSchoolList }) => {
+            setSchoolList([{ label: 'Mock High School', value: 'Mock High School' }]);
+        });
+
+        // Simulate adding chemical call
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({ message: "Chemical added successfully" }),
+            })
+        ) as jest.Mock;
+
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
+
+        const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
+
+        fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
+        fireEvent.changeText(getByTestId('cas-0'), '1234');
+        fireEvent.changeText(getByTestId('cas-1'), '56');
+        fireEvent.changeText(getByTestId('cas-2'), '7');
+
+        fireEvent.press(getByTestId("purchase-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("expiration-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("status-dropdown"));
+        const selectedStatus = getByText('Good');
+        await waitFor(() => expect(selectedStatus).toBeDefined());
+        fireEvent.press(selectedStatus);
+        await waitFor(() => expect.objectContaining({
+            label: 'Good',
+            value: 'Good'
+        }));
+
+        fireEvent.changeText(getByTestId('quantity-input'), '1');
+
+        fireEvent.press(getByTestId("unit-dropdown"));
+        const selectedUnit = getByText('kg');
+        await waitFor(() => expect(selectedUnit).toBeDefined());
+        fireEvent.press(selectedUnit);
+        await waitFor(() => expect.objectContaining({
+            label: 'kg',
+            value: 'kg'
+        }));
+
+        await waitFor(() => expect(fetchSchoolList).toHaveBeenCalled());
+
+        fireEvent.press(getByTestId("school-dropdown"));
+        const selectedSchool = getByText('Mock High School');
+        await waitFor(() => expect(selectedSchool).toBeDefined());
+        fireEvent.press(selectedSchool);
+        await waitFor(() => expect.objectContaining({
+            label: 'Mock High School',
+            value: 'Mock High School'
+        }));
+
+        fireEvent.changeText(getByTestId('room-input'), '102A');
+        fireEvent.changeText(getByTestId('cabinet-input'), '1');
+        fireEvent.changeText(getByTestId('shelf-input'), '420');
+
+        (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({
+            canceled: false,
+            assets: [
+                {
+                    name: 'test.pdf',
+                    uri: 'file:///test.pdf',
+                    mimeType: 'application/pdf',
+                    size: 12345,
+                },
+            ],
+        });
+
+        fireEvent.press(getByText('Upload'));
+        expect(await findByText('File Uploaded')).toBeTruthy();
+
+        fireEvent.press(getByText('Save Chemical'));
+        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+
+        const expectedData = {
+            name: 'Mock Chemical',
+            cas: 1234567,
+            purchase_date: date,
+            expiration_date: date,
+            status: 'Good',
+            quantity: '1 kg',
+            room: '102A',
+            cabinet: 1,
+            shelf: 420,
+            school: 'Mock High School',
+        }
+        
+        // Does the data match the expected data?
+        const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
+        const requestBody = JSON.parse(fetchCall[1].body);
+        expect(requestBody).toMatchObject(expectedData);
+
+        // Clear all values
+        waitFor(() => {
+            expect(getByTestId('name-input')).toHaveDisplayValue('');
+            expect(getByTestId('cas-0')).toHaveDisplayValue('');
+            expect(getByTestId('cas-1')).toHaveDisplayValue('');
+            expect(getByTestId('cas-2')).toHaveDisplayValue('');
+            expect(queryByText(date)).toBeNull();
+            expect(queryByText("Good")).toBeNull();
+            expect(getByTestId('quantity-input')).toHaveDisplayValue('');
+            expect(queryByText("kg")).toBeNull();
+            expect(queryByText("Mock High School")).toBeNull();
+            expect(getByTestId('room-input')).toHaveDisplayValue('');
+            expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
+            expect(getByTestId('shelf-input')).toHaveDisplayValue('');
+            expect(getByText('Upload')).toBeTruthy();
+        });
+
+        // Check for success alert and re-routing
+        expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical information added');
+        expect(router.push).toHaveBeenCalledWith('/');
+    });
 
 });
