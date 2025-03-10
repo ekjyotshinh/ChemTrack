@@ -11,7 +11,6 @@ Invite user
 Notifications
 Reset Password
 logout and its modal
-
 */
 import { useState, useEffect } from 'react';
 import {
@@ -34,7 +33,6 @@ import Colors from '@/constants/Colors';
 import Header from '@/components/Header';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Size from '@/constants/Size';
-import TextInter from '@/components/TextInter';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
@@ -56,12 +54,6 @@ Logging out:
 
 */
 // Note: note apis: POST and user context
-/*
-Test ids:
-    Name input
-    email input
-*/
-
 
 // Mock Placeholder setup for User information and Routing
 
@@ -145,6 +137,8 @@ describe('Profile', () => {
         expect(getByText('Update Info')).toBeTruthy();
         //expect(getByText('Update Info')).toHaveProp('CustomButton', CustomEditIcon);
         // editicon = function customediticon
+        // https://wix.github.io/Detox/docs/next/guide/test-id/
+        // https://stackoverflow.com/questions/41339996/how-to-test-a-react-native-component-that-imports-a-custom-native-module-with-je
         expect(getByText('Notifications')).toBeTruthy();
         expect(getByText('Reset Password')).toBeTruthy();
         expect(getByText('Log Out')).toBeTruthy();
@@ -229,7 +223,7 @@ describe('Profile', () => {
     // Edit Page: Simulate Edit button click and Update Info button for Master
     test('Master Edit Info Page Renders with Blue Edit Text', () => {
         // Render User
-        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster })
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
 
         const { getByText, getByTestId } = render(<Profile />);
         // Simulate Edit Text being clicked
@@ -282,7 +276,9 @@ describe('Profile', () => {
     });
 
     // Test for Updating Name and Email Info Information
-    test('Update Info for Regular User Properly', async () => {
+    test('Update Info for Regular User Properly', () => {
+        // Setup regular user
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockUser });
         // Setup fetch response for Name and Email after change
         global.fetch = jest.fn(() =>
             Promise.resolve({
@@ -302,7 +298,7 @@ describe('Profile', () => {
             })
         ) as jest.Mock;
 
-        const { getByText, getByTestId } = render(<Profile />);
+        const { getByText, getByTestId, queryByText } = render(<Profile />);
         // Simulate Update Info button being pressed
         fireEvent.press(getByText('Update Info'));
         // Check screen renders
@@ -311,24 +307,24 @@ describe('Profile', () => {
         let updateText = screen.getAllByText('Cancel Edit')[1]; // Get the 2nd 'Cancel Edit' text in the custom button
         expect(updateText).toBeTruthy;
         // Simulate Name and email changes
-        fireEvent.changeText(getByText('Name'), 'New Regular');
-        fireEvent.changeText(getByText('Email'), 'regular@example.com');
+        fireEvent.changeText(queryByText('Name'), 'New Regular');
+        fireEvent.changeText(queryByText('Email'), 'regular@example.com');
 
         // Confirm Changes with button click
-        fireEvent.press(getByText('Finish Updating'));
+        fireEvent.press(queryByText('Finish Updating'));
 
         // Confirm PUT API worked
-        await waitFor(() => {
-            // Ensure user context is updated with correct data
-            expect(updateUserInfo).toHaveBeenCalledWith({
-                name: 'New Regular',
-                email: 'regular@example.com',
-                is_admin: false,
-                is_master: false,
-                school: 'Test School',
-                id: '123',
-            });
+        //await waitFor(() => {
+        // Ensure user context is updated with correct data
+        expect(updateUserInfo).toHaveBeenCalledWith({
+            name: 'New Regular',
+            email: 'regular@example.com',
+            is_admin: false,
+            is_master: false,
+            school: 'Test School',
+            id: '123',
         });
+        //});
 
         // Check if base profile page renders back with new Name and Email
         expect(getByText('My Account')).toBeTruthy();
@@ -343,20 +339,63 @@ describe('Profile', () => {
 
     });
 
-    //test('Alert for Updating Info for Regular User Incorrectly', () => { });
-    /*
+    test('Alert for Updating Info for Regular User Incorrectly', () => { });
+
     // Routing
-    // Simulate clicks and return to Profile page
-    // 4 pages 
- 
-    // Logout
-    test('Logout Modal Renders', () => {
+    test('Routing for Master User', () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText } = render(<Profile />);
         // Simulate button clicks
-        // Accept 
-        // Decline
-        // Router
-        const { getByTestId } = render(<Profile />);
-        //expect(getByTestId('confirmModal')); issues finding right now
-    });*/
+        fireEvent.press(getByText('Invite User'));
+        expect(router.replace).toHaveBeenCalledWith('/(tabs)');
+        fireEvent.press(getByText('Account')); // Assuming NavBar routing works, use to reroute back to profile
+        fireEvent.press(getByText('Notifications'));
+        expect(router.replace).toHaveBeenCalledWith('/(tabs)');
+        fireEvent.press(getByText('Account'));
+        fireEvent.press(getByText('Reset Password'));
+        expect(router.replace).toHaveBeenCalledWith('/(tabs)');
+        fireEvent.press(getByText('Account'));
+        fireEvent.press(getByText('Log Out'));
+        fireEvent.press(getByText('Yes'));
+        expect(router.replace).toHaveBeenCalledWith('/(auth)');
+        // /(tabs)/profile/(userPage/notifications/resetPassword)
+        // (auth)/login
+    });
+
+    // Logout UI
+    test('Logout Modal Renders for Master', () => {
+        // Setup master user
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText, queryByText } = render(<Profile />);
+        // Simulate Log out clicks
+        fireEvent.press(getByText('Log Out'));
+        expect(getByText('Are you sure you want to log out?')).toBeOnTheScreen();
+        expect(getByText('Yes')).toBeOnTheScreen();
+        expect(getByText('Cancel')).toBeOnTheScreen();
+        // Decline to go back to profile
+        fireEvent.press(getByText('Cancel'));
+        // Check modal is gone
+        expect(queryByText('Are you sure you want to log out?')).not.toBeOnTheScreen();
+        expect(queryByText('Yes')).not.toBeOnTheScreen();
+        expect(queryByText('Cancel')).not.toBeOnTheScreen();
+
+    });
+    test('Logout Modal Renders for Regular User', () => {
+        // Setup master user
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockUser });
+        const { getByText, queryByText } = render(<Profile />);
+        // Simulate Log out clicks
+        fireEvent.press(getByText('Log Out'));
+        expect(getByText('Are you sure you want to log out?')).toBeOnTheScreen();
+        expect(getByText('Yes')).toBeOnTheScreen();
+        expect(getByText('Cancel')).toBeOnTheScreen();
+        // Decline to go back to profile
+        fireEvent.press(getByText('Cancel'));
+        // Check modal is gone
+        expect(queryByText('Are you sure you want to log out?')).not.toBeOnTheScreen();
+        expect(queryByText('Yes')).not.toBeOnTheScreen();
+        expect(queryByText('Cancel')).not.toBeOnTheScreen();
+
+    });
 
 });
