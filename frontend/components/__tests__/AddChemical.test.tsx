@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
 import AddChemical from '@/app/(tabs)/addChemical';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'expo-router';
-import { Alert, TouchableOpacity, View } from 'react-native';
+import { Alert, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { render, fireEvent, waitFor, act, cleanup } from '@testing-library/react-native';
-import { debug } from '@testing-library/react-native/build/helpers/debug';
+import fetchSchoolList from '@/functions/fetchSchool';
 
 interface UserInfo {
     name: string;
@@ -68,6 +67,8 @@ jest.mock("expo-document-picker", () => ({
 jest.spyOn(View.prototype, 'measureInWindow').mockImplementation((cb) => {
     cb(18, 113, 357, 50)
 });
+
+jest.mock('@/functions/fetchSchool', () => jest.fn());
 
 describe('AddChemical', () => {
     let router: { replace: jest.Mock; push: jest.Mock };
@@ -348,6 +349,98 @@ describe('AddChemical', () => {
         expect(queryByText("Good")).toBeNull();
         expect(getByTestId('quantity-input')).toHaveDisplayValue('');
         expect(queryByText("kg")).toBeNull();
+        expect(getByTestId('room-input')).toHaveDisplayValue('');
+        expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
+        expect(getByTestId('shelf-input')).toHaveDisplayValue('');
+        expect(getByText('Upload')).toBeTruthy();
+    });
+
+    test("MASTER: Test clear button", async () => {
+
+        (fetchSchoolList as jest.Mock).mockImplementation(({ setSchoolList }) => {
+            setSchoolList([{ label: 'Mock High School', value: 'Mock High School' }]);
+        });
+        
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
+
+        const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
+
+        fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
+        fireEvent.changeText(getByTestId('cas-0'), '1234');
+        fireEvent.changeText(getByTestId('cas-1'), '56');
+        fireEvent.changeText(getByTestId('cas-2'), '7');
+
+        fireEvent.press(getByTestId("purchase-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("expiration-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("status-dropdown"));
+        const selectedStatus = getByText('Good');
+        await waitFor(() => expect(selectedStatus).toBeDefined());
+        fireEvent.press(selectedStatus);
+        await waitFor(() => expect.objectContaining({
+            label: 'Good',
+            value: 'Good'
+        }));
+
+        fireEvent.changeText(getByTestId('quantity-input'), '1');
+
+
+        fireEvent.press(getByTestId("unit-dropdown"));
+        const selectedUnit = getByText('kg');
+        await waitFor(() => expect(selectedUnit).toBeDefined());
+        fireEvent.press(selectedUnit);
+        await waitFor(() => expect.objectContaining({
+            label: 'kg',
+            value: 'kg'
+        }));
+
+        await waitFor(() => expect(fetchSchoolList).toHaveBeenCalled());
+        
+        fireEvent.press(getByTestId("school-dropdown"));
+        const selectedSchool = getByText('Mock High School');
+        await waitFor(() => expect(selectedSchool).toBeDefined());
+        fireEvent.press(selectedSchool);
+        await waitFor(() => expect.objectContaining({
+            label: 'Mock High School',
+            value: 'Mock High School'
+        }));
+
+        fireEvent.changeText(getByTestId('room-input'), '102A');
+        fireEvent.changeText(getByTestId('cabinet-input'), '1');
+        fireEvent.changeText(getByTestId('shelf-input'), '420');
+
+        (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({
+            canceled: false,
+            assets: [
+                {
+                    name: 'test.pdf',
+                    uri: 'file:///test.pdf',
+                    mimeType: 'application/pdf',
+                    size: 12345,
+                },
+            ],
+        });
+
+        fireEvent.press(getByText('Upload'));
+        expect(await findByText('File Uploaded')).toBeTruthy();
+
+        fireEvent.press(getByText("Clear"));
+
+        // All values should be cleared
+        expect(getByTestId('name-input')).toHaveDisplayValue('');
+        expect(getByTestId('cas-0')).toHaveDisplayValue('');
+        expect(getByTestId('cas-1')).toHaveDisplayValue('');
+        expect(getByTestId('cas-2')).toHaveDisplayValue('');
+        expect(queryByText(date)).toBeNull();
+        expect(queryByText("Good")).toBeNull();
+        expect(getByTestId('quantity-input')).toHaveDisplayValue('');
+        expect(queryByText("kg")).toBeNull();
+        expect(queryByText("Mock High School")).toBeNull();
         expect(getByTestId('room-input')).toHaveDisplayValue('');
         expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
         expect(getByTestId('shelf-input')).toHaveDisplayValue('');
