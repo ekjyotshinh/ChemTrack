@@ -6,9 +6,10 @@ import Colors from '@/constants/Colors'
 interface CasProps {
     casParts: string[]
     setCasParts: React.Dispatch<React.SetStateAction<string[]>>
+    testIDs: string[]
 }
 
-export default function CasTextBoxes({ casParts, setCasParts }: CasProps) {
+export default function CasTextBoxes({ casParts, setCasParts, testIDs }: CasProps) {
 
     // refs for shifting focus and keeping track of CAS number inputs
     const casRefs: RefObject<TextInput>[] =
@@ -53,7 +54,7 @@ export default function CasTextBoxes({ casParts, setCasParts }: CasProps) {
     }
 
     // helper function for the CAS number text box
-    const CasTextBox = (index: number, width: number, maxLength: number, isNext: boolean) => (
+    const CasTextBox = (index: number, width: number, maxLength: number, isNext: boolean, testID: string) => (
         <CustomTextBox
             keyboardType='numeric'
             onChangeText={(value: string) => onCasChange(value, index, maxLength)}
@@ -63,6 +64,7 @@ export default function CasTextBoxes({ casParts, setCasParts }: CasProps) {
             maxLength={maxLength}
             onKeyPress={(e: any) => { onCasKeyPress(e, index) }}
             value={casParts[index]}
+            testID={testID}
 
             // keyboard has next option to go to next field
             returnKeyType={isNext ? 'next' : 'done'}
@@ -72,11 +74,11 @@ export default function CasTextBoxes({ casParts, setCasParts }: CasProps) {
 
     return (
         <View style={styles.container}>
-            {CasTextBox(0, 135, 7, true)}
+            {CasTextBox(0, 135, 7, true, testIDs[0])}
             <Divider />
-            {CasTextBox(1, 75, 2, true)}
+            {CasTextBox(1, 75, 2, true, testIDs[1])}
             <Divider />
-            {CasTextBox(2, 40, 1, false)}
+            {CasTextBox(2, 40, 1, false, testIDs[2])}
         </View>
     )
 }

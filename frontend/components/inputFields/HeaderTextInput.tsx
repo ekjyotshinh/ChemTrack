@@ -8,14 +8,14 @@ import Size from '@/constants/Size';
 
 // Pass onChange function and the header string
 interface TextProps {
-    headerText: string,
-    value: string,
-    onChangeText: (text: string) => void,
-    inputWidth?: number,
-    isNumeric?: boolean,
-    hasIcon?: boolean,
-    disabled?: boolean,
-    [key: string]: any, // allows any additional TextInput props
+    headerText: string;
+    value: string;
+    onChangeText: (text: string) => void;
+    inputWidth?: number;
+    isNumeric?: boolean;
+    hasIcon?: boolean;
+    disabled?: boolean;
+    [key: string]: any; // allows any additional TextInput props
 }
 
 export default function HeaderTextInput({ headerText, onChangeText, inputWidth, isNumeric, hasIcon, value, disabled = false, ...props }: TextProps) {
@@ -33,6 +33,7 @@ export default function HeaderTextInput({ headerText, onChangeText, inputWidth, 
                             keyboardType='numeric'
                             onChangeText={onChangeText}
                             value={value}
+                            {...props}
                         />
                     </View>
                     // Otherwise show normal textbox

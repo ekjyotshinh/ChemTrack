@@ -19,7 +19,7 @@ import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
 
-export default function ViewChemicals() {
+export default function AddChemical() {
   const { userInfo } = useUser()
   const [name, setName] = useState<string>('')
   const [room, setRoom] = useState<string>('')
@@ -187,6 +187,7 @@ export default function ViewChemicals() {
     setPurchaseDate(undefined)
     setExpirationDate(undefined)
     setUploaded(false)
+    setUnit('')
   }
 
   const onUpload = () => {
@@ -207,33 +208,54 @@ export default function ViewChemicals() {
             headerText='Name'
             value={name}
             onChangeText={(value: string) => { setName(value) }}
+            testID='name-input'
           />
 
           {/* CAS Number */}
           <View style={{ marginTop: Size.width(10) }}>
             <CustomTextHeader headerText='CAS Number' />
-            <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
+            <CasTextBoxes casParts={casParts} setCasParts={setCasParts} testIDs={['cas-0','cas-1','cas-2']} />
           </View>
 
           {/* Purchase and Expiration Dates */}
           <View style={styles.row}>
-            <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={Size.width(154)} headerText={'Purchase Date'} />
-            <DateInput date={expirationDate} setDate={setExpirationDate} inputWidth={Size.width(154)} headerText={'Expiration Date'} />
+            <DateInput
+              date={purchaseDate}
+              setDate={setPurchaseDate}
+              inputWidth={Size.width(154)}
+              headerText={'Purchase Date'}
+              testID='purchase-date'
+            />
+            <DateInput
+              date={expirationDate}
+              setDate={setExpirationDate}
+              inputWidth={Size.width(154)}
+              headerText={'Expiration Date'}
+              testID='expiration-date'
+            />
           </View>
 
           {/* Status and Quality */}
           <View style={styles.row}>
             <View style={{ width: Size.width(111) }}>
               <CustomTextHeader headerText='Status' />
-              <DropdownInput data={statuses} value={status} setValue={setStatus} />
+              <DropdownInput data={statuses} value={status} setValue={setStatus} testID='status-dropdown' />
             </View>
 
             <View style={{ width: Size.width(88) }}>
-              <HeaderTextInput headerText="Quantity" onChangeText={(value) => setQuantity(value)} inputWidth={Size.width(80)} isNumeric value={quantity}/>
+              <HeaderTextInput
+                headerText={'Quantity'}
+                onChangeText={(value) => setQuantity(value)}
+                inputWidth={Size.width(80)} 
+                value={quantity}
+                testID='quantity-input'
+                isNumeric={true}
+              />
             </View>
+
             <View style={{ width: Size.width(88) }}>
               <CustomTextHeader headerText="Unit" />
-              <DropdownInput data={units} value={unit} setValue={setUnit}  />
+              <DropdownInput data={units} value={unit} setValue={setUnit} testID='unit-dropdown' />
             </View>
           </View>
 
@@ -241,7 +263,7 @@ export default function ViewChemicals() {
             <View style={styles.row}>
               <View style={{width: '100%'}}>
                 <CustomTextHeader headerText='School' />
-                <DropdownInput data={schoolList} value={school} setValue={setSchool} />
+                <DropdownInput data={schoolList} value={school} setValue={setSchool} testID='school-dropdown' />
               </View>
             </View>
           }
@@ -253,6 +275,7 @@ export default function ViewChemicals() {
               onChangeText={(value: string) => setRoom(value)}
               inputWidth={Size.width(111)}
               value={room}
+              testID="room-input"
             />
             <HeaderTextInput
               headerText={'Cabinet'}
@@ -260,6 +283,7 @@ export default function ViewChemicals() {
               inputWidth={Size.width(88)}
               isNumeric={true}
               value={cabinet}
+              testID='cabinet-input'
             />
             <HeaderTextInput
               headerText={'Shelf'}
@@ -267,6 +291,7 @@ export default function ViewChemicals() {
               inputWidth={Size.width(88)}
               isNumeric={true}
               value={shelf}
+              testID='shelf-input'
             />
           </View>
 
