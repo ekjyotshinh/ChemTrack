@@ -45,7 +45,7 @@ export default function ResetPassword() {
         Alert.alert(
           'Success',
           'Email sent successfully. (TODO: figure out the logic, I think that if the user is logged in there should not be any need for this step.)',
-          [{ text: 'OK', onPress: () => router.push('/profile/profile') }]
+          [{ text: 'OK', onPress: () => router.push('/profile/newPassword') }]
         );
       } else {
         Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
@@ -55,6 +55,10 @@ export default function ResetPassword() {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     }
   };  
+
+  const handleClear = (): void => {
+    setEmail('');
+  }
 
 
   return (  
@@ -76,6 +80,7 @@ export default function ResetPassword() {
               inputWidth={Size.width(340)}  
               keyboardType='email-address'  
               autoCapitalize='none'  
+              autoCorrect={false}
             />  
           </View>  
 
@@ -88,6 +93,13 @@ export default function ResetPassword() {
               width={337}  
               icon={<LoginIcon width={24} height={24} color={isValidEmail ? Colors.white : Colors.grey} />}  
               iconPosition='left'  
+            />
+
+            <CustomButton
+              title="Clear"
+              onPress={handleClear}
+              color={Colors.red}
+              width={327}
             />
 
           </View>  
