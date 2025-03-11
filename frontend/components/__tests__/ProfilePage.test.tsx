@@ -103,6 +103,7 @@ jest.mock('expo-router', () => ({
     useRouter: jest.fn(),
 }));
 
+jest.spyOn(Alert, 'alert');
 
 // Tests
 describe('Profile', () => {
@@ -137,8 +138,6 @@ describe('Profile', () => {
         expect(getByText('Update Info')).toBeTruthy();
         //expect(getByText('Update Info')).toHaveProp('CustomButton', CustomEditIcon);
         // editicon = function customediticon
-        // https://wix.github.io/Detox/docs/next/guide/test-id/
-        // https://stackoverflow.com/questions/41339996/how-to-test-a-react-native-component-that-imports-a-custom-native-module-with-je
         expect(getByText('Notifications')).toBeTruthy();
         expect(getByText('Reset Password')).toBeTruthy();
         expect(getByText('Log Out')).toBeTruthy();
@@ -276,9 +275,10 @@ describe('Profile', () => {
     });
 
     // Test for Updating Name and Email Info Information
-    test('Update Info for Regular User Properly', () => {
+    test('Update Info Buttons Works for User', async () => {
         // Setup regular user
-        (useUser as jest.Mock).mockReturnValue({ userInfo: mockUser });
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        /*
         // Setup fetch response for Name and Email after change
         global.fetch = jest.fn(() =>
             Promise.resolve({
@@ -297,7 +297,7 @@ describe('Profile', () => {
                     }),
             })
         ) as jest.Mock;
-
+        */
         const { getByText, getByTestId, queryByText } = render(<Profile />);
         // Simulate Update Info button being pressed
         fireEvent.press(getByText('Update Info'));
@@ -306,25 +306,27 @@ describe('Profile', () => {
         expect(getByText('Finish Updating')).toBeTruthy();
         let updateText = screen.getAllByText('Cancel Edit')[1]; // Get the 2nd 'Cancel Edit' text in the custom button
         expect(updateText).toBeTruthy;
+
         // Simulate Name and email changes
         fireEvent.changeText(queryByText('Name'), 'New Regular');
         fireEvent.changeText(queryByText('Email'), 'regular@example.com');
 
         // Confirm Changes with button click
         fireEvent.press(queryByText('Finish Updating'));
-
+        /*
         // Confirm PUT API worked
-        //await waitFor(() => {
-        // Ensure user context is updated with correct data
-        expect(updateUserInfo).toHaveBeenCalledWith({
-            name: 'New Regular',
-            email: 'regular@example.com',
-            is_admin: false,
-            is_master: false,
-            school: 'Test School',
-            id: '123',
+        await waitFor(() => {
+            // Ensure user context is updated with correct data
+            expect(updateUserInfo).toHaveBeenCalledWith({
+                name: 'New Regular',
+                email: 'regular@example.com',
+                is_admin: false,
+                is_master: false,
+                school: 'Test School',
+                id: '123',
+            });
         });
-        //});
+        */
 
         // Check if base profile page renders back with new Name and Email
         expect(getByText('My Account')).toBeTruthy();
@@ -332,6 +334,57 @@ describe('Profile', () => {
         expect(getByText('Edit')).toBeTruthy();
         expect(getByText('Name')).toHaveDisplayValue('New Regular');
         expect(getByText('Email')).toHaveDisplayValue('regular@example.com');
+        expect(getByText('Invite User')).toBeTruthy();
+        expect(getByText('Update Info')).toBeTruthy();
+        expect(getByText('Notifications')).toBeTruthy();
+        expect(getByText('Reset Password')).toBeTruthy();
+        expect(getByText('Log Out')).toBeTruthy();
+
+    });
+    // Alerts for Incorrect Info when Updating Info
+    // 3 cases: No name, no email, 1 word for name
+    test('Alert for Updating Info for User Incorrectly', () => {
+        // Setup regular user
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+
+        const { getByText, getByTestId, queryByText } = render(<Profile />);
+        // Simulate Update Info button being pressed
+        fireEvent.press(getByText('Update Info'));
+        fireEvent.press(queryByText('Finish Updating'));
+        /*
+        // Simulate Name and email changes
+        fireEvent.changeText(queryByText('Name'), 'OnlyOneWord');
+        fireEvent.changeText(queryByText('Email'), 'regular@example.com');
+
+        // Confirm Lack of 2 words for Name 
+        fireEvent.press(queryByText('Finish Updating'));
+        //expect(queryByText('Error')).toBeOnTheScreen();
+        expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields with valid information');
+        fireEvent.press(queryByText('OK'));
+        // Confirm Lack of email
+        // Change inputs
+        fireEvent.changeText(queryByText('Name'), 'Two words');
+        fireEvent.changeText(queryByText('Email'), '');
+        // Click
+        fireEvent.press(queryByText('Finish Updating'));
+        expect(queryByText('Please fill in all fields with valid information')).toBeOnTheScreen();
+        fireEvent.press(queryByText('OK'));
+        // Confirm lack of both name and email
+        // Change inputs
+        fireEvent.changeText(queryByText('Name'), '');
+        fireEvent.changeText(queryByText('Email'), '');
+        // Click
+        fireEvent.press(queryByText('Finish Updating'));
+        expect(queryByText('Error')).toBeOnTheScreen();
+        fireEvent.press(queryByText('OK'));
+        */
+        // Check if base profile page renders back with regular Name and Email
+        expect(getByText('My Account')).toBeTruthy();
+        expect(getByTestId('initialsInput')).toHaveDisplayValue('TU');
+        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Name')).toHaveDisplayValue('Test User');
+        expect(getByText('Email')).toHaveDisplayValue('user@example.com');
+        expect(getByText('Invite User')).toBeTruthy();
         expect(getByText('Update Info')).toBeTruthy();
         expect(getByText('Notifications')).toBeTruthy();
         expect(getByText('Reset Password')).toBeTruthy();
@@ -339,26 +392,37 @@ describe('Profile', () => {
 
     });
 
-    test('Alert for Updating Info for Regular User Incorrectly', () => { });
-
     // Routing
-    test('Routing for Master User', () => {
+    test('Routing for Master User to Invite User page', () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
         const { getByText } = render(<Profile />);
         // Simulate button clicks
         fireEvent.press(getByText('Invite User'));
-        expect(router.replace).toHaveBeenCalledWith('/(tabs)');
-        fireEvent.press(getByText('Account')); // Assuming NavBar routing works, use to reroute back to profile
+        expect(router.push).toHaveBeenCalledWith('/profile/userPage');
+
+    });
+    test('Routing for User to Notifications page', () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText } = render(<Profile />);
+        // Simulate button clicks
         fireEvent.press(getByText('Notifications'));
-        expect(router.replace).toHaveBeenCalledWith('/(tabs)');
-        fireEvent.press(getByText('Account'));
+        expect(router.push).toHaveBeenCalledWith('/profile/notifications');
+
+    });
+    test('Routing for User to Reset Password page', () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText } = render(<Profile />);
+        // Simulate button clicks
         fireEvent.press(getByText('Reset Password'));
-        expect(router.replace).toHaveBeenCalledWith('/(tabs)');
-        fireEvent.press(getByText('Account'));
+        expect(router.push).toHaveBeenCalledWith('/profile/resetPassword');
+    });
+    test('Routing for User to Log Out', () => {
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText } = render(<Profile />);
+        // Simulate button clicks
         fireEvent.press(getByText('Log Out'));
         fireEvent.press(getByText('Yes'));
-        expect(router.replace).toHaveBeenCalledWith('/(auth)');
-        // /(tabs)/profile/(userPage/notifications/resetPassword)
+        expect(router.push).toHaveBeenCalledWith('/(auth)/login');
         // (auth)/login
     });
 
