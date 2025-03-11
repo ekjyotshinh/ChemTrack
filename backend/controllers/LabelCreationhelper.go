@@ -8,7 +8,7 @@ import (
 )
 
 // LabelCreationFunc creates a PDF label with a QR code and text
-func LabelCreationFunc(chemicalIdNumber string) error {
+func AddLabel(chemicalIdNumber string) error {
 	ctx := context.Background()
 
 	// more of a check to verify the chemical exists

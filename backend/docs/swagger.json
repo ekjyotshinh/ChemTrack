@@ -208,6 +208,55 @@
                 }
             }
         },
+        "/api/v1/email/send": {
+            "post": {
+                "description": "Send an email using Twilio SendGrid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "email"
+                ],
+                "summary": "Send an email",
+                "parameters": [
+                    {
+                        "description": "Email request data",
+                        "name": "email",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.SendEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users": {
             "get": {
                 "description": "Get a list of all users",
@@ -411,6 +460,144 @@
                     }
                 }
             }
+        },
+        "/sds/{chemicalIdNumber}": {
+            "get": {
+                "description": "Retrieves the SDS file URL for a given chemical",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SDS"
+                ],
+                "summary": "Get the SDS file URL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Chemical ID Number",
+                        "name": "chemicalIdNumber",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Uploads a new SDS file to Google Cloud Storage and updates the Firestore document with the SDS URL",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SDS"
+                ],
+                "summary": "Add a new SDS file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Chemical ID Number",
+                        "name": "chemicalIdNumber",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "SDS File",
+                        "name": "sds",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes the SDS file from Google Cloud Storage and removes the SDS URL from the Firestore document",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SDS"
+                ],
+                "summary": "Delete the SDS file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Chemical ID Number",
+                        "name": "chemicalIdNumber",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -426,10 +613,16 @@
                 "expiration_date": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
                 "purchase_date": {
+                    "type": "string"
+                },
+                "qrcode": {
                     "type": "string"
                 },
                 "quantity": {
@@ -445,6 +638,25 @@
                     "type": "integer"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.SendEmailRequest": {
+            "type": "object",
+            "required": [
+                "body",
+                "subject",
+                "to"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "to": {
                     "type": "string"
                 }
             }
