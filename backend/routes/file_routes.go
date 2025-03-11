@@ -9,8 +9,15 @@ import (
 func RegisterRoutesFiles(router *gin.Engine) {
 	r := router.Group("/api/v1")
 
-	// Chemical routes
-	r.POST("/files/:chemicalIdNumber", controllers.AddSDS)        // Create a new chemical
-	r.GET("/files/:chemicalIdNumber", controllers.GetSDS)   // Retrieve SDS URL
-	r.DELETE("/files/:chemicalIdNumber", controllers.DeleteSDS) // Delete SDS
+	// sds routes
+	r.POST("/files/sds/:chemicalIdNumber", controllers.AddSDS)  	// Create a new chemical
+	r.GET("/files/sds/:chemicalIdNumber", controllers.GetSDS)   // Retrieve SDS URL
+	r.DELETE("/files/sds/:chemicalIdNumber", controllers.DeleteSDS) // Delete SDS
+
+	//profile picture routes
+
+	r.POST("/files/profile/:userId", controllers.AddProfilePicture)  	// Create a new chemical
+	r.GET("/files/profile/:userId", controllers.GetProfilePicture)   // Retrieve SDS URL
+	r.DELETE("/files/profile/:userId", controllers.DeleteProfilePicture) // Delete SDS
+	
 }
