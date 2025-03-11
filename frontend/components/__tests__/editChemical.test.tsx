@@ -20,6 +20,12 @@ jest.mock('expo-document-picker', () => ({
   getDocumentAsync: jest.fn(),
 }));
 
+jest.mock('@expo/vector-icons', () => ({
+  MaterialIcons: 'MaterialIcons',
+  FontAwesome: 'FontAwesome',
+  createIconSet: () => 'Icon',
+}));
+
 jest.mock('@/components/inputFields/CasTextBoxes', () => 'CasTextBoxes');
 
 const mockFetch = jest.fn();
@@ -90,21 +96,15 @@ describe('EditChemicals Component', () => {
 
   beforeAll(() => {
     process.env.EXPO_PUBLIC_API_URL = 'mock-api-url';
-    jest.useFakeTimers();
   });
 
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
     (useLocalSearchParams as jest.Mock).mockReturnValue({ id: '1' });
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
-    jest.clearAllTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -157,22 +157,28 @@ describe('EditChemicals Component', () => {
     });
   });
 
-  it('shows validation errors when fields are missing', async () => {
+  it('shows validation errors when required fields are missing', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({...mockChemicalData, name: ''}),
+      json: () => Promise.resolve(mockChemicalData),
     });
 
-    const { getByText } = renderComponent(mockAdmin);
+    const { getByText, update } = renderComponent(mockAdmin);
     
     await act(async () => {
+      fireEvent.changeText(getByText('Chemical Name'), '');
       fireEvent.press(getByText('Save Chemical'));
     });
 
-    expect(getByText('Please fill in all fields!')).toBeTruthy();
+    expect(await getByText('Please fill in all fields!')).toBeTruthy();
   });
 
   it('resets form when clear button is pressed', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockChemicalData),
+    });
+
     const { getByText, queryByDisplayValue } = renderComponent(mockAdmin);
     
     await act(async () => {
@@ -188,9 +194,7 @@ describe('EditChemicals Component', () => {
     mockFetch.mockRejectedValueOnce(new Error('API Error'));
     const { findByText } = renderComponent(mockAdmin);
     
-    await waitFor(async () => {
-      expect(await findByText('Error fetching chemical data')).toBeTruthy();
-    });
+    expect(await findByText('Error fetching chemical data')).toBeTruthy();
   });
 
   it('splits and combines CAS numbers correctly', async () => {
@@ -198,14 +202,28 @@ describe('EditChemicals Component', () => {
       ok: true,
       json: () => Promise.resolve(mockChemicalData),
     });
-
-    const { getAllByDisplayValue } = renderComponent(mockAdmin);
     
-    await waitFor(() => {
-      const casInputs = getAllByDisplayValue(/\d+/);
-      expect(casInputs[0].props.value).toBe('1234');
-      expect(casInputs[1].props.value).toBe('56');
-      expect(casInputs[2].props.value).toBe('7');
+    const { findAllByDisplayValue } = renderComponent(mockAdmin);
+    
+    const casInputs = await findAllByDisplayValue(/\d+/);
+    expect(casInputs[0].props.value).toBe('1234');
+    expect(casInputs[1].props.value).toBe('56');
+    expect(casInputs[2].props.value).toBe('7');
+  });
+
+  it('handles document picker selection', async () => {
+    (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValueOnce({
+      type: 'success',
+      uri: 'file://test.pdf',
+      name: 'test.pdf'
     });
+
+    const { getByText } = renderComponent(mockAdmin);
+    
+    await act(async () => {
+      fireEvent.press(getByText('Upload Safety Data Sheet (SDS)'));
+    });
+
+    expect(DocumentPicker.getDocumentAsync).toHaveBeenCalled();
   });
 });

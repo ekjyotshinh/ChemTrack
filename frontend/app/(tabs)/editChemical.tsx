@@ -40,7 +40,7 @@ export default function editChemicals() {
   const chemicalIdString = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUser();
 
-  const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
+  const [schoolList, setSchoolList] = useState<{label: string, value: string}[]>([]);
 
   const statuses = [
     { label: 'Good', value: 'Good' },
@@ -113,13 +113,16 @@ export default function editChemicals() {
         setCabinet(data.cabinet?.toString() || '');
         setSchool(data.school || '');
         setStatus(data.status || '');
-        const quantityArray = data.quantity.split(' '); // split the quantity into the numerical part and unit
+        const quantityArray = (data.quantity || '').toString().split(' '); // split the quantity into the numerical part and unit
         setQuantity(quantityArray[0] || '');
         setUnit(quantityArray[1] || '');
         setCasParts([
-          data.CAS?.toString().substring(0, data.CAS?.toString().length - 3),  // First part: all digits except last 3
-          data.CAS?.toString().substring(data.CAS?.toString().length - 3, data.CAS?.toString().length - 1),  // Second part: 2 digits before last digit
-          data.CAS?.toString().substring(data.CAS?.toString().length - 1)  // Last part: last digit
+          data.CAS?.toString().substring(0, Math.max(0, (data.CAS?.toString().length || 0) - 3)) || '',
+          data.CAS?.toString().substring(
+            Math.max(0, (data.CAS?.toString().length || 0) - 3),
+            Math.max(0, (data.CAS?.toString().length || 0) - 1)
+          ) || '',
+          data.CAS?.toString().substring(Math.max(0, (data.CAS?.toString().length || 0) - 1)) || ''
         ]);
 
         setPurchaseDate(data.purchase_date ? new Date(data.purchase_date) : undefined);
@@ -151,7 +154,8 @@ export default function editChemicals() {
     const isCasComplete: boolean = casParts.every(string => string.trim() !== '');
 
     setIsFilled(areStringsComplete && areDatesComplete && isCasComplete && uploaded);
-  }, allInputs);
+  }, [name, room, shelf, cabinet, school, status, quantity, unit, 
+    purchaseDate, expirationDate, ...casParts, uploaded]);
 
   const onSave = async () => {
     if (isFilled && userInfo && (userInfo.is_admin || userInfo.is_master)) {
@@ -186,7 +190,7 @@ export default function editChemicals() {
         const responseData = await response.json();
 
         if (response.ok) {
-          onClear
+          onClear ();
           console.log('Chemical updated successfully:', responseData);
           Alert.alert('Success', 'Chemical information updated');
           router.push('/');
@@ -208,10 +212,10 @@ export default function editChemicals() {
     setRoom('');
     setShelf('');
     setCabinet('');
-    userInfo && userInfo.is_master && setSchool('');
+    setSchool(''); // Remove master check
     setStatus('');
     setQuantity('');
-    setUnit(''),
+    setUnit('');
     setCasParts(['', '', '']);
     setPurchaseDate(undefined);
     setExpirationDate(undefined);
@@ -234,9 +238,12 @@ export default function editChemicals() {
               {/* CAS Number */}
               <View style={{ marginTop: Size.width(10) }}>
                 <CustomTextHeader headerText="CAS Number" />
-                <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
-              </View>
-
+                <CasTextBoxes 
+                  casParts={casParts}
+                  setCasParts={setCasParts}
+                  testIDs={['cas-1', 'cas-2', 'cas-3']} // Add this line
+                />
+              </View>              
               {/* Purchase and Expiration Dates */}
               <View style={styles.row}>
                 <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={Size.width(154)} headerText="Purchase Date" />
