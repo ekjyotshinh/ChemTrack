@@ -327,3 +327,53 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": response})
 }
+
+// UpdatePassword godoc  
+// @Summary Update the password for a logged-in user  
+// @Description Allows a logged-in user to update their password  
+// @Tags users  
+// @Accept json  
+// @Produce json  
+// @Param updatePassword body map[string]string true "New Password"  
+// @Success 200 {object} map[string]interface{}  
+// @Failure 400 {object} map[string]interface{}  
+// @Failure 500 {object} map[string]interface{}  
+// @Router /api/v1/users/update-password [put]  
+func UpdatePassword(c *gin.Context) {  
+	// Parse the request body  
+	var req struct {  
+		NewPassword string `json:"new_password" binding:"required,min=8"`  
+	}  
+
+	if err := c.ShouldBindJSON(&req); err != nil {  
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})  
+		return  
+	}  
+
+	// Get the user ID from the context (assuming middleware sets it)  
+	userID, exists := c.Get("userID")  
+	if !exists {  
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})  
+		return  
+	}  
+
+	// Hash the new password  
+	hashedPassword, err := HashPassword(req.NewPassword)  
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})  
+		return  
+	}  
+
+	// Update the password in Firestore  
+	ctx := context.Background()  
+	_, err = client.Collection("users").Doc(userID.(string)).Update(ctx, []firestore.Update{  
+		{Path: "password", Value: hashedPassword},  
+	})  
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})  
+		return  
+	}  
+
+	// Respond with success  
+	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})  
+}  
