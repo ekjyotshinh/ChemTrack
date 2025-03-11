@@ -278,7 +278,7 @@ describe('Profile', () => {
     test('Update Info Buttons Works for User', async () => {
         // Setup regular user
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
-        /*
+
         // Setup fetch response for Name and Email after change
         global.fetch = jest.fn(() =>
             Promise.resolve({
@@ -297,7 +297,7 @@ describe('Profile', () => {
                     }),
             })
         ) as jest.Mock;
-        */
+
         const { getByText, getByTestId, queryByText } = render(<Profile />);
         // Simulate Update Info button being pressed
         fireEvent.press(getByText('Update Info'));
@@ -313,11 +313,11 @@ describe('Profile', () => {
 
         // Confirm Changes with button click
         fireEvent.press(queryByText('Finish Updating'));
-        /*
+
         // Confirm PUT API worked
         await waitFor(() => {
             // Ensure user context is updated with correct data
-            expect(updateUserInfo).toHaveBeenCalledWith({
+            expect(jest.fn()).toHaveBeenCalledWith({
                 name: 'New Regular',
                 email: 'regular@example.com',
                 is_admin: false,
@@ -326,7 +326,7 @@ describe('Profile', () => {
                 id: '123',
             });
         });
-        */
+
 
         // Check if base profile page renders back with new Name and Email
         expect(getByText('My Account')).toBeTruthy();
@@ -343,52 +343,47 @@ describe('Profile', () => {
     });
     // Alerts for Incorrect Info when Updating Info
     // 3 cases: No name, no email, 1 word for name
-    test('Alert for Updating Info for User Incorrectly', () => {
+    test('Alert for Updating Info Incorrectly for No name', () => {
         // Setup regular user
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
 
         const { getByText, getByTestId, queryByText } = render(<Profile />);
         // Simulate Update Info button being pressed
         fireEvent.press(getByText('Update Info'));
-        fireEvent.press(queryByText('Finish Updating'));
-        /*
-        // Simulate Name and email changes
-        fireEvent.changeText(queryByText('Name'), 'OnlyOneWord');
-        fireEvent.changeText(queryByText('Email'), 'regular@example.com');
 
-        // Confirm Lack of 2 words for Name 
+        // Simulate Name changes
+        fireEvent.changeText(queryByText('Name'), 'OnlyOneWord');
+        // Confirm Alert
         fireEvent.press(queryByText('Finish Updating'));
-        //expect(queryByText('Error')).toBeOnTheScreen();
         expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields with valid information');
-        fireEvent.press(queryByText('OK'));
-        // Confirm Lack of email
-        // Change inputs
-        fireEvent.changeText(queryByText('Name'), 'Two words');
+
+    });
+    test('Alert for Updating Info Incorrectly for No Email', () => {
+        // Setup regular user
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText, getByTestId, queryByText } = render(<Profile />);
+        // Simulate Update Info button being pressed
+        fireEvent.press(getByText('Update Info'));
+        // Simulate No email
         fireEvent.changeText(queryByText('Email'), '');
-        // Click
+        // Confirm Alert
         fireEvent.press(queryByText('Finish Updating'));
-        expect(queryByText('Please fill in all fields with valid information')).toBeOnTheScreen();
-        fireEvent.press(queryByText('OK'));
-        // Confirm lack of both name and email
-        // Change inputs
+        expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields with valid information');
+
+    });
+    test('Alert for Updating Info Incorrectly for No Name and Email', () => {
+        // Setup regular user
+        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        const { getByText, getByTestId, queryByText } = render(<Profile />);
+        // Simulate Update Info button being pressed
+        fireEvent.press(getByText('Update Info'));
+
+        // Simulate Name changes
         fireEvent.changeText(queryByText('Name'), '');
         fireEvent.changeText(queryByText('Email'), '');
-        // Click
+        // Confirm Alert
         fireEvent.press(queryByText('Finish Updating'));
-        expect(queryByText('Error')).toBeOnTheScreen();
-        fireEvent.press(queryByText('OK'));
-        */
-        // Check if base profile page renders back with regular Name and Email
-        expect(getByText('My Account')).toBeTruthy();
-        expect(getByTestId('initialsInput')).toHaveDisplayValue('TU');
-        expect(getByText('Edit')).toBeTruthy();
-        expect(getByText('Name')).toHaveDisplayValue('Test User');
-        expect(getByText('Email')).toHaveDisplayValue('user@example.com');
-        expect(getByText('Invite User')).toBeTruthy();
-        expect(getByText('Update Info')).toBeTruthy();
-        expect(getByText('Notifications')).toBeTruthy();
-        expect(getByText('Reset Password')).toBeTruthy();
-        expect(getByText('Log Out')).toBeTruthy();
+        expect(Alert.alert).toHaveBeenCalledWith('Error', 'Please fill in all fields with valid information');
 
     });
 
