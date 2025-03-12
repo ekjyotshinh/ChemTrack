@@ -91,7 +91,7 @@ jest.mock('@/components/inputFields/DropdownInput', () => {
 });
 
 const customButtonProps: CustomButtonProps[] = [];
-jest.mock('@/components/CustomButton', () => {
+jest.mock('@/components/CustomButton', () => { 
   return function MockCustomButton(props: CustomButtonProps) {
     customButtonProps.push(props);
     return null;

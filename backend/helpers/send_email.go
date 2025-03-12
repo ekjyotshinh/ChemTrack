@@ -10,7 +10,7 @@ import (
 
 // sendEmailHelper is a helper function to send an email
 func SendEmailHelper(to, subject, body string) error {
-	from := mail.NewEmail("ChemTrack", "ekjyotshinh@gmail.com")
+	from := mail.NewEmail("ChemTrack", "ekjyotshinh@gmail.com") // TODO: Change this to Chemtrack email before deployment
 	toEmail := mail.NewEmail("Recipient", to)
 	message := mail.NewSingleEmail(from, subject, toEmail, body, body)
 
