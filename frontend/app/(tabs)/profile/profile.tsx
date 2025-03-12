@@ -196,7 +196,7 @@ export default function Profile() {
                 title="Reset Password"
                 color={Colors.white}
                 textColor={Colors.black}
-                onPress={() => router.push('/profile/resetPassword')}
+                onPress={() => router.push('/profile/newPassword')}
                 width={337}
                 icon={<ResetIcon width={24} height={24} color={Colors.black} />}
                 iconPosition="left"

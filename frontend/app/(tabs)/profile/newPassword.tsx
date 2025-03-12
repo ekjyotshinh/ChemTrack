@@ -7,14 +7,18 @@ import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Size from '@/constants/Size';  
 import TextInter from '@/components/TextInter';  
 import BlueHeader from '@/components/BlueHeader';  
+import { useUser } from '@/contexts/UserContext';  
 
 export default function NewPassword() {  
   const router = useRouter();  
+  const { userInfo } = useUser();  
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`; // Ensure your API_URL is configured correctly  
+
   const [newPassword, setNewPassword] = useState('');  
   const [confirmPassword, setConfirmPassword] = useState('');  
 
   const handleChangePassword = async () => {  
-    // Validate inputs  
+    
     if (!newPassword || !confirmPassword) {  
       Alert.alert('Error', 'Please fill in all fields.');  
       return;  
@@ -26,23 +30,25 @@ export default function NewPassword() {
     }  
 
     try {  
-      // Send request to update the password  
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/users/update-password`, {  
+      const payload: {Password: string} = { Password: newPassword};
+      
+      // Send a PUT request to update the user's password  
+      const response = await fetch(`${API_URL}/api/v1/users/${userInfo.id}`, {  
         method: 'PUT',  
         headers: { 'Content-Type': 'application/json' },  
-        body: JSON.stringify({  
-          new_password: newPassword, // The new password entered by the user  
-        }),  
+        body: JSON.stringify(payload),  
       });  
 
       if (!response.ok) throw new Error('Failed to update password');  
 
-      // Success alert  
-      Alert.alert('Success', 'Password changed successfully.', [  
-        { text: 'OK', onPress: () => router.push('/profile/profile') },  
-      ]);  
+   
+      Alert.alert(  
+        'Success',  
+        'Password changed successfully.',  
+        [{ text: 'OK', onPress: () => router.push('/profile/profile') }]  
+      );  
 
-      // Clear password fields  
+      // Clear password fields after successful update  
       setNewPassword('');  
       setConfirmPassword('');  
     } catch (error) {  
@@ -53,7 +59,6 @@ export default function NewPassword() {
 
   return (  
     <View style={styles.container}>  
-      {/* Header */}  
       <BlueHeader headerText="New Password" onPress={() => router.push('/profile/profile')} />  
 
       <ScrollView style={styles.scrollContainer}>  
@@ -63,9 +68,8 @@ export default function NewPassword() {
           </TextInter>  
 
           <View style={{ alignItems: 'center', marginTop: Size.height(30) }}>  
-            {/* Input for New Password */}  
             <HeaderTextInput  
-              onChangeText={(text) => setNewPassword(text)}  
+              onChangeText={setNewPassword}  
               headerText="New Password"  
               value={newPassword}  
               hasIcon={false}  
@@ -74,9 +78,8 @@ export default function NewPassword() {
               autoCapitalize="none"  
             />  
 
-            {/* Input for Confirm New Password */}  
             <HeaderTextInput  
-              onChangeText={(text) => setConfirmPassword(text)}  
+              onChangeText={setConfirmPassword}  
               headerText="Confirm New Password"  
               value={confirmPassword}  
               hasIcon={false}  
@@ -86,7 +89,6 @@ export default function NewPassword() {
             />  
           </View>  
 
-          {/* Button to Change Password */}  
           <View style={styles.buttonContainer}>  
             <CustomButton  
               title="Change Password"  
