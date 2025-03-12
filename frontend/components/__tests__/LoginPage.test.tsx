@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import LoginPage from '@/app/(auth)/Login';
+import LoginPage from '@/app/(auth)/login';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
