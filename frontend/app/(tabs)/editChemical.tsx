@@ -234,7 +234,7 @@ export default function editChemicals() {
               {/* CAS Number */}
               <View style={{ marginTop: Size.width(10) }}>
                 <CustomTextHeader headerText="CAS Number" />
-                <CasTextBoxes casParts={casParts} setCasParts={setCasParts} />
+                <CasTextBoxes casParts={casParts} setCasParts={setCasParts}  testIDs={['cas-0','cas-1','cas-2']}/>
               </View>
 
               {/* Purchase and Expiration Dates */}
