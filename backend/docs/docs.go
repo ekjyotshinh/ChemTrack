@@ -640,6 +640,74 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/files/profile/{userId}": {
+            "get": {
+                "description": "Retrieves the profile",
+                "produces": ["application/json"],
+                "tags": ["Profile"],
+                "summary": "Get user profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "404": { "description": "User Not Found" }
+                }
+            },
+            "post": {
+                "description": "Updates user profile details",
+                "consumes": ["multipart/form-data"],
+                "produces": ["application/json"],
+                "tags": ["Profile"],
+                "summary": "Update user profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Profile File",
+                        "name": "profilePicture",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "Profile updated successfully" },
+                    "400": { "description": "Bad Request" },
+                    "404": { "description": "User Not Found" }
+                }
+            },
+            "delete": {
+                "description": "Deletes a user profile",
+                "produces": ["application/json"],
+                "tags": ["Profile"],
+                "summary": "Delete user profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "User profile deleted successfully" },
+                    "404": { "description": "User Not Found" }
+                }
+            }
         }
     },
     "definitions": {
