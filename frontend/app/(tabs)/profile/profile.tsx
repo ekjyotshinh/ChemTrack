@@ -54,6 +54,19 @@ export default function Profile() {
       .join('')
       .toUpperCase();
 
+  /*
+  const mockAdmin: UserInfo = {
+    name: 'Test Admin',
+    email: 'admin@example.com',
+    is_admin: true,
+    is_master: false,
+    school: 'Test School',
+    id: '123',
+    allow_email: true,
+    allow_push: false,
+  };
+  (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });*/
+
   const handleUpdateInfo = async () => {
     const [firstName, ...rest] = name.split(' ');
     const lastName = rest.join(' ');
