@@ -30,13 +30,18 @@ export default function NewPassword() {
     }  
 
     try {  
-      const payload: {Password: string} = { Password: newPassword};
-      
       // Send a PUT request to update the user's password  
       const response = await fetch(`${API_URL}/api/v1/users/${userInfo.id}`, {  
         method: 'PUT',  
-        headers: { 'Content-Type': 'application/json' },  
-        body: JSON.stringify(payload),  
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({
+          Password: newPassword,
+          is_admin: userInfo.is_admin, // currently if these flags are not passed we set them to false
+          is_master: userInfo.is_master, // currently if these flags are not passed we set them to false
+          allow_email: userInfo.allow_email, // currently if these flags are not passed we set them to false
+          allow_push: userInfo.allow_push, // currently if these flags are not passed we set them to false
+        }), 
+
       });  
 
       if (!response.ok) throw new Error('Failed to update password');  
