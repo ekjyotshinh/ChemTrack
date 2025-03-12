@@ -209,6 +209,14 @@ export default function TabLayout() {
         }}
       />
 
+      {/* newPassword Tab */}
+      <Tabs.Screen
+        name="profile/newPassword"
+        options={{
+          href: null,
+        }}
+      />
+
       {/* Hidden Error/Unauthorized Tab */}
       <Tabs.Screen
         name="errorPage"
