@@ -472,6 +472,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/users/schools":{
+            "get": {
+                "description": "Get a list of all distinct schools",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get all Schools",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/sds/{chemicalIdNumber}": {
             "get": {
                 "description": "Retrieves the SDS file URL for a given chemical",
