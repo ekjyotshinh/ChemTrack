@@ -381,6 +381,26 @@ paths:
       summary: Update a user by ID
       tags:
       - users
+    get:
+    description: Get a list of all of the distinct schools
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all Schools
+      tags:
+      - users
   /sds/{chemicalIdNumber}:
     delete:
       description: Deletes the SDS file from Google Cloud Storage and removes the
