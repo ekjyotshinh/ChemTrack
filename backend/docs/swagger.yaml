@@ -494,8 +494,103 @@ paths:
           description: Internal Server Error
           schema:
             additionalProperties: true
+              type: object
+        summary: Add a new SDS file
+        tags:
+        - SDS
+  /api/v1/files/profile/{userId}:
+    delete:
+      description: Deletes the profile picture from Google Cloud Storage and removes the profile picture URL from the Firestore document
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
             type: object
-      summary: Add a new SDS file
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete the profile picture
       tags:
-      - SDS
+      - Profile Picture
+    get:
+      description: Retrieves the profile picture URL for a given user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get the profile picture URL
+      tags:
+      - Profile Picture
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a new profile picture to Google Cloud Storage and updates the Firestore document with the profile picture URL
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      - description: Profile Picture File
+        in: formData
+        name: profile_picture
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a new profile picture
+      tags:
+      - Profile Picture
 swagger: "2.0"
