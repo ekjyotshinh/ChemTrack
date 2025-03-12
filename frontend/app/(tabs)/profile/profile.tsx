@@ -110,8 +110,11 @@ export default function Profile() {
         <View style={{ marginTop: Size.height(136), alignItems: 'center' }}>
           {/* Avatar Section */}
           <View style={styles.avatarContainer}>
-            <View style={styles.avatarImage}>
-              <TextInter style={styles.avatarText}>
+            <View style={styles.avatarImage} testID='avatarFrame'>
+              <TextInter
+                style={styles.avatarText}
+                testID='initialsInput'
+              >
                 {userInfo?.name ? getInitials(userInfo.name) : ''}
               </TextInter>
             </View>
@@ -119,7 +122,9 @@ export default function Profile() {
 
           {/* Name and Email Inputs */}
           <View>
-            <TouchableOpacity onPress={isEditing ? handleCancel : () => setIsEditing(true)}>
+            <TouchableOpacity
+              onPress={isEditing ? handleCancel : () => setIsEditing(true)}
+              testID='editButton'>
               <Text style={styles.editText}>
                 {isEditing ? 'Cancel Edit' : 'Edit'}
               </Text>
