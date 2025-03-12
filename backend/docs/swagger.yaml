@@ -401,7 +401,7 @@ paths:
       summary: Get all Schools
       tags:
       - users
-  /sds/{chemicalIdNumber}:
+  /api/v1/files/sds/{chemicalIdNumber}:
     delete:
       description: Deletes the SDS file from Google Cloud Storage and removes the
         SDS URL from the Firestore document

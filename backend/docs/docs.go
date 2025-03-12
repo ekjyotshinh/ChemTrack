@@ -503,7 +503,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sds/{chemicalIdNumber}": {
+        "/api/v1/files/sds/{chemicalIdNumber}": {
             "get": {
                 "description": "Retrieves the SDS file URL for a given chemical",
                 "produces": [
