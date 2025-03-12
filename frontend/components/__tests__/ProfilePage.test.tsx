@@ -378,7 +378,7 @@ describe('Profile', () => {
         const { getByText } = render(<Profile />);
         // Simulate button clicks
         fireEvent.press(getByText('Reset Password'));
-        expect(router.push).toHaveBeenCalledWith('/profile/resetPassword');
+        expect(router.push).toHaveBeenCalledWith('/profile/newPassword');
     });
     test('Routing for User to Log Out', () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
