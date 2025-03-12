@@ -123,10 +123,11 @@ export default function Profile() {
         <View style={{ marginTop: Size.height(136), alignItems: 'center' }}>
           {/* Avatar Section */}
           <View style={styles.avatarContainer}>
-            <View style={styles.avatarImage}>
+            <View style={styles.avatarImage} testID='avatarFrame'>
               <TextInter
                 style={styles.avatarText}
-                testID="initialsInput">
+                testID='initialsInput'
+              >
                 {userInfo?.name ? getInitials(userInfo.name) : ''}
               </TextInter>
             </View>
