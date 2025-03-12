@@ -69,6 +69,7 @@ export default function NewPassword() {
 
           <View style={{ alignItems: 'center', marginTop: Size.height(30) }}>  
             <HeaderTextInput  
+              testID="new-password-input"
               onChangeText={setNewPassword}  
               headerText="New Password"  
               value={newPassword}  
@@ -79,6 +80,7 @@ export default function NewPassword() {
             />  
 
             <HeaderTextInput  
+              testID="confirm-password-input"
               onChangeText={setConfirmPassword}  
               headerText="Confirm New Password"  
               value={confirmPassword}  
