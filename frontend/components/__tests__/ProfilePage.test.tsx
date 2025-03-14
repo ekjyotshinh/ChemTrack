@@ -386,7 +386,7 @@ describe('Profile', () => {
         // Simulate button clicks
         fireEvent.press(getByText('Log Out'));
         fireEvent.press(getByText('Yes'));
-        expect(router.push).toHaveBeenCalledWith('/(auth)/login');
+        expect(router.replace).toHaveBeenCalledWith('/(auth)/login');
         // (auth)/login
     });
 

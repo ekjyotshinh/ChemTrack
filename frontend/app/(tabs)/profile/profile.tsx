@@ -246,7 +246,7 @@ export default function Profile() {
 
             <Pressable
               style={styles.closePopUpButton}
-              onPress={() => (setConfirmModalVisible(false), router.push('/(auth)/login'))}
+              onPress={() => (setConfirmModalVisible(false), router.replace('/(auth)/login'))}
             >
               <Text style={styles.popUpText}>Yes</Text>
             </Pressable>
