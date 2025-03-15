@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 import UploadIcon from '@/assets/icons/UploadIcon';
-import ReturnIcon from '@/assets/icons/ReturnIcon';
 import SaveIcon from '@/assets/icons/SaveIcon';
 import DateInput from '@/components/inputFields/DateInput';
 import DropdownInput from '@/components/inputFields/DropdownInput';
@@ -18,6 +17,7 @@ import BlueHeader from '@/components/BlueHeader';
 import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
+import TrashIcon from '@/assets/icons/TrashIcon';
 
 export default function editChemicals() {
   const [name, setName] = useState<string>('');
@@ -88,15 +88,20 @@ export default function editChemicals() {
   // API URL
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
-  useEffect(() => {
-    if (chemicalIdString && userInfo && (userInfo.is_admin || userInfo.is_master)) {
-      fetchChemicalData(chemicalIdString);
-      // Only fetch school list if user is master
-      if (userInfo.is_master) {
-        fetchSchoolList({setSchoolList});
+  // Fetch every time this page comes into focus
+  // Fixes issue of a user selecting a chemical, making edits, leaving the page, then selecting
+  // the same chemical and still seeing the edited version rather than what's in the database
+  useFocusEffect(
+    useCallback(() => {
+      if (chemicalIdString && userInfo && (userInfo.is_admin || userInfo.is_master)) {
+        fetchChemicalData(chemicalIdString);
+        // Only fetch school list if user is master
+        if (userInfo.is_master) {
+          fetchSchoolList({setSchoolList});
+        }
       }
-    }
-  }, [chemicalIdString]);
+    }, [chemicalIdString])
+  );
 
   // Fetch the chemical data from the API based on the chemicalId
   const fetchChemicalData = async (id: string) => {
@@ -186,7 +191,6 @@ export default function editChemicals() {
         const responseData = await response.json();
 
         if (response.ok) {
-          onClear
           console.log('Chemical updated successfully:', responseData);
           Alert.alert('Success', 'Chemical information updated');
           router.push('/');
@@ -202,20 +206,57 @@ export default function editChemicals() {
       Alert.alert('Error', 'Please fill in all fields!');
     }
   };
+  
+  // Show delete alert pop up to confirm user's action
+  const onDelete = async () => {
+    Alert.alert(
+      'Delete Chemical?',
+      'This action cannot be reversed.',
+      [
+        {
+          text: 'Cancel',
 
-  const onClear = () => {
-    setName('');
-    setRoom('');
-    setShelf('');
-    setCabinet('');
-    userInfo && userInfo.is_master && setSchool('');
-    setStatus('');
-    setQuantity('');
-    setUnit(''),
-    setCasParts(['', '', '']);
-    setPurchaseDate(undefined);
-    setExpirationDate(undefined);
-    setUploaded(false);
+        },
+
+        {
+          text: 'Delete',
+          onPress: () => handleDelete(),
+        },
+      ]
+    );
+  };
+
+  // Handles the actual deletion of the chemical
+  const handleDelete = async () => {
+    if (!(userInfo && (userInfo.is_admin || userInfo.is_master))) {
+      Alert.alert('Error', 'You don\'t have permissions');
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/v1/chemicals/${chemicalIdString}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Success', 'Chemical successfully deleted');
+        router.push('/');
+      } else {
+        console.log('Failed to delete chemical:', responseData);
+        Alert.alert('Error', 'Error occurred while deleting chemical');
+      }
+    } catch (error) {
+      console.error('Error deleting chemical:', error);
+      Alert.alert('Error', 'Error occurred while deleting chemical');
+    }
   };
 
   const onUpload = () => {
@@ -304,10 +345,10 @@ export default function editChemicals() {
                 />
 
                 <CustomButton
-                  title="Clear"
-                  onPress={onClear}
+                  title="Delete Chemical"
+                  onPress={onDelete}
                   width={337}
-                  icon={<ReturnIcon width={24} height={24} />}
+                  icon={<TrashIcon width={24} height={24} />}
                   iconPosition="left"
                   color={Colors.red}
                   textColor="white"
