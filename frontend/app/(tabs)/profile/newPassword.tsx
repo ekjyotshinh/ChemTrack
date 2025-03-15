@@ -1,4 +1,4 @@
-import React, { useState } from 'react';  
+import React, { useState, useEffect } from 'react';  
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';  
 import { useRouter } from 'expo-router';  
 import CustomButton from '@/components/CustomButton';  
@@ -8,6 +8,7 @@ import Size from '@/constants/Size';
 import TextInter from '@/components/TextInter';  
 import BlueHeader from '@/components/BlueHeader';  
 import { useUser } from '@/contexts/UserContext';  
+import ResetIcon from '@/assets/icons/ResetIcon';
 
 export default function NewPassword() {  
   const router = useRouter();  
@@ -28,6 +29,13 @@ export default function NewPassword() {
       Alert.alert('Error', 'Passwords do not match.');  
       return;  
     }  
+
+    // Change this later if we want more secure passwords
+    // Making it at least 6 since Firebase by default uses at least 6 characters for passwords
+    if (newPassword.length < 6) {
+      Alert.alert('Error', 'Passwords must be at least 6 characters');  
+      return; 
+    }
 
     try {  
       // Send a PUT request to update the user's password  
@@ -62,9 +70,20 @@ export default function NewPassword() {
     }  
   };  
 
+  const [isValidPassword, setIsValidPassword] = useState(false);
+
+  // Use effect to manage isValidPassword, which determines the button's colors
+  useEffect(() => {
+    if ((newPassword && confirmPassword) && newPassword == confirmPassword && newPassword.length >= 6) {
+      setIsValidPassword(true);
+    } else {
+      setIsValidPassword(false);
+    }
+  }, [newPassword, confirmPassword]);
+
   return (  
     <View style={styles.container}>  
-      <BlueHeader headerText="New Password" onPress={() => router.push('/profile/profile')} />  
+      <BlueHeader headerText="Reset Password" onPress={() => router.push('/profile/profile')} />  
 
       <ScrollView style={styles.scrollContainer}>  
         <View style={{ marginTop: Size.height(40) }}>  
@@ -78,18 +97,20 @@ export default function NewPassword() {
               onChangeText={setNewPassword}  
               headerText="New Password"  
               value={newPassword}  
-              hasIcon={false}  
+              hasIcon={true}  
               inputWidth={Size.width(340)}  
               secureTextEntry={true}  
               autoCapitalize="none"  
-            />  
+            />
+
+            <View style={{ height: Size.height(25) }} /> 
 
             <HeaderTextInput  
               testID="confirm-password-input"
               onChangeText={setConfirmPassword}  
               headerText="Confirm New Password"  
               value={confirmPassword}  
-              hasIcon={false}  
+              hasIcon={true}  
               inputWidth={Size.width(340)}  
               secureTextEntry={true}  
               autoCapitalize="none"  
@@ -99,10 +120,12 @@ export default function NewPassword() {
           <View style={styles.buttonContainer}>  
             <CustomButton  
               title="Change Password"  
-              color={newPassword && confirmPassword ? Colors.blue : Colors.white}  
-              textColor={newPassword && confirmPassword ? Colors.white : Colors.grey}  
+              color={isValidPassword ? Colors.blue : Colors.white}  
+              textColor={isValidPassword ? Colors.white : Colors.grey}  
               onPress={handleChangePassword}  
               width={337}  
+              icon={<ResetIcon width={24} height={24} color={isValidPassword ? Colors.white : Colors.grey} />}
+              iconPosition='left'
             />  
           </View>  
         </View>  
