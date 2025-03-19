@@ -104,11 +104,11 @@ export default function Profile() {
     setIsEditing(false);
   }
 
-  // TODO: Fetch image from the backend initially (useEffect)
+  // TODO: Fetch image from the backend initially (useEffect) (GET Request)
   const [image, setImage] = useState<string | null>(null);
 
-  // Pick image for the profile picture
-  const pickImage = async () => {
+  // Pick user's profile picture
+  const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -119,8 +119,41 @@ export default function Profile() {
     if (!result.canceled && result) {
       setImage(result.assets[0].uri);
     }
+  }
 
-    // TODO: Need to save to backend
+  // Delete user's profile picture
+  const handleDeleteImage = async () => {
+    setImage(null);
+  }
+
+  // Open an alert to delete or replace profile picture
+  const onEditImage = async () => {
+    if (image) {
+      Alert.alert(
+        'Edit Profile Picture',
+        'Deleting changes the image back to displaying your initials',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            // Use PUT request for updating
+            // so check if the user has a pfp first in handlePickImage
+            text: 'Edit',
+            onPress: handlePickImage,
+          },
+          {
+            // Use DELETE request
+            text: 'Delete',
+            onPress: handleDeleteImage,
+          },
+        ]
+      );
+    } else {
+      // Use POST request for adding for the first time
+      await handlePickImage();
+    }
   }
 
   return (
@@ -134,7 +167,7 @@ export default function Profile() {
           <View style={styles.avatarContainer}>
             {image ? 
               <Image source={{ uri: image }} style={styles.avatarImage} /> : 
-              
+
               <View style={[styles.avatarImage, styles.avatarTextImage]} testID='avatarFrame'>
                 <TextInter
                   style={styles.avatarText}
@@ -148,7 +181,7 @@ export default function Profile() {
           {/* Name and Email Inputs */}
           <View>
             <TouchableOpacity
-              onPress={pickImage}
+              onPress={onEditImage}
               testID='editButton'>
               <Text style={styles.editText}>
                 {'Edit'}
