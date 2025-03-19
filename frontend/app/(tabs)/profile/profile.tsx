@@ -8,6 +8,7 @@ import {
   Modal,
   Pressable,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import AddUserIcon from '@/assets/icons/AddUserIcon';
@@ -24,6 +25,7 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -102,31 +104,54 @@ export default function Profile() {
     setIsEditing(false);
   }
 
+  // TODO: Fetch image from the backend initially (useEffect)
+  const [image, setImage] = useState<string | null>(null);
+
+  // Pick image for the profile picture
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1.0,
+    });
+
+    if (!result.canceled && result) {
+      setImage(result.assets[0].uri);
+    }
+
+    // TODO: Need to save to backend
+  }
+
   return (
     <View style={styles.container}>
       <Header headerText="My Account" />
 
       <ScrollView style={styles.scrollContainer}>
         <View style={{ marginTop: Size.height(136), alignItems: 'center' }}>
+
           {/* Avatar Section */}
           <View style={styles.avatarContainer}>
-            <View style={styles.avatarImage} testID='avatarFrame'>
-              <TextInter
-                style={styles.avatarText}
-                testID='initialsInput'
-              >
-                {userInfo?.name ? getInitials(userInfo.name) : ''}
-              </TextInter>
-            </View>
+            {image ? 
+              <Image source={{ uri: image }} style={styles.avatarImage} /> : 
+              
+              <View style={[styles.avatarImage, styles.avatarTextImage]} testID='avatarFrame'>
+                <TextInter
+                  style={styles.avatarText}
+                  testID='initialsInput'
+                >
+                  {userInfo?.name ? getInitials(userInfo.name) : ''}
+                </TextInter>
+              </View>}
           </View>
 
           {/* Name and Email Inputs */}
           <View>
             <TouchableOpacity
-              onPress={isEditing ? handleCancel : () => setIsEditing(true)}
+              onPress={pickImage}
               testID='editButton'>
               <Text style={styles.editText}>
-                {isEditing ? 'Cancel Edit' : 'Edit'}
+                {'Edit'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -269,20 +294,21 @@ const styles = StyleSheet.create({
     width: Size.width(132),
     height: Size.width(132),
     borderRadius: 100,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
     margin: 5,
     shadowColor: Colors.grey,
     shadowOpacity: 0.5,
     shadowOffset: { height: 1, width: 0.2 },
     elevation: 2,
   },
+  avatarTextImage: {
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatarText: {
     fontSize: 45,
     fontWeight: 'bold',
     textAlign: 'center',
-    backgroundColor: Colors.white,
   },
   editText: {
     color: Colors.blue,
