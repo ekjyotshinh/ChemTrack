@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Keyboard, Linking, Platform, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
@@ -19,7 +19,8 @@ import processCAS from '@/functions/ProcessCAS';
 import TextInter from '@/components/TextInter';
 import ChevronRight from '@/assets/icons/ChevronRightIcon';
 import { useUser } from '@/contexts/UserContext';
-import * as WebBrowser from 'expo-web-browser'
+import * as WebBrowser from 'expo-web-browser';
+import { WebView } from "react-native-webview";
 
 // Is the chemical expired?
 const isExpired = (expirationDate: string) => {
@@ -178,10 +179,13 @@ const handleResetFilters = () => {
   // Function to view safety data sheet (SDS) in web browser
   let testUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
 
-  const viewPdf = async (testUrl: string) => {
-    console.log("Click registered for View Pdf")
-    await WebBrowser.openBrowserAsync(testUrl);
-  }
+const viewPdf = (pdfUrl: string) => {
+  console.log("Click registered for View Pdf");
+  router.push({
+    pathname: '/fileViewer', 
+    params: { pdfUrl } 
+  });
+};              
 
   const { userInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
