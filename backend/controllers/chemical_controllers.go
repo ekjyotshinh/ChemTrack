@@ -231,7 +231,7 @@ func DeleteChemical(c *gin.Context) {
 	}
 
 	// Delete the QR code from Google Cloud Storage
-	helpers.DeleteFileFromGCS(ctx, "chemtrack-testing", "QRcodes/"+chemicalID+".png")
+	helpers.DeleteFileFromGCS(ctx, "chemtrack-testing2", "QRcodes/"+chemicalID+".png")
 
 	c.JSON(http.StatusOK, gin.H{"message": "Chemical deleted successfully"})
 }
