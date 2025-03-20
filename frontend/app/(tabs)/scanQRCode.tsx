@@ -39,7 +39,7 @@ export default function ViewChemicals() {
           }
       } catch (error) {
           console.log  ('Error fetching chemical data:', error);
-          Alert.alert('Error', 'nvalid QR or Error fetching chemical data');
+          Alert.alert('Error', 'Invalid QR or Error fetching chemical data');
       } finally {
           setIsFetching(false);
       }
