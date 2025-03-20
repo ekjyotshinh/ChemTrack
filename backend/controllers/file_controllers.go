@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 
@@ -306,6 +307,11 @@ func UpdateProfilePicture(c *gin.Context) {
 		return
 	}
 
+	// Append a timestamp to the URL to prevent caching
+	// Ensures image is up to date in the frontend
+	t := time.Now()
+	uploadURL += "?t=" + t.Format("20060102150405")
+
 	// Update Firestore document with the profile picture URL
 	_, err = client.Collection("users").Doc(userID).Update(ctx, []firestore.Update{
 		{Path: "profilePictureURL", Value: uploadURL},
@@ -360,6 +366,7 @@ func DeleteProfilePicture(c *gin.Context) {
 	// Extract the object name from the URL
 	// Example URL: https://storage.googleapis.com/chemtrack-testing/profile_pictures/12345.jpg
 	objectName := profilePictureURLStr[strings.LastIndex(profilePictureURLStr, "profile_pictures/"):]
+	objectName = strings.Split(objectName, "?t=")[0] // Remove the timestamp
 
 	// Delete the file from Google Cloud Storage
 	bucketName := "chemtrack-testing2"
