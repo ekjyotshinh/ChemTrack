@@ -33,6 +33,9 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
+  const [imageURI, setImageURI] = useState<string | null>(null);
+  const [rerender, setRerender] = useState(false);
+
   const [isValidEmail, setIsValidEmail] = useState(false);
   emailRegex({ email, setIsValidEmail });
 
@@ -40,11 +43,32 @@ export default function Profile() {
   const { userInfo, updateUserInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
+  // Get profile picture from backend
+  const fetchAvatarImage = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/files/profile/${userInfo.id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user\'s profile picture');
+      }
+
+      const data = await response.json();
+      setImageURI(data.profilePictureURL);
+
+    } catch (error) {
+      console.log('Failed to fetch user\'s profile picture');
+    }
+  }
+
   // Initialize name and email from user info
   useEffect(() => {
     if (userInfo) {
       setName(userInfo.name);
       setEmail(userInfo.email);
+      fetchAvatarImage();
     }
   }, [userInfo]);
 
@@ -117,11 +141,10 @@ export default function Profile() {
     setIsEditing(false);
   }
 
-  // TODO: Fetch image from the backend initially (useEffect) (GET Request)
-  const [image, setImage] = useState<string | null>(null);
-
   // Pick user's profile picture
   const handlePickImage = async () => {
+
+    // Get image from user's device
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -130,18 +153,58 @@ export default function Profile() {
     });
 
     if (!result.canceled && result) {
-      setImage(result.assets[0].uri);
+      let formData = new FormData();
+
+      // Add the image to the form data, which will get sent to backend
+      formData.append('profilePicture', {
+        uri: result.assets[0].uri,
+        name: 'profile.jpg',
+        type: 'image/jpeg',
+      } as any);
+
+      try {
+        // Use PUT request for updating and if profile picture already exists
+        // Use POST request for adding if profile picture doesn't exist
+        const response = await fetch(`${API_URL}/api/v1/files/profile/${userInfo.id}`, {
+          method: imageURI ? 'PUT' : 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error('Failed to update profile picture');
+        } else {
+          setImageURI(data.url);
+        }
+
+      } catch (error) {
+        Alert.alert('Error', 'Failed to update profile picture');
+      }
     }
   }
 
   // Delete user's profile picture
   const handleDeleteImage = async () => {
-    setImage(null);
+    try {
+      const response = await fetch(`${API_URL}/api/v1/files/profile/${userInfo.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) throw new Error('Failed to delete profile picture');
+
+    } catch (error) {
+      Alert.alert('Error', 'Failed to delete profile picture.');
+      console.error(error);
+    }
+
+    setImageURI(null);
   }
 
   // Open an alert to delete or replace profile picture
   const onEditImage = async () => {
-    if (image) {
+    if (imageURI) {
       Alert.alert(
         'Edit Profile Picture',
         'Deleting changes the image back to displaying your initials',
@@ -177,9 +240,9 @@ export default function Profile() {
         <View style={{ marginTop: Size.height(136), alignItems: 'center' }}>
 
           {/* Avatar Section */}
-          <View style={styles.avatarContainer}>
-            {image ? 
-              <Image source={{ uri: image }} style={styles.avatarImage} /> : 
+          <TouchableOpacity style={styles.avatarContainer} onPress={onEditImage}>
+            {imageURI ?
+              <Image source={{ uri: imageURI }} style={styles.avatarImage} /> :
 
               <View style={[styles.avatarImage, styles.avatarTextImage]} testID='avatarFrame'>
                 <TextInter
@@ -189,7 +252,7 @@ export default function Profile() {
                   {userInfo?.name ? getInitials(userInfo.name) : ''}
                 </TextInter>
               </View>}
-          </View>
+          </TouchableOpacity>
 
           {/* Name and Email Inputs */}
           <View>
