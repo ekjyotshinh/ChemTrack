@@ -8,10 +8,9 @@ import (
 	//"encoding/json"
 	//"fmt"
 	//"net/http"
-	//"github.com/gin-gonic/gin" 
-	"github.com/skip2/go-qrcode" 
+	//"github.com/gin-gonic/gin"
 	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
-
+	"github.com/skip2/go-qrcode"
 )
 
 // GenerateQRCode generates a QR code for a chemical
@@ -40,7 +39,7 @@ func GenerateQRCode(chemicalIdNumber string) {
 	}
 
 	// Upload the QR code to Google Cloud Storage
-	bucketName := "chemtrack-testing"
+	bucketName := "chemtrack-testing2"
 	objectName := "QRcodes/" + chemID + ".png"
 
 	err = helpers.UploadFileToGCS(ctx, bucketName, objectName, filepath)
