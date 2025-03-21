@@ -18,7 +18,7 @@ export default function HomePageView() {
 
   // Function to test deep linking - delete once the testing is done
   const testDeepLink = async () => {
-    const deepLink = "http://localhost:8081/customSignup1?email=deepajay0713@gmail.com&userType=admin&school=Sacramento%20High%20School";
+    const deepLink = "http://localhost:8081/customSignup1?email=ajay@gmail.com&userType=admin&school=Sacramento%20High%20School";
 
     try {
       const supported = await Linking.canOpenURL(deepLink);
