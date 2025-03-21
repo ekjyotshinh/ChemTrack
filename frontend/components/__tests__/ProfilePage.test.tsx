@@ -3,16 +3,9 @@ import {
     Alert,
     Text,
     StyleSheet,
-    Modal,
-    Pressable,
     TouchableOpacity,
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
-import AddUserIcon from '@/assets/icons/AddUserIcon';
-import BellIcon from '@/assets/icons/BellIcon';
-import EditIcon from '@/assets/icons/EditIcon';
-import ResetIcon from '@/assets/icons/ResetIcon';
-import LoginIcon from '@/assets/icons/LoginIcon';
 import Colors from '@/constants/Colors';
 import Header from '@/components/Header';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
@@ -21,7 +14,6 @@ import { useRouter } from 'expo-router';
 import Profile from '@/app/(tabs)/profile/profile';
 import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
-import CloseIcon from '@/assets/icons/CloseIcon';
 
 import { render, fireEvent, screen, waitFor, getQueriesForElement } from '@testing-library/react-native';
 
@@ -76,10 +68,6 @@ jest.mock('expo-router', () => ({
 
 jest.spyOn(Alert, 'alert');
 
-// Check text function
-function checkText(text: string) {
-    return text;
-}
 
 // Tests
 describe('Profile', () => {
@@ -95,7 +83,6 @@ describe('Profile', () => {
         (useRouter as jest.Mock).mockReturnValue(router);
         jest.spyOn(Alert, 'alert');
         jest.spyOn(global, 'fetch');
-        // Setup PUT API
 
     });
 
@@ -115,8 +102,6 @@ describe('Profile', () => {
         expect(getByText('Name')).toBeTruthy(); // text is part of HeaderInputText, so the user's name would render too technically, could be disable b/c of isEditing variable
         expect(getByText('Email')).toBeTruthy();
         expect(getByText('Update Info')).toBeTruthy();
-        //expect(getByText('Update Info')).toHaveProp('CustomButton', CustomEditIcon);
-        // editicon = function customediticon
         expect(getByText('Notifications')).toBeTruthy();
         expect(getByText('Reset Password')).toBeTruthy();
         expect(getByText('Log Out')).toBeTruthy();
@@ -297,7 +282,6 @@ describe('Profile', () => {
             });
         });
 
-
         // Check if base profile page renders back with new Name and Email
         expect(getByText('My Account')).toBeTruthy();
         expect(getByTestId('avatarFrame')).toBeTruthy();
@@ -386,8 +370,7 @@ describe('Profile', () => {
         // Simulate button clicks
         fireEvent.press(getByText('Log Out'));
         fireEvent.press(getByText('Yes'));
-        expect(router.push).toHaveBeenCalledWith('/(auth)/login');
-        // (auth)/login
+        expect(router.replace).toHaveBeenCalledWith('/(auth)/login');
     });
 
     // Logout UI
