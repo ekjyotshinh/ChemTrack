@@ -34,7 +34,6 @@ export default function Profile() {
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
   const [imageURI, setImageURI] = useState<string | null>(null);
-  const [rerender, setRerender] = useState(false);
 
   const [isValidEmail, setIsValidEmail] = useState(false);
   emailRegex({ email, setIsValidEmail });
@@ -152,7 +151,7 @@ export default function Profile() {
       quality: 1.0,
     });
 
-    if (!result.canceled && result) {
+    if (result && !result.canceled) {
       let formData = new FormData();
 
       // Add the image to the form data, which will get sent to backend
