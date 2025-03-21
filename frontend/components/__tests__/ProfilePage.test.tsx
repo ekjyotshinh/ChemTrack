@@ -1,21 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Alert,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-} from 'react-native';
-import CustomButton from '@/components/CustomButton';
-import Colors from '@/constants/Colors';
-import Header from '@/components/Header';
-import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
-import Size from '@/constants/Size';
+import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import Profile from '@/app/(tabs)/profile/profile';
 import { useUser } from '@/contexts/UserContext';
-import emailRegex from '@/functions/EmailRegex';
-
-import { render, fireEvent, screen, waitFor, getQueriesForElement } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 
 
 // Mock Placeholder setup for User information and Routing
@@ -129,46 +116,22 @@ describe('Profile', () => {
     });
 
 
-    // Edit Page: Simulate Edit button click and Update Info button for User
-    test('User Edit Info Page Renders with Blue Edit and Update Info Buttons', () => {
+    // Edit Page: Simulate Update Info button for User
+    test('User Edit Info Page Renders with Update Info Button', () => {
         // Render User
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockUser })
 
         const { getByText, getByTestId } = render(<Profile />);
-        // Simulate Edit Text being clicked
-        fireEvent.press(getByText('Edit'));
-        // Confirm page changed
-        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit'); // The blue Edit text
-        expect(getByText('Finish Updating')).toBeTruthy();
-        let updateText = screen.getAllByText('Cancel Edit')[1]; // Check the 2nd 'Cancel Edit' text in the custom button
-        expect(updateText).toBeTruthy;
-
-        // Revert to based page by clicking Edit text again
-        fireEvent.press(getByTestId('editButton')); // Get the blue text 
-
-        // Check if base profile page renders back
-        expect(getByText('My Account')).toBeTruthy();
-        expect(getByTestId('initialsInput')).toBeTruthy();
-        expect(getByText('Edit')).toBeTruthy();
-        expect(getByText('Name')).toBeTruthy();
-        expect(getByText('Email')).toBeTruthy();
-        expect(getByText('Update Info')).toBeTruthy();
-        expect(getByText('Notifications')).toBeTruthy();
-        expect(getByText('Reset Password')).toBeTruthy();
-        expect(getByText('Log Out')).toBeTruthy();
-
 
         // Check the Update Info button
         // Simulate Update Info button being clicked
         fireEvent.press(getByText('Update Info'));
         // Confirm page changed
-        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit'); // The blue Edit text
         expect(getByText('Finish Updating')).toBeTruthy();
-        let updateText2 = screen.getAllByText('Cancel Edit')[1]; // Check the 2nd 'Cancel Edit' text in the custom button
-        expect(updateText2).toBeTruthy;
+        expect(getByText('Cancel Edit')).toBeTruthy();
 
-        // Revert to based page by clicking Edit text again
-        fireEvent.press(updateText2); // Click the Cancel Edit button 
+        // Revert to based page by clicking Cancel Edit
+        fireEvent.press(getByText('Cancel Edit')); // Click the Cancel Edit button 
 
         // Check if base profile page renders back
         expect(getByText('My Account')).toBeTruthy();
@@ -184,45 +147,21 @@ describe('Profile', () => {
     });
 
     // Edit Page: Simulate Edit button click and Update Info button for Master
-    test('Master Edit Info Page Renders with Blue Edit Text', () => {
+    test('Master User Edit Info Page Renders with Update Info Button', () => {
         // Render User
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
 
         const { getByText, getByTestId } = render(<Profile />);
-        // Simulate Edit Text being clicked
-        fireEvent.press(getByText('Edit'));
-        // Confirm page changed
-        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit');
-        expect(getByText('Finish Updating')).toBeTruthy();
-        let updateText = screen.getAllByText('Cancel Edit')[1]; // Get the 2nd 'Cancel Edit' text in the custom button
-        expect(updateText).toBeTruthy;
-
-        // Revert to based page by clicking Edit text again
-        fireEvent.press(getByTestId('editButton')); // Get the blue text 
-
-        // Check if base profile page renders back
-        expect(getByText('My Account')).toBeTruthy();
-        expect(getByTestId('initialsInput')).toBeTruthy();
-        expect(getByText('Edit')).toBeTruthy();
-        expect(getByText('Name')).toBeTruthy();
-        expect(getByText('Email')).toBeTruthy();
-        expect(getByText('Update Info')).toBeTruthy();
-        expect(getByText('Invite User')).toBeTruthy();
-        expect(getByText('Notifications')).toBeTruthy();
-        expect(getByText('Reset Password')).toBeTruthy();
-        expect(getByText('Log Out')).toBeTruthy();
 
         // Check the Update Info button
         // Simulate Update Info button being clicked
         fireEvent.press(getByText('Update Info'));
         // Confirm page changed
-        expect(getByTestId('editButton')).toHaveTextContent('Cancel Edit'); // The blue Edit text
         expect(getByText('Finish Updating')).toBeTruthy();
-        let updateText2 = screen.getAllByText('Cancel Edit')[1]; // Check the 2nd 'Cancel Edit' text in the custom button
-        expect(updateText2).toBeTruthy;
+        expect(getByText('Cancel Edit')).toBeTruthy();
 
-        // Revert to based page by clicking Edit text again
-        fireEvent.press(updateText2); // Click the Cancel Edit button 
+        // Revert to based page by clicking Cancel Edit
+        fireEvent.press(getByText('Cancel Edit')); // Click the Cancel Edit button 
 
         // Check if base profile page renders back
         expect(getByText('My Account')).toBeTruthy();
