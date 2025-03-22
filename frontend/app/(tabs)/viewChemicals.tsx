@@ -177,8 +177,6 @@ export default function ViewChemicals() {
   };
 
   // Function to view safety data sheet (SDS) in web browser
-  let testUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-
   const viewPdf = async () => {
     console.log("Click registered for View Pdf");
 
