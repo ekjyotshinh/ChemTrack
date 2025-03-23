@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 
@@ -57,7 +58,7 @@ func AddSDS(c *gin.Context) {
 	defer src.Close()
 
 	// Define GCS bucket and object name
-	bucketName := "chemtrack-testing"
+	bucketName := "chemtrack-testing2"
 	objectName := "sds/" + chemID + ".pdf"
 
 	// Upload the file directly from memory
@@ -158,7 +159,7 @@ func DeleteSDS(c *gin.Context) {
 	objectName := sdsURLStr[strings.LastIndex(sdsURLStr, "sds/"):]
 
 	// Delete the file from Google Cloud Storage
-	bucketName := "chemtrack-testing"
+	bucketName := "chemtrack-testing2"
 	err = helpers.DeleteFileFromGCS(ctx, bucketName, objectName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete SDS file from GCS"})
@@ -179,7 +180,6 @@ func DeleteSDS(c *gin.Context) {
 		"message": "SDS file deleted successfully",
 	})
 }
-
 
 // AddProfilePicture godoc
 // @Summary Add a new profile picture
@@ -225,7 +225,7 @@ func AddProfilePicture(c *gin.Context) {
 	defer src.Close()
 
 	// Define GCS bucket and object name
-	bucketName := "chemtrack-testing"
+	bucketName := "chemtrack-testing2"
 	objectName := "profile_pictures/" + userID + ".jpg"
 
 	// Upload the file directly from memory
@@ -296,7 +296,7 @@ func UpdateProfilePicture(c *gin.Context) {
 	defer src.Close()
 
 	// Define GCS bucket and object name
-	bucketName := "chemtrack-testing"
+	bucketName := "chemtrack-testing2"
 	objectName := "profile_pictures/" + userID + ".jpg"
 
 	// Upload the file directly from memory
@@ -306,6 +306,11 @@ func UpdateProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload profile picture"})
 		return
 	}
+
+	// Append a timestamp to the URL to prevent caching
+	// Ensures image is up to date in the frontend
+	t := time.Now()
+	uploadURL += "?t=" + t.Format("20060102150405")
 
 	// Update Firestore document with the profile picture URL
 	_, err = client.Collection("users").Doc(userID).Update(ctx, []firestore.Update{
@@ -361,9 +366,10 @@ func DeleteProfilePicture(c *gin.Context) {
 	// Extract the object name from the URL
 	// Example URL: https://storage.googleapis.com/chemtrack-testing/profile_pictures/12345.jpg
 	objectName := profilePictureURLStr[strings.LastIndex(profilePictureURLStr, "profile_pictures/"):]
+	objectName = strings.Split(objectName, "?t=")[0] // Remove the timestamp
 
 	// Delete the file from Google Cloud Storage
-	bucketName := "chemtrack-testing"
+	bucketName := "chemtrack-testing2"
 	err = helpers.DeleteFileFromGCS(ctx, bucketName, objectName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete profile picture from GCS"})
