@@ -18,7 +18,7 @@ export default function HomePageView() {
 
   // Function to test deep linking - delete once the testing is done
   const testDeepLink = async () => {
-    const deepLink = "http://localhost:8081/customSignup1?email=ajay@gmail.com&userType=admin&school=Sacramento%20High%20School";
+    const deepLink = "http://localhost:8081/customSignup1?email=ajays@gmail.com&userType=master&school=Sacramento%20High%20School";
 
     try {
       const supported = await Linking.canOpenURL(deepLink);
@@ -75,20 +75,8 @@ export default function HomePageView() {
         icon={<UserIcon width={24} height={24} />}
         iconPosition="left"
       />
-      
-      {/* TODO: Make sure to remove in prod */}
-      {/* 
-      <CustomButton 
-        title="Only for testing purpose" 
-        onPress={() => router.push('/checkDownload')} 
-        width={337} 
-        icon={<QRCodeIcon width={24} height={24} />}
-        iconPosition='left'
-      />
-      */}
 
       {/* TODO: Make sure to remove in prod */}
-      {/* 
       <CustomButton 
         title="Only for testing " 
         onPress={() => router.push('/profile/newPassword')} 
@@ -96,10 +84,9 @@ export default function HomePageView() {
         icon={<QRCodeIcon width={24} height={24} />}
         iconPosition='left'
       />
-      */}
+      
 
       {/* Test Deep Link Button - for testing purposes only */}
-      {/* 
       <CustomButton 
         title="Test Deep Link" 
         onPress={testDeepLink} 
@@ -107,7 +94,7 @@ export default function HomePageView() {
         icon={<UserIcon width={24} height={24} />}
         iconPosition="left"
       />
-      */}
+      
 
       <View style={{ height: Size.height(65) }} />
     </View>
