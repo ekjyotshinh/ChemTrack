@@ -8,6 +8,7 @@ import {
   Modal,
   Pressable,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import AddUserIcon from '@/assets/icons/AddUserIcon';
@@ -24,12 +25,15 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+
+  const [imageURI, setImageURI] = useState<string | null>(null);
 
   const [isValidEmail, setIsValidEmail] = useState(false);
   emailRegex({ email, setIsValidEmail });
@@ -38,11 +42,32 @@ export default function Profile() {
   const { userInfo, updateUserInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
+  // Get profile picture from backend
+  const fetchAvatarImage = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/files/profile/${userInfo.id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user\'s profile picture');
+      }
+
+      const data = await response.json();
+      setImageURI(data.profilePictureURL);
+
+    } catch (error) {
+      console.log('Failed to fetch user\'s profile picture');
+    }
+  }
+
   // Initialize name and email from user info
   useEffect(() => {
     if (userInfo) {
       setName(userInfo.name);
       setEmail(userInfo.email);
+      fetchAvatarImage();
     }
   }, [userInfo]);
 
@@ -102,31 +127,126 @@ export default function Profile() {
     setIsEditing(false);
   }
 
+  // Pick user's profile picture
+  const handlePickImage = async () => {
+
+    // Get image from user's device
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1.0,
+    });
+
+    if (result && !result.canceled) {
+      let formData = new FormData();
+
+      // Add the image to the form data, which will get sent to backend
+      formData.append('profilePicture', {
+        uri: result.assets[0].uri,
+        name: 'profile.jpg',
+        type: 'image/jpeg',
+      } as any);
+
+      try {
+        // Use PUT request for updating and if profile picture already exists
+        // Use POST request for adding if profile picture doesn't exist
+        const response = await fetch(`${API_URL}/api/v1/files/profile/${userInfo.id}`, {
+          method: imageURI ? 'PUT' : 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error('Failed to update profile picture');
+        } else {
+          setImageURI(data.url);
+        }
+
+      } catch (error) {
+        Alert.alert('Error', 'Failed to update profile picture');
+      }
+    }
+  }
+
+  // Delete user's profile picture
+  const handleDeleteImage = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/v1/files/profile/${userInfo.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) throw new Error('Failed to delete profile picture');
+
+    } catch (error) {
+      Alert.alert('Error', 'Failed to delete profile picture.');
+      console.error(error);
+    }
+
+    setImageURI(null);
+  }
+
+  // Open an alert to delete or replace profile picture
+  const onEditImage = async () => {
+    if (imageURI) {
+      Alert.alert(
+        'Edit Profile Picture',
+        'Deleting changes the image back to displaying your initials',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            // Use PUT request for updating
+            // so check if the user has a pfp first in handlePickImage
+            text: 'Edit',
+            onPress: handlePickImage,
+          },
+          {
+            // Use DELETE request
+            text: 'Delete',
+            onPress: handleDeleteImage,
+          },
+        ]
+      );
+    } else {
+      // Use POST request for adding for the first time
+      await handlePickImage();
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Header headerText="My Account" />
 
       <ScrollView style={styles.scrollContainer}>
         <View style={{ marginTop: Size.height(136), alignItems: 'center' }}>
+
           {/* Avatar Section */}
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatarImage} testID='avatarFrame'>
-              <TextInter
-                style={styles.avatarText}
-                testID='initialsInput'
-              >
-                {userInfo?.name ? getInitials(userInfo.name) : ''}
-              </TextInter>
-            </View>
-          </View>
+          <TouchableOpacity style={styles.avatarContainer} onPress={onEditImage}>
+            {imageURI ?
+              <Image source={{ uri: imageURI }} style={styles.avatarImage} /> :
+
+              <View style={[styles.avatarImage, styles.avatarTextImage]} testID='avatarFrame'>
+                <TextInter
+                  style={styles.avatarText}
+                  testID='initialsInput'
+                >
+                  {userInfo?.name ? getInitials(userInfo.name) : ''}
+                </TextInter>
+              </View>}
+          </TouchableOpacity>
 
           {/* Name and Email Inputs */}
           <View>
             <TouchableOpacity
-              onPress={isEditing ? handleCancel : () => setIsEditing(true)}
+              onPress={onEditImage}
               testID='editButton'>
               <Text style={styles.editText}>
-                {isEditing ? 'Cancel Edit' : 'Edit'}
+                {'Edit'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -269,20 +389,21 @@ const styles = StyleSheet.create({
     width: Size.width(132),
     height: Size.width(132),
     borderRadius: 100,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
     margin: 5,
     shadowColor: Colors.grey,
     shadowOpacity: 0.5,
     shadowOffset: { height: 1, width: 0.2 },
     elevation: 2,
   },
+  avatarTextImage: {
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatarText: {
     fontSize: 45,
     fontWeight: 'bold',
     textAlign: 'center',
-    backgroundColor: Colors.white,
   },
   editText: {
     color: Colors.blue,
