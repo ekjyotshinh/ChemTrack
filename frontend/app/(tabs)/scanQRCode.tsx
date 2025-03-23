@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
-import { View, Text, StyleSheet, Button, TouchableOpacity, Alert} from 'react-native';
-import { CameraView, CameraType, useCameraPermissions} from 'expo-camera';
+import { View, Text, StyleSheet, Button, TouchableOpacity, Alert } from 'react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import ChemicalDetails from '@/components/viewChemicalModals/ChemicalDetails';
 import * as WebBrowser from 'expo-web-browser';
 import { useRouter } from 'expo-router';
@@ -17,36 +17,44 @@ export default function ViewChemicals() {
   const router = useRouter();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const viewPdf = async (pdfUrl: string) => {
-      console.log('Opening PDF:', pdfUrl);
-      await WebBrowser.openBrowserAsync(pdfUrl);
+    console.log('Opening PDF:', pdfUrl);
+    await WebBrowser.openBrowserAsync(pdfUrl);
   };
   const toggleSDSBottomSheet = () => {
-      setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
-      viewPdf('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+    setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
+    try {
+      let sdsUrl: string = selectedChemical.sdsURL;
+      //viewPdf('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+      viewPdf(sdsUrl);
+    }
+    catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Error occured');
+    }
   };
   const fetchChemicalData = async (id: string) => {
-      if (isFetching) return;
-      setIsFetching(true);
-      try {
-          const response = await fetch(`${API_URL}/api/v1/chemicals/${id}`);
-          const data = await response.json();
-          if (response.ok) {
-              setSelectedChemical(data);
-              setModalVisible(true);
-          } else {
-              console.log('Failed to fetch chemical data:', data);
-              Alert.alert('Error', 'Failed to fetch chemical data');
-          }
-      } catch (error) {
-          console.log  ('Error fetching chemical data:', error);
-          Alert.alert('Error', 'Invalid QR or Error fetching chemical data');
-      } finally {
-          setIsFetching(false);
+    if (isFetching) return;
+    setIsFetching(true);
+    try {
+      const response = await fetch(`${API_URL}/api/v1/chemicals/${id}`);
+      const data = await response.json();
+      if (response.ok) {
+        setSelectedChemical(data);
+        setModalVisible(true);
+      } else {
+        console.log('Failed to fetch chemical data:', data);
+        Alert.alert('Error', 'Failed to fetch chemical data');
       }
+    } catch (error) {
+      console.log('Error fetching chemical data:', error);
+      Alert.alert('Error', 'Invalid QR or Error fetching chemical data');
+    } finally {
+      setIsFetching(false);
+    }
   };
   const closeModal = () => {
-      setScannedData(null); 
-      setModalVisible(false);
+    setScannedData(null);
+    setModalVisible(false);
   };
   if (!permission) {
     // Camera permissions are still loading.
@@ -63,7 +71,7 @@ export default function ViewChemicals() {
     );
   }
 
-  
+
 
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
@@ -71,25 +79,25 @@ export default function ViewChemicals() {
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} onBarcodeScanned={({data}) => {
-          if (!modalVisible && data !== scannedData) {
-              setScannedData(data);
-              fetchChemicalData(data);
-          }
-        }}>
+      <CameraView style={styles.camera} facing={facing} onBarcodeScanned={({ data }) => {
+        if (!modalVisible && data !== scannedData) {
+          setScannedData(data);
+          fetchChemicalData(data);
+        }
+      }}>
         <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-                <Text style={styles.text}>Flip Camera</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+            <Text style={styles.text}>Flip Camera</Text>
+          </TouchableOpacity>
         </View>
-      </CameraView> 
+      </CameraView>
 
       <ChemicalDetails
-          selectedChemical={selectedChemical}
-          toggleSDSBottomSheet={toggleSDSBottomSheet}
-          modalVisible={modalVisible}
-          closeModal={closeModal}
-          router={router}
+        selectedChemical={selectedChemical}
+        toggleSDSBottomSheet={toggleSDSBottomSheet}
+        modalVisible={modalVisible}
+        closeModal={closeModal}
+        router={router}
       />
     </View>
   );
@@ -128,4 +136,3 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 });
- 
