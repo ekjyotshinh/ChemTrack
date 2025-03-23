@@ -24,7 +24,6 @@ func main() {
 	}
 	// Create a Gin router
 	router := gin.Default()
-	router := gin.Default()
 
 	// Set up CORS
 	router.Use(cors.New(cors.Config{
@@ -38,12 +37,6 @@ func main() {
 	// create a subroutine
 	go startBackgroundJobs()
 
-	// Register routes
-	routes.RegisterRoutesUser(router)
-	routes.RegisterRoutesChemical(router)
-	routes.RegisterRoutesEmail(router)
-	routes.RegisterRoutesFiles(router)
-	//routes.RegisterRoutesQRCode(router)
 	// Register routes
 	routes.RegisterRoutesUser(router)
 	routes.RegisterRoutesChemical(router)
@@ -71,15 +64,7 @@ func main() {
 func startBackgroundJobs() {
 	ticker := time.NewTicker(30 * 24 * time.Hour)
 	defer ticker.Stop()
-	ticker := time.NewTicker(30 * 24 * time.Hour)
-	defer ticker.Stop()
 
-	for {
-		log.Println("Running CheckCriticalChemicalStatus...")
-		services.CheckCriticalChemicalStatus()
-		log.Println("Finished execution. Waiting for next cycle...")
-		<-ticker.C
-	}
 	for {
 		log.Println("Running CheckCriticalChemicalStatus...")
 		services.CheckCriticalChemicalStatus()
