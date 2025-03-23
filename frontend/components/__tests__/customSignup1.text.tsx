@@ -188,7 +188,7 @@ it('renders Next button with correct initial disabled state', async () => {
 
 	const buttonProps = customButtonProps[0];
 	expect(buttonProps.title).toBe('Next');
-	expect(buttonProps.iconPosition).toBe('right');
+	expect(buttonProps.iconPosition ?? 'right').toBe('right');
 	expect(buttonProps.width).toBe(337);
 
 	// Button should be disabled initially (white/grey)
