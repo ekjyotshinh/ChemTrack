@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/ekjyotshinh/ChemTrack/backend/docs" // Import generated docs
+	_ "github.com/ekjyotshinh/ChemTrack/backend/docs" // Import generated docs
 	"github.com/ekjyotshinh/ChemTrack/backend/routes"
 	"github.com/ekjyotshinh/ChemTrack/backend/services"
 	"github.com/gin-contrib/cors"
@@ -22,6 +23,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	// Create a Gin router
+	router := gin.Default()
 	router := gin.Default()
 
 	// Set up CORS
@@ -42,11 +44,23 @@ func main() {
 	routes.RegisterRoutesEmail(router)
 	routes.RegisterRoutesFiles(router)
 	//routes.RegisterRoutesQRCode(router)
+	// Register routes
+	routes.RegisterRoutesUser(router)
+	routes.RegisterRoutesChemical(router)
+	routes.RegisterRoutesEmail(router)
+	routes.RegisterRoutesFiles(router)
+	//routes.RegisterRoutesQRCode(router)
 
 	// Swagger Documentation: http://localhost:8080/swagger/index.html
 	// Swagger route
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Swagger route
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	// Start the server on port 8080
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
+	}
 	// Start the server on port 8080
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
@@ -57,7 +71,15 @@ func main() {
 func startBackgroundJobs() {
 	ticker := time.NewTicker(30 * 24 * time.Hour)
 	defer ticker.Stop()
+	ticker := time.NewTicker(30 * 24 * time.Hour)
+	defer ticker.Stop()
 
+	for {
+		log.Println("Running CheckCriticalChemicalStatus...")
+		services.CheckCriticalChemicalStatus()
+		log.Println("Finished execution. Waiting for next cycle...")
+		<-ticker.C
+	}
 	for {
 		log.Println("Running CheckCriticalChemicalStatus...")
 		services.CheckCriticalChemicalStatus()
