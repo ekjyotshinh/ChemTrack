@@ -63,7 +63,7 @@ export default function ResetPassword() {
 
   return (  
     <View style={styles.container}>  
-      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/profile/profile')} />  
+      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/login')} />  
 
       <ScrollView style={styles.scrollContainer}>  
         <View style={{ marginTop: Size.height(40) }}>  
