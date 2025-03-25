@@ -410,29 +410,6 @@ export default function EditChemicals() {
                   textColor="white"
                 />
               </View>
-
-              <CustomButton
-                title="Clear"
-                onPress={() => {
-                  setName('');
-                  setRoom('');
-                  setShelf('');
-                  setCabinet('');
-                  setSchool('');
-                  setStatus('');
-                  setQuantity('');
-                  setUnit('');
-                  setCasParts(['', '', '']);
-                  setPurchaseDate(undefined);
-                  setExpirationDate(undefined);
-                  setUploaded(false);
-                }}
-                width={337}
-                icon={<ResetIcon width={24} height={24} />}
-                iconPosition="left"
-                color="white"
-                textColor="black"
-              />
               {/* Extra padding */}
               <View style={{ height: 40 }} />
             </View>
