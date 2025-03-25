@@ -9,7 +9,6 @@ import Colors from '@/constants/Colors';
 import TextInter from '@/components/TextInter';
 import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
 import * as Linking from 'expo-linking';
-
 import Size from '@/constants/Size';
 
 export default function HomePageView() {
@@ -77,6 +76,18 @@ export default function HomePageView() {
       />
 
       {/* TODO: Make sure to remove in prod */}
+      
+      <CustomButton 
+        title="Only for testing purpose" 
+        onPress={() => router.push('/checkDownload')} 
+        width={337} 
+        icon={<QRCodeIcon width={24} height={24} />}
+        iconPosition='left'
+      />
+      
+
+      {/* TODO: Make sure to remove in prod */}
+      {/* 
       <CustomButton 
         title="Only for testing " 
         onPress={() => router.push('/profile/newPassword')} 
@@ -84,7 +95,7 @@ export default function HomePageView() {
         icon={<QRCodeIcon width={24} height={24} />}
         iconPosition='left'
       />
-      
+      */}
 
       {/* Test Deep Link Button - for testing purposes only */}
       <CustomButton 

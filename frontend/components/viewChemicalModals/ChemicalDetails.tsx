@@ -11,6 +11,8 @@ import ModalContainer from './ModalContainer';
 import processCAS from '@/functions/ProcessCAS';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
+import downloadPDF from '@/app/(tabs)/checkDownload';
+
 
 interface chemicalDetailProps {
     property: string
@@ -123,10 +125,10 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                     {/* Buttons */}
                     <View style={stylesPopup.buttonContainer}>
                         <CustomButton
-                            title={'Save QR Label'}
+                            title={'Download QR Label'}
                             icon={<QrCodeIcon color={Colors.black} strokeWidth='4' />}
                             textColor={Colors.black}
-                            onPress={() => { }}
+                            onPress={downloadPDF}
                             color={Colors.white}
                             width={270}
                             height={47}

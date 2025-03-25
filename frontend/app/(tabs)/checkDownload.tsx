@@ -4,13 +4,13 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
-export default function CheckDownload() {
-  const [facing, setFacing] = useState<CameraType>('back');
-  const [permission, requestPermission] = useCameraPermissions();
+//export default function CheckDownload() {
+  //const [facing, setFacing] = useState<CameraType>('back');
+  //const [permission, requestPermission] = useCameraPermissions();
 
   // PDF URL and local storage path
-  const pdfUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-  const tempUri = FileSystem.documentDirectory + 'qr-code.pdf';
+  const pdfUrl = 'https://storage.googleapis.com/chemtrack-testing2/QRcodes/HisW8WYTGR9UB5TEGMbC.png';
+  const tempUri = FileSystem.documentDirectory + 'label.pdf';
 
   const downloadPDF = async () => {
     try {
@@ -30,6 +30,9 @@ export default function CheckDownload() {
     }
   };
 
+  export default downloadPDF;
+
+  /*
   if (!permission) {
     return (
       <View style={styles.container}>
@@ -66,7 +69,9 @@ export default function CheckDownload() {
       </TouchableOpacity>
     </View>
   );
+
 }
+*/
 
 const styles = StyleSheet.create({
   container: {
