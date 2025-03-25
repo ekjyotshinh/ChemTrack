@@ -11,7 +11,7 @@ import ModalContainer from './ModalContainer';
 import processCAS from '@/functions/ProcessCAS';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
-import downloadPDF from '@/app/(tabs)/checkDownload';
+import downloadPDF from '../../functions/checkDownload';
 
 
 interface chemicalDetailProps {
