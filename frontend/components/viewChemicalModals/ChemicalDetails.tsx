@@ -136,13 +136,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             title={'View SDS'}
                             icon={<ViewDocIcon color={Colors.black} />}
                             textColor={Colors.black}
-                            onPress={() => {
-                            closeModal();  // Close the modal
-                                router.push({
-                                pathname: '/fileViewer', 
-                                params: {  fileUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', title: selectedChemical.name } 
-                                });
-                            }}
+                            onPress={toggleSDSBottomSheet}
                             color={Colors.white}
                             width={270}
                             height={47}

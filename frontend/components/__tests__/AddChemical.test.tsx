@@ -226,7 +226,7 @@ describe('AddChemical', () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
-
+  
         const { getByTestId, getByText } = render(<AddChemical />);
 
         fireEvent.press(getByTestId("purchase-date"));
