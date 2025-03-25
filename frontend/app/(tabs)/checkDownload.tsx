@@ -8,6 +8,8 @@ export default function CheckDownload() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
 
+  // API URL 
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   // PDF URL and local storage path
   const pdfUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
   const tempUri = FileSystem.documentDirectory + 'qr-code.pdf';
