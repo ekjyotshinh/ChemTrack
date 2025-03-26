@@ -2,9 +2,8 @@ package controllers
 
 import (
 	"net/http"
-
-	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 	"github.com/gin-gonic/gin"
+	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 )
 
 type SendEmailRequest struct {
