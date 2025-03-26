@@ -1,8 +1,8 @@
-package routers  
+package routes  
 
 import (  
     "github.com/gin-gonic/gin"  
-    "yourapp/controllers"  
+    "github.com/ekjyotshinh/ChemTrack/backend/controllers"  
 )  
 
 func SetupAuthRoutes(router *gin.Engine) {  

@@ -35,7 +35,7 @@ export default function ResetPassword() {
         body: JSON.stringify({
           to: email,
           subject: 'Password Reset Request',
-          body: 'Email sent successfully from the resent password screen. (TODO: figure out the logic, I think that if the user is logged in there should not be any need for this step. --> Maybe this screens should be at the login with some link like reset password)',
+          body: 'We recieved a reuqest to reset the passowrd for your account associated with this email address. To reset your password, please click the link below: [Reset your password](https://chemtrack.com/reset-password?token=[RESET_TOKEN]). This link will expire in 1 hour, so please make sure to use it as soon as possible.',
         }),
       }); 
 
@@ -44,7 +44,7 @@ export default function ResetPassword() {
       if (response.ok) {
         Alert.alert(
           'Success',
-          'Email sent successfully. (TODO: figure out the logic, I think that if the user is logged in there should not be any need for this step.)',
+          'Email sent successfully.',
           [{ text: 'OK', onPress: () => router.push('/profile/newPassword') }]
         );
       } else {
