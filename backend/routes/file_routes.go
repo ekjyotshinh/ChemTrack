@@ -20,4 +20,7 @@ func RegisterRoutesFiles(router *gin.Engine) {
 	r.DELETE("/files/profile/:userId", controllers.DeleteProfilePicture) // Delete profile picture
 	r.PUT("/files/profile/:userId", controllers.UpdateProfilePicture)    // Update existing profile picture
 
+	// label routes
+	r.POST("/files/label/:chemicalIdNumber", controllers.AddLabel) // Create a new label
+
 }
