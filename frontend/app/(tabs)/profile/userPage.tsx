@@ -64,7 +64,10 @@ const InviteUserPage: React.FC = () => {
                     body: JSON.stringify({
                         to: email,
                         subject: 'ChemTrack User Invitation',
-                        body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Click the link below to sign up.\n\n[Sign Up Here](chemtrack://signupPage1?email=${email}&userType=${userType}&school=${encodeURIComponent(school)})`,
+                        //body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Click the link below to sign up.\n\n[Sign Up Here](chemtrack://signupPage1?email=${email}&userType=${userType}&school=${encodeURIComponent(school)})`,
+                        //body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Click the link below to sign up.\n\nexp://a4sykbo-ajay_12-8082.exp.direct/--/customSignup1?email=${email}&userType=${userType}&school=${encodeURIComponent(school)}`,
+                        body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Click the link below to sign up:\n\n<exp://a4sykbo-ajay_12-8082.exp.direct/--/customSignup1?email=${email}&userType=${userType}&school=${encodeURIComponent(school)}>`
+
                     }),
                 });
 

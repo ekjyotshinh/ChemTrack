@@ -18,7 +18,8 @@ export default function HomePageView() {
 
   // Function to test deep linking - delete once the testing is done
   const testDeepLink = async () => {
-    const deepLink = "http://localhost:8081/customSignup1?email=ajays@gmail.com&userType=master&school=Sacramento%20High%20School";
+    //const deepLink = "http://localhost:8081/customSignup1?email=ajays@gmail.com&userType=master&school=Sacramento%20High%20School";
+    const deepLink = "exp://a4sykbo-ajay_12-8082.exp.direct/--/customSignup1?email=deepajay0713@gmail.com&userType=Admin&school=Encina%20High%20School";
 
     try {
       const supported = await Linking.canOpenURL(deepLink);
@@ -87,6 +88,7 @@ export default function HomePageView() {
       
 
       {/* Test Deep Link Button - for testing purposes only */}
+      {/*
       <CustomButton 
         title="Test Deep Link" 
         onPress={testDeepLink} 
@@ -94,6 +96,7 @@ export default function HomePageView() {
         icon={<UserIcon width={24} height={24} />}
         iconPosition="left"
       />
+      */}
       
 
       <View style={{ height: Size.height(65) }} />

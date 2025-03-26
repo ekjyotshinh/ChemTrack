@@ -41,7 +41,7 @@ export default function customSignup1() {
   };
 
   const handleBackPress = () => {
-    router.push('/signupPage1');
+    router.push('/login');
   };
  
   return (
@@ -50,7 +50,7 @@ export default function customSignup1() {
       <ScrollView style={{ width: '100%' }}>
         <View style={styles.formContainer}>
           {/* Email (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'Email'} value={emailValue} hasIcon editable={false} onChangeText={() => {}} />
+          <HeaderTextInput headerText={'Email'} value={emailValue} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
@@ -60,12 +60,12 @@ export default function customSignup1() {
           <View style={{ height: Size.height(10) }} />
 
           {/* School (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'School'} value={schoolValue} hasIcon editable={false} onChangeText={() => {}} />
+          <HeaderTextInput headerText={'School'} value={schoolValue} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* User Type (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'User Type'} value={userTypeValue} hasIcon editable={false} onChangeText={() => {}} />
+          <HeaderTextInput headerText={'User Type'} value={userTypeValue} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(250) }} />
           <CustomButton
