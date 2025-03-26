@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Keyboard, Linking, Platform, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
@@ -19,7 +19,8 @@ import processCAS from '@/functions/ProcessCAS';
 import TextInter from '@/components/TextInter';
 import ChevronRight from '@/assets/icons/ChevronRightIcon';
 import { useUser } from '@/contexts/UserContext';
-import * as WebBrowser from 'expo-web-browser'
+import * as WebBrowser from 'expo-web-browser';
+import { WebView } from "react-native-webview";
 
 // Is the chemical expired?
 const isExpired = (expirationDate: string) => {
@@ -79,9 +80,9 @@ export default function ViewChemicals() {
     room: string;
     cabinet: string;
     shelf: string;
-    status: string; 
-    quantity: string; 
-    location: string; 
+    status: string;
+    quantity: string;
+    location: string;
   }
 
 
@@ -98,40 +99,40 @@ export default function ViewChemicals() {
   const [sortedChemicals, setSortedChemicals] = useState<Chemical[]>([]);
 
   // Add these above your component return statement
-const getIsSelected = (sectionTitle: string, option: string) => {
-  switch(sectionTitle) {
-    case 'Status': return selectedStatus.includes(option);
-    case 'Purchase Date': return selectedPurchaseDate.includes(option);
-    case 'Expiration Date': return selectedExpirationDate.includes(option);
-    default: return false;
-  }
-};
+  const getIsSelected = (sectionTitle: string, option: string) => {
+    switch (sectionTitle) {
+      case 'Status': return selectedStatus.includes(option);
+      case 'Purchase Date': return selectedPurchaseDate.includes(option);
+      case 'Expiration Date': return selectedExpirationDate.includes(option);
+      default: return false;
+    }
+  };
 
-const handleFilterSelect = (sectionTitle: string, option: string) => {
-  switch(sectionTitle) {
-    case 'Status':
-      setSelectedStatus(prev => 
-        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
-      );
-      break;
-    case 'Purchase Date':
-      setSelectedPurchaseDate(prev => 
-        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
-      );
-      break;
-    case 'Expiration Date':
-      setSelectedExpirationDate(prev => 
-        prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
-      );
-      break;
-  }
-};
+  const handleFilterSelect = (sectionTitle: string, option: string) => {
+    switch (sectionTitle) {
+      case 'Status':
+        setSelectedStatus(prev =>
+          prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
+        );
+        break;
+      case 'Purchase Date':
+        setSelectedPurchaseDate(prev =>
+          prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
+        );
+        break;
+      case 'Expiration Date':
+        setSelectedExpirationDate(prev =>
+          prev.includes(option) ? prev.filter(i => i !== option) : [...prev, option]
+        );
+        break;
+    }
+  };
 
-const handleResetFilters = () => {
-  setSelectedStatus([]);
-  setSelectedPurchaseDate([]);
-  setSelectedExpirationDate([]);
-};
+  const handleResetFilters = () => {
+    setSelectedStatus([]);
+    setSelectedPurchaseDate([]);
+    setSelectedExpirationDate([]);
+  };
 
   //Search functionality
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,13 +148,13 @@ const handleResetFilters = () => {
   const handleSearch = () => {
     // Hide keyboard
     Keyboard.dismiss();
-    
+
     // Set searching status to true to indicate search is being performed
     setIsSearching(true);
-    
+
     // The actual filtering is already handled by the useEffect below
     // This function mainly focuses on UI feedback (hiding keyboard, etc.)
-    
+
     console.log("Search performed for:", searchQuery);
   };
 
@@ -171,17 +172,46 @@ const handleResetFilters = () => {
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
-    viewPdf(testUrl);
+    viewPdf();
 
   };
 
   // Function to view safety data sheet (SDS) in web browser
-  let testUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+  const viewPdf = async () => {
+    console.log("Click registered for View Pdf");
 
-  const viewPdf = async (testUrl: string) => {
-    console.log("Click registered for View Pdf")
-    await WebBrowser.openBrowserAsync(testUrl);
-  }
+    try {
+      // GET API for SDS
+      const response = await fetch(`${API_URL}/api/v1/files/sds/${selectedChemical.id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      const responseData = await response.json();
+      // If API successful, show pdf
+      if (response.ok) {
+        // Handle successful response
+        console.log('Chemical SDS found:', responseData);
+        console.log('SDS URL: ', responseData.sdsURL);
+        router.push({
+          pathname: '/fileViewer',
+          params: responseData.sdsURL
+        });
+      } else {
+        // Handle server errors
+        console.log('Failed to get SDS:', responseData);
+        Alert.alert('Error', 'Error occured');
+      }
+    }
+    // For other errors besides responses
+    catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Error occured');
+    };
+
+  };
 
   const { userInfo } = useUser();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -248,11 +278,11 @@ const handleResetFilters = () => {
       const statusMatches = selectedStatus.length === 0 ||
         selectedStatus.includes(chemical.status);
 
-    // 3. Date Handling with Validation
-    const purchaseDate = isValidDate(chemical.purchase_date) ? 
-      new Date(chemical.purchase_date) : null;
-    const expirationDate = isValidDate(chemical.expiration_date) ? 
-      new Date(chemical.expiration_date) : null;
+      // 3. Date Handling with Validation
+      const purchaseDate = isValidDate(chemical.purchase_date) ?
+        new Date(chemical.purchase_date) : null;
+      const expirationDate = isValidDate(chemical.expiration_date) ?
+        new Date(chemical.expiration_date) : null;
 
       // Date Filter Logic
       const purchaseDateMatches = selectedPurchaseDate.length === 0 || (
@@ -271,17 +301,17 @@ const handleResetFilters = () => {
         (selectedExpirationDate.includes('After 2030') && expirationDate && expirationDate > new Date('2030-12-31'))
       );
 
-    return searchMatches && 
-           statusMatches && 
-           purchaseDateMatches && 
-           expirationDateMatches;
-  });
+      return searchMatches &&
+        statusMatches &&
+        purchaseDateMatches &&
+        expirationDateMatches;
+    });
 
-  setFilteredChemicals(filtered);
-  // Reset searching status after filtering is complete  
-  setIsSearching(false);
-}, [searchQuery, chemicalsData, selectedStatus, 
-  selectedPurchaseDate, selectedExpirationDate]);
+    setFilteredChemicals(filtered);
+    // Reset searching status after filtering is complete  
+    setIsSearching(false);
+  }, [searchQuery, chemicalsData, selectedStatus,
+    selectedPurchaseDate, selectedExpirationDate]);
 
   useEffect(() => {
     if (!isFocused) {
@@ -386,7 +416,7 @@ const handleResetFilters = () => {
             onChangeText={(text) => setSearchQuery(text)}
             onSubmitEditing={handleSearch} // trigger search on submit/enter
           />
-          <TouchableOpacity style={styles.searchButton}onPress={handleSearch}>
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <SearchIcon />
           </TouchableOpacity>
         </View>
@@ -546,72 +576,72 @@ const handleResetFilters = () => {
             </View>
           </Modal>
 
-  {/* Replace your current Filter Modal with this */}
+          {/* Replace your current Filter Modal with this */}
           <Modal
-          animationType="slide"
-          transparent
-          visible={filtersVisible}
-          onRequestClose={closeFilterModal}
-        >
-          <View style={sharedStyles.modalContainer}>
-            <View style={sharedStyles.modalView}>
-              {/* Close Button */}
-              <TouchableOpacity 
-                style={sharedStyles.closeButton} 
-                onPress={closeFilterModal}
-              >
-                <TextInter style={sharedStyles.closeButtonText}>✕</TextInter>
-              </TouchableOpacity>
-
-              {/* Header */}
-              <Text style={sharedStyles.modalHeader}>Filter Options</Text>
-
-              {/* Filter Sections */}
-              <ScrollView style={sharedStyles.dropdownContainer}>
-                {filterSections.map((section) => (
-                  <View key={section.title} style={sharedStyles.section}>
-                    <TextInter style={sharedStyles.sectionTitle}>{section.title}</TextInter>
-                    
-                    {section.data.map((option) => {
-                      const isSelected = getIsSelected(section.title, option);
-                      
-                      return (
-                        <TouchableOpacity
-                          key={option}
-                          style={[
-                            sharedStyles.optionItem,
-                            isSelected && sharedStyles.selectedOption
-                          ]}
-                          onPress={() => handleFilterSelect(section.title, option)}
-                        >
-                          <TextInter style={sharedStyles.optionText}>{option}</TextInter>
-                          {isSelected && <Text style={sharedStyles.checkmark}>✓</Text>}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                ))}
-              </ScrollView>
-
-              {/* Footer Buttons */}
-              <View style={sharedStyles.footer}>
-                <CustomButton
-                  title="Reset All"
-                  onPress={handleResetFilters}
-                  color={Colors.lightgrey}
-                  textColor={Colors.black}
-                  width={160}
-                />
-                <CustomButton
-                  title="Apply Filters"
+            animationType="slide"
+            transparent
+            visible={filtersVisible}
+            onRequestClose={closeFilterModal}
+          >
+            <View style={sharedStyles.modalContainer}>
+              <View style={sharedStyles.modalView}>
+                {/* Close Button */}
+                <TouchableOpacity
+                  style={sharedStyles.closeButton}
                   onPress={closeFilterModal}
-                  color={Colors.blue}
-                  width={160}
-                />
+                >
+                  <TextInter style={sharedStyles.closeButtonText}>✕</TextInter>
+                </TouchableOpacity>
+
+                {/* Header */}
+                <Text style={sharedStyles.modalHeader}>Filter Options</Text>
+
+                {/* Filter Sections */}
+                <ScrollView style={sharedStyles.dropdownContainer}>
+                  {filterSections.map((section) => (
+                    <View key={section.title} style={sharedStyles.section}>
+                      <TextInter style={sharedStyles.sectionTitle}>{section.title}</TextInter>
+
+                      {section.data.map((option) => {
+                        const isSelected = getIsSelected(section.title, option);
+
+                        return (
+                          <TouchableOpacity
+                            key={option}
+                            style={[
+                              sharedStyles.optionItem,
+                              isSelected && sharedStyles.selectedOption
+                            ]}
+                            onPress={() => handleFilterSelect(section.title, option)}
+                          >
+                            <TextInter style={sharedStyles.optionText}>{option}</TextInter>
+                            {isSelected && <Text style={sharedStyles.checkmark}>✓</Text>}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  ))}
+                </ScrollView>
+
+                {/* Footer Buttons */}
+                <View style={sharedStyles.footer}>
+                  <CustomButton
+                    title="Reset All"
+                    onPress={handleResetFilters}
+                    color={Colors.lightgrey}
+                    textColor={Colors.black}
+                    width={160}
+                  />
+                  <CustomButton
+                    title="Apply Filters"
+                    onPress={closeFilterModal}
+                    color={Colors.blue}
+                    width={160}
+                  />
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
         </View>
       </ScrollView>
       {/* View SDS Bottom Sheet component */}
