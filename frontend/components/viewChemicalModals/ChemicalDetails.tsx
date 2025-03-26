@@ -11,6 +11,8 @@ import ModalContainer from './ModalContainer';
 import processCAS from '@/functions/ProcessCAS';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
+import downloadFile from '../../functions/downloadFile';
+
 
 interface chemicalDetailProps {
     property: string
@@ -123,10 +125,10 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                     {/* Buttons */}
                     <View style={stylesPopup.buttonContainer}>
                         <CustomButton
-                            title={'Save QR Label'}
+                            title={'Download QR Label'}
                             icon={<QrCodeIcon color={Colors.black} strokeWidth='4' />}
                             textColor={Colors.black}
-                            onPress={() => { }}
+                            onPress={() => downloadFile(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/HisW8WYTGR9UB5TEGMbC.png`)}
                             color={Colors.white}
                             width={270}
                             height={47}
@@ -136,7 +138,13 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             title={'View SDS'}
                             icon={<ViewDocIcon color={Colors.black} />}
                             textColor={Colors.black}
-                            onPress={toggleSDSBottomSheet}
+                            onPress={() => {
+                            closeModal();  // Close the modal
+                                router.push({
+                                pathname: '/fileViewer', 
+                                params: {  fileUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', title: selectedChemical.name } 
+                                });
+                            }}
                             color={Colors.white}
                             width={270}
                             height={47}

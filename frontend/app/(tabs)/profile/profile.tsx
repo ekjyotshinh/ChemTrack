@@ -79,6 +79,7 @@ export default function Profile() {
       .join('')
       .toUpperCase();
 
+
   const handleUpdateInfo = async () => {
     const [firstName, ...rest] = name.split(' ');
     const lastName = rest.join(' ');
