@@ -67,5 +67,3 @@ func startBackgroundJobs() {
         <-ticker.C
     }
 }
-
-
