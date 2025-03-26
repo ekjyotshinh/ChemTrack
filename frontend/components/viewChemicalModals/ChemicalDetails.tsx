@@ -13,7 +13,6 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import downloadFile from '../../functions/downloadFile';
 
-
 interface chemicalDetailProps {
     property: string
     value: string | null
@@ -120,7 +119,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
 
                     {/* Status & Quantity */}
                     <ChemicalDetail property={'Status: '} value={selectedChemical.status} color={getStatusColor(selectedChemical.status)} />
-                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity}  margin={gapSize} />
+                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity} margin={gapSize} />
 
                     {/* Buttons */}
                     <View style={stylesPopup.buttonContainer}>
@@ -139,10 +138,10 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             icon={<ViewDocIcon color={Colors.black} />}
                             textColor={Colors.black}
                             onPress={() => {
-                            closeModal();  // Close the modal
+                                closeModal();  // Close the modal
                                 router.push({
-                                pathname: '/fileViewer', 
-                                params: {  fileUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', title: selectedChemical.name } 
+                                    pathname: '/fileViewer',
+                                    params: { fileUrl: `https://storage.googleapis.com/chemtrack-testing2/sds/${selectedChemical.id}.pdf`, title: selectedChemical.name }
                                 });
                             }}
                             color={Colors.white}

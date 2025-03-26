@@ -12,25 +12,28 @@ export default function ViewChemicals() {
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [selectedChemical, setSelectedChemical] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [sdsUrl, setSdsUrl] = useState('');
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const router = useRouter();
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const viewPdf = async (pdfUrl: string) => {
     console.log('Opening PDF:', pdfUrl);
-    await WebBrowser.openBrowserAsync(pdfUrl);
-  };
-  const toggleSDSBottomSheet = () => {
-    setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
     try {
-      let sdsUrl: string = selectedChemical.sdsURL;
-      //viewPdf('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
-      viewPdf(sdsUrl);
+      router.push({
+        pathname: '/fileViewer',
+        params: { pdfUrl }
+      });
     }
+    // For other errors besides responses
     catch (error) {
       console.error(error);
       Alert.alert('Error', 'Error occured');
-    }
+    };
+  };
+  const toggleSDSBottomSheet = () => {
+    setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
+    viewPdf(sdsUrl);
   };
   const fetchChemicalData = async (id: string) => {
     if (isFetching) return;
@@ -41,6 +44,7 @@ export default function ViewChemicals() {
       if (response.ok) {
         setSelectedChemical(data);
         setModalVisible(true);
+        setSdsUrl(data.sdsURL);
       } else {
         console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
