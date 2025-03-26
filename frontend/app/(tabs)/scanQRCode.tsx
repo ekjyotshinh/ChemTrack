@@ -18,13 +18,22 @@ export default function ViewChemicals() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const viewPdf = async (pdfUrl: string) => {
     console.log('Opening PDF:', pdfUrl);
-    await WebBrowser.openBrowserAsync(pdfUrl);
+    try {
+      router.push({
+        pathname: '/fileViewer',
+        params: { pdfUrl }
+      });
+    }
+    // For other errors besides responses
+    catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Error occured');
+    };
   };
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
     try {
       let sdsUrl: string = selectedChemical.sdsURL;
-      //viewPdf('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
       viewPdf(sdsUrl);
     }
     catch (error) {
