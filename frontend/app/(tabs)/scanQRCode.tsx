@@ -12,6 +12,7 @@ export default function ViewChemicals() {
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [selectedChemical, setSelectedChemical] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [sdsUrl, setSdsUrl] = useState('');
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const router = useRouter();
@@ -32,14 +33,7 @@ export default function ViewChemicals() {
   };
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
-    try {
-      let sdsUrl: string = selectedChemical.sdsURL;
-      viewPdf(sdsUrl);
-    }
-    catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'Error occured');
-    }
+    viewPdf(sdsUrl);
   };
   const fetchChemicalData = async (id: string) => {
     if (isFetching) return;
@@ -50,6 +44,7 @@ export default function ViewChemicals() {
       if (response.ok) {
         setSelectedChemical(data);
         setModalVisible(true);
+        setSdsUrl(data.sdsURL);
       } else {
         console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
