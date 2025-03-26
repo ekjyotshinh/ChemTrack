@@ -129,7 +129,6 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             icon={<QrCodeIcon color={Colors.black} strokeWidth='4' />}
                             textColor={Colors.black}
                             onPress={() => downloadFile(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/HisW8WYTGR9UB5TEGMbC.png`)}
-                            //onPress={() => downloadPDF(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/${selectedChemical.id}.png`)}
                             color={Colors.white}
                             width={270}
                             height={47}
