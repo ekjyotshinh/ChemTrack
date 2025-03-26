@@ -13,7 +13,6 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import downloadFile from '../../functions/downloadFile';
 
-const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 interface chemicalDetailProps {
     property: string
     value: string | null
@@ -142,7 +141,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                                 closeModal();  // Close the modal
                                 router.push({
                                     pathname: '/fileViewer',
-                                    params: { fileUrl: `${API_URL}/api/v1/files/sds/${selectedChemical.id}`, title: selectedChemical.name }
+                                    params: { fileUrl: `https://storage.googleapis.com/chemtrack-testing2/sds/${selectedChemical.id}.pdf`, title: selectedChemical.name }
                                 });
                             }}
                             color={Colors.white}
