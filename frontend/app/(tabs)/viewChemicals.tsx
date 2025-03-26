@@ -182,6 +182,9 @@ export default function ViewChemicals() {
 
     try {
       // GET API for SDS
+      if (!selectedChemical) {
+        return;
+      }
       const response = await fetch(`${API_URL}/api/v1/files/sds/${selectedChemical.id}`,
         {
           method: 'GET',
