@@ -11,8 +11,7 @@ import ModalContainer from './ModalContainer';
 import processCAS from '@/functions/ProcessCAS';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
-import downloadPDF from '../../functions/downloadQR';
-import downloadQR from '../../functions/downloadQR';
+import downloadFile from '../../functions/downloadFile';
 
 
 interface chemicalDetailProps {
@@ -129,7 +128,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             title={'Download QR Label'}
                             icon={<QrCodeIcon color={Colors.black} strokeWidth='4' />}
                             textColor={Colors.black}
-                            onPress={() => downloadQR(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/HisW8WYTGR9UB5TEGMbC.png`)}
+                            onPress={() => downloadFile(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/HisW8WYTGR9UB5TEGMbC.png`)}
                             //onPress={() => downloadPDF(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/${selectedChemical.id}.png`)}
                             color={Colors.white}
                             width={270}
