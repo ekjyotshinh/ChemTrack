@@ -1,5 +1,5 @@
-import { View, Modal, ScrollView, StyleSheet } from 'react-native'
-import { ReactNode } from 'react'
+import { View, Image, ScrollView, StyleSheet } from 'react-native'
+import { ReactNode, useEffect, useState } from 'react'
 import Colors from '@/constants/Colors';
 import TextInter from '../TextInter';
 import Size from '@/constants/Size';
@@ -69,7 +69,31 @@ interface props {
 
 const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal, router }: props) => {
 
-    const gapSize = Size.height(12)
+    const gapSize = Size.height(12);
+
+    const [QRCodeImageURL, setQRCodeImageURL] = useState('');
+
+    // Placeholder
+    const fetchQRCode = async (id: string) => {
+        try {
+            const response = await fetch(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/${id}.png`);
+            if (response.ok) {
+                const url = response.url;
+                setQRCodeImageURL(url);
+            } else {
+                setQRCodeImageURL('');
+                console.log('Failed to fetch QR code:', response.statusText);
+            }
+        } catch (error) {
+            console.log('Error fetching QR code:', error);
+        }
+    }
+
+    useEffect(() => {
+        if (selectedChemical) {
+            fetchQRCode(selectedChemical.id);
+        }
+    }, [selectedChemical])
 
     // Determine color based on location status
     const getStatusColor = (status: string) => {
@@ -93,16 +117,28 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
         <ModalContainer modalVisible={modalVisible} closeModal={closeModal}>
             <ScrollContainer>
                 {selectedChemical && (<>
-                    <View style={stylesPopup.qrTitleContainer}>
+                    <View style={[stylesPopup.qrTitleContainer, QRCodeImageURL && stylesPopup.qrTitleContainerOffset]}>
                         {/* QR Code Placeholder */}
-                        <View style={stylesPopup.qrCodePlaceholder}>
-                            <TextInter>QR Code</TextInter>
-                        </View>
+                        {
+                            QRCodeImageURL ? (
+                                <Image
+                                    source={{ uri: QRCodeImageURL }}
+                                    style={{ width: 120, height: 120, marginBottom: 10, }}
+                                    resizeMode="cover"
+                                />
+                            ) : (
+                                <View style={stylesPopup.qrCodePlaceholder}>
+                                    <TextInter>QR Code</TextInter>
+                                </View>
+                            )
+                        }
 
                         {/* Chemical Name & CAS */}
-                        <View style={stylesPopup.nameCASContainer}>
-                            <TextInter style={stylesPopup.chemicalName}>{selectedChemical.name}</TextInter>
-                            <ChemicalDetail property={'CAS: '} value={processCAS(selectedChemical.CAS)} />
+                        <View style={[stylesPopup.nameCASContainer, QRCodeImageURL && stylesPopup.nameCASContainerOffset]}>
+                            <View style={{ flex: 1, alignItems: 'center' }}>
+                                <TextInter style={stylesPopup.chemicalName}>{selectedChemical.name}</TextInter>
+                                <ChemicalDetail property={'CAS: '} value={processCAS(selectedChemical.CAS)} />
+                            </View>
                         </View>
                     </View>
 
@@ -178,17 +214,27 @@ const stylesPopup = StyleSheet.create({
         marginTop: 20,
     },
     qrTitleContainer: {
-        flex: 1,
+        display: 'flex',
         flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        marginBottom: Size.height(5)
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: Size.height(5),
+    },
+    // Offset bc QR code image has inherent padding
+    qrTitleContainerOffset: {
+        right: 15,
     },
     nameCASContainer: {
         flex: 1,
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
-        marginLeft: 5
+        marginLeft: 5,
+        textAlign: 'center',
+    },
+    // Offset bc QR code image has inherent padding
+    nameCASContainerOffset: {
+        paddingTop: 10,
+        left: 15,
     },
     buttonContainer: {
         alignItems: 'center',
