@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "chemtrack",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -19,7 +19,7 @@
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["myapp"]
+            "CFBundleURLSchemes": ["chemtrack"]
           }
         ]
       }
@@ -35,7 +35,7 @@
           "action": "VIEW",
           "data": [
             {
-              "scheme": "myapp"
+              "scheme": "chemtrack"
             }
           ],
           "category": [
@@ -43,11 +43,11 @@
             "DEFAULT"
           ]
         },
-        "permissions", [  
-        "android.permission.READ_EXTERNAL_STORAGE",  
-        "android.permission.WRITE_EXTERNAL_STORAGE",  
-        "android.permission.CAMERA"  
-      ] 
+        "permissions", [
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.WRITE_EXTERNAL_STORAGE",
+          "android.permission.CAMERA"
+        ]
       ]
     },
     "web": {
@@ -66,12 +66,12 @@
           "recordAudioAndroid": true
         }
       ],
-      [  
-        "expo-media-library",  
-        {  
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",  
-          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos"  
-        }  
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos"
+        }
       ],
       [
         "expo-notifications",
@@ -85,8 +85,8 @@
         {
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos"
         }
-      ]  
-    ],  
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },

@@ -117,7 +117,17 @@ export default function LoginPage() {
             testID="password-input"
           />
 
-          <View style={{ height: Size.height(90) }} />
+          {/* Add Forgot Password link here */}
+          <View style={{ width: '100%', alignItems: 'flex-end', marginTop: 8 }}>
+            <TextInter 
+              onPress={() => router.push('/(auth)/resetPassword')} 
+              style={styles.forgotPassword}
+            >
+              Forgot Password?
+            </TextInter>
+          </View> 
+
+          <View style={{ height: Size.height(40) }} />
 
           {/* Use CustomButton for the login button */}
           <CustomButton
@@ -127,6 +137,7 @@ export default function LoginPage() {
             color={(!password || !isValidEmail) ? Colors.white : Colors.blue}
             textColor={(!password || !isValidEmail) ? Colors.grey : Colors.white}
             icon={<LoginIcon width={24} height={24} color={(!password || !isValidEmail) ? Colors.grey : Colors.white} />}
+            iconPosition='left'
           />
 
           {/* Link to the signup page */}
@@ -163,5 +174,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   link: { marginTop: 15, color: 'blue', textAlign: 'center', fontWeight: 'bold' },
+  forgotPassword: { 
+    alignSelf: 'flex-end', 
+    marginTop: 10, 
+    color: Colors.blue, 
+    fontSize: 14,
+    fontWeight: '600', // Make it slightly bolder
+    padding: 5, // Add some padding to create a larger touch target
+  },
 });
-
