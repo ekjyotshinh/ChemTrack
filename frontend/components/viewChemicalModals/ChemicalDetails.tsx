@@ -235,7 +235,7 @@ const stylesPopup = StyleSheet.create({
     },
     // Offset bc QR code image has inherent padding
     qrTitleContainerOffset: {
-        right: 15,
+        right: 14,
     },
     nameCASContainer: {
         flex: 1,
@@ -247,7 +247,7 @@ const stylesPopup = StyleSheet.create({
     // Offset bc QR code image has inherent padding
     nameCASContainerOffset: {
         paddingTop: 10,
-        left: 15,
+        left: 14,
     },
     buttonContainer: {
         alignItems: 'center',
