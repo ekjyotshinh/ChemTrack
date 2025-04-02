@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -422,5 +423,36 @@ func GetProfilePicture(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"userId":            userId,
 		"profilePictureURL": profilePictureURL,
+	})
+}
+
+// GetQRCode godoc
+// @Summary Get the QR Code Image URL
+// @Description Retrieves the QR Code Image URL for a given chemical ID
+// @Tags QR
+// @Produce json
+// @Param chemicalIdNumber path string true "Chemical ID Number"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /qrcode/{chemicalIdNumber} [get]
+func GetQRCode(c *gin.Context) {
+	chemicalIdNumber := c.Param("chemicalIdNumber")
+
+	bucketName := "chemtrack-testing2"
+	objectName := "QRcodes/" + chemicalIdNumber + ".png"
+
+	doesQRExist := helpers.DoesFileExistGCS(context.Background(), bucketName, objectName)
+
+	// Empty string if QR code does not exist, otherwise the URL to the QR code
+	// Example URL: https://storage.googleapis.com/chemtrack-testing2/QRcodes/12345.png
+	QRCodeURL := ""
+
+	if doesQRExist {
+		QRCodeURL = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucketName, objectName)
+	}
+
+	// Respond with the QR Code URL
+	c.JSON(http.StatusOK, gin.H{
+		"chemicalQRURL": QRCodeURL,
 	})
 }

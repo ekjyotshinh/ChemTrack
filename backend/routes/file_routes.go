@@ -23,4 +23,7 @@ func RegisterRoutesFiles(router *gin.Engine) {
 	// label routes
 	r.POST("/files/label/:chemicalIdNumber", controllers.AddLabel) // Create a new label
 
+	// QR code URL route
+	r.GET("/files/qrcode/:chemicalIdNumber", controllers.GetQRCode) // Retrieve QR code URL
+
 }
