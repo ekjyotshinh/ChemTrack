@@ -141,7 +141,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                                 />
                             ) : (
                                 <View style={stylesPopup.qrCodePlaceholder}>
-                                    <TextInter>QR Code</TextInter>
+                                    <TextInter style={{textAlign: 'center'}}>Error Fetching QR Code</TextInter>
                                 </View>
                             )
                         }
