@@ -76,7 +76,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
     // If it doesn't exist, set the URL to empty string, otherwise set it to the fetched URL
     const fetchQRCode = async (id: string) => {
         try {
-            const response = await fetch(`${API_URL}/api/v1/files/qrcode/${id}`,
+            const response = await fetch(`${API_URL}/api/v1/files/qrcode/url/${id}`,
                 {
                     method: 'GET',
                     headers: {
