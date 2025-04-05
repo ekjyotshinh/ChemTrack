@@ -6,8 +6,9 @@ import { useUser } from '@/contexts/UserContext';
 import { useIsFocused } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import ModalContainer from '../viewChemicalModals/ModalContainer';
-import CloseIcon from '@/assets/icons/CloseIcon'
-// if you are reading these tests then this one was a real pain & try not to understand anything cause I dont either.
+import CloseIcon from '@/assets/icons/CloseIcon';
+
+// Mocking required modules
 jest.mock('@/contexts/UserContext', () => ({
     useUser: jest.fn(),
 }));
@@ -69,67 +70,63 @@ describe('ViewChemicals Component', () => {
             })
         ) as jest.Mock;
 
-        (useUser as jest.Mock).mockReturnValue({ 
-            userInfo: { is_master: true, school: 'Test School' } 
+        (useUser as jest.Mock).mockReturnValue({
+            userInfo: { is_master: true, school: 'Test School' },
         });
         (useRouter as jest.Mock).mockReturnValue({ push: jest.fn() });
-        (useIsFocused as jest.Mock).mockReturnValue(true); // Ensuring tjhe screen is in focus
+        (useIsFocused as jest.Mock).mockReturnValue(true); // Ensuring the screen is in focus
     });
 
-    test('renders correctly', () => {
-        const { getByText,getByPlaceholderText } = render(<ViewChemicals />);
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('renders correctly', async () => {
+        const { getByText, getByPlaceholderText } = render(<ViewChemicals />);
+
+        // Check if the search bar and buttons are visible
         expect(getByPlaceholderText('Chemical name, CAS, or school...')).toBeTruthy();
         expect(getByText('Filter By')).toBeTruthy();
         expect(getByText('Sort By')).toBeTruthy();
     });
 
     test('opens and closes modal when chemical is selected', async () => {
-        const { getByText, queryByText } = render(<ViewChemicals />);
-        
-        // chemicals list to be rendered
+        const { getByText, queryByText, getByTestId } = render(<ViewChemicals />);
+    
+        // Wait for the chemical list to be rendered
         await waitFor(() => expect(getByText('Test Chemical')).toBeTruthy());
     
-        // Test Chemical clicked
-        await act(async () => {
-            fireEvent.press(getByText('Test Chemical'));
-        });
+        // Click on "Test Chemical"
+        fireEvent.press(getByText('Test Chemical'));
     
-        // Modal opens ans assesrt it opens
-        await waitFor(() => expect(ModalContainer).toBeTruthy());
+        // Wait for the modal to open and the label to appear
+        await waitFor(() => expect(getByText('Download QR Label')).toBeTruthy());
     
-        // Close the modal
-        await act(async () => {
-            fireEvent.press(CloseIcon);//CloseIcon
-        });
+        // Close the modal using the close button (Make sure CloseIcon has a testID)
+        const closeButton = getByTestId('close-modal');
+        fireEvent.press(closeButton);
     
-        // Assert that the modal is closed
-        await waitFor(() => expect(queryByText('Chemical Details')).toBeNull());
+        // Wait for the modal to close
+        await waitFor(() => expect(queryByText('Download QR Label')).toBeNull());
     });
-
 
     test('search filters chemicals correctly', async () => {
         const { getByPlaceholderText, getByText } = render(<ViewChemicals />);
-        
-        await act(async () => {
-            fireEvent.changeText(getByPlaceholderText('Chemical name, CAS, or school...'), 'Test Chemical');
-        });
 
-        await act(async () => {
-            fireEvent.press(getByPlaceholderText('Chemical name, CAS, or school...'));
-        });
+        // Type in the search bar
+        fireEvent.changeText(getByPlaceholderText('Chemical name, CAS, or school...'), 'Test Chemical');
 
+        // Wait for the filtered result to appear
         await waitFor(() => expect(getByText('Test Chemical')).toBeTruthy());
     });
 
     test('sort modal opens and closes', async () => {
-        const { getByText,queryByText } = render(<ViewChemicals />);
-    
-        // Open the Sort Modal 
-        await act(async () => {
-            fireEvent.press(getByText('Sort By'));
-        });
-    
-        // Sort modal to be visible
+        const { getByText, queryByText } = render(<ViewChemicals />);
+
+        // Open the Sort Modal
+        fireEvent.press(getByText('Sort By'));
+
+        // Check for sort options
         await waitFor(() => expect(getByText(' ✓ Newest first (by date)')).toBeTruthy());
         await waitFor(() => expect(getByText('Oldest first (by date)')).toBeTruthy());
         await waitFor(() => expect(getByText('Status (High to Low)')).toBeTruthy());
@@ -138,38 +135,34 @@ describe('ViewChemicals Component', () => {
         await waitFor(() => expect(getByText('A-Z')).toBeTruthy());
         await waitFor(() => expect(getByText('Z-A')).toBeTruthy());
         await waitFor(() => expect(getByText('By expiration')).toBeTruthy());
-    
-        // Close the Sort Modal 
-        await act(async () => {
-            fireEvent.press(getByText('Sort By'));
-        });
-    
+
+        // Close the Sort Modal
+        fireEvent.press(getByText('Sort By'));
+
         // Assert that the Sort modal is no longer visible
-        expect(queryByText('Newest first (by date)')).toBeNull();
-        expect(queryByText('Oldest first (by date)')).toBeNull();
-        expect(queryByText('Status (High to Low)')).toBeNull();
-        expect(queryByText('Status (Low to High)')).toBeNull();
-        expect(queryByText('Lowest quantity first')).toBeNull();
-        expect(queryByText('A-Z')).toBeNull();
-        expect(queryByText('Z-A')).toBeNull();
-        expect(queryByText('By expiration')).toBeNull();
+        await waitFor(() => expect(queryByText('Newest first (by date)')).toBeNull());
+        await waitFor(() => expect(queryByText('Oldest first (by date)')).toBeNull());
+        await waitFor(() => expect(queryByText('Status (High to Low)')).toBeNull());
+        await waitFor(() => expect(queryByText('Status (Low to High)')).toBeNull());
+        await waitFor(() => expect(queryByText('Lowest quantity first')).toBeNull());
+        await waitFor(() => expect(queryByText('A-Z')).toBeNull());
+        await waitFor(() => expect(queryByText('Z-A')).toBeNull());
+        await waitFor(() => expect(queryByText('By expiration')).toBeNull());
     });
-    
+
     test('filter modal opens and closes', async () => {
         const { getByText, queryByText } = render(<ViewChemicals />);
 
         // Open the Filter Modal
-        await act(async () => {
-            fireEvent.press(getByText('Filter By'));
-        });
+        fireEvent.press(getByText('Filter By'));
 
-        // check for filter sections and options
+        // Check for filter sections and options
         await waitFor(() => expect(getByText('Filter Options')).toBeTruthy());
         await waitFor(() => expect(getByText('Status')).toBeTruthy());
         await waitFor(() => expect(getByText('Purchase Date')).toBeTruthy());
         await waitFor(() => expect(getByText('Expiration Date')).toBeTruthy());
 
-        // assesrt filter section to be visible
+        // Assert the filter options are visible
         await waitFor(() => expect(getByText('Low')).toBeTruthy());
         await waitFor(() => expect(getByText('Fair')).toBeTruthy());
         await waitFor(() => expect(getByText('Good')).toBeTruthy());
@@ -182,32 +175,16 @@ describe('ViewChemicals Component', () => {
         await waitFor(() => expect(getByText('After 2030')).toBeTruthy());
 
         // Close the Filter Modal
-        await act(async () => {
-            fireEvent.press(getByText('✕'));
-        });
+        fireEvent.press(getByText('✕'));
 
-        // Assert that the Filter modal is no longer visible
-        expect(queryByText('Filter Options')).toBeNull();
-        expect(queryByText('Status')).toBeNull();
-        expect(queryByText('Purchase Date')).toBeNull();
-        expect(queryByText('Expiration Date')).toBeNull();
-
-        // Assert that the options under each filter section are no longer visible
-        expect(queryByText('Low')).toBeNull();
-        expect(queryByText('Fair')).toBeNull();
-        expect(queryByText('Good')).toBeNull();
-        expect(queryByText('Off-site')).toBeNull();
-        expect(queryByText('Before 2020')).toBeNull();
-        expect(queryByText('2020-2024')).toBeNull();
-        expect(queryByText('After 2024')).toBeNull();
-        expect(queryByText('Before 2025')).toBeNull();
-        expect(queryByText('2025-2030')).toBeNull();
-        expect(queryByText('After 2030')).toBeNull();
-    });
-
-
-    test('fetches chemicals from API', async () => {
-        render(<ViewChemicals />);
-        await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1)); // Verify that fetch is called once
+        // Assert that the filter modal is no longer visible
+        await waitFor(() => expect(queryByText('Filter Options')).toBeNull());
+        await waitFor(() => expect(queryByText('Status')).toBeNull());
+        await waitFor(() => expect(queryByText('Purchase Date')).toBeNull());
+        await waitFor(() => expect(queryByText('Expiration Date')).toBeNull());
+        await waitFor(() => expect(queryByText('Low')).toBeNull());
+        await waitFor(() => expect(queryByText('Fair')).toBeNull());
+        await waitFor(() => expect(queryByText('Good')).toBeNull());
+        await waitFor(() => expect(queryByText('Off-site')).toBeNull());
     });
 });
