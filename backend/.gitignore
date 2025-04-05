@@ -3,7 +3,8 @@
 # Firebase Admin SDK key file
 key.json
 # Firebase Storage bucket keys file
-bucketkey.json 
+bucketkey.json
+bucketkeys.json
 # environment variables
 .env
 #-------------------------------#
