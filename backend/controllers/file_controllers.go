@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 	"time"
+	"os"
+	"fmt"
 
 	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 
@@ -56,6 +58,16 @@ func AddSDS(c *gin.Context) {
 		return
 	}
 	defer src.Close()
+	
+	// Skip actual uploading SDS for test env
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock Adding SDS") 
+		c.JSON(http.StatusOK, gin.H{
+		"message": "SDS uploaded successfully",
+		"url":     "testingURL",
+		})
+		return
+	}
 
 	// Define GCS bucket and object name
 	bucketName := "chemtrack-testing2"
@@ -151,6 +163,15 @@ func DeleteSDS(c *gin.Context) {
 	sdsURLStr, ok := sdsURL.(string)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid SDS URL format"})
+		return
+	}
+
+	// Skip actual uploading SDS for test env
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock Deleting SDS") 
+		c.JSON(http.StatusOK, gin.H{
+		"message": "SDS file deleted successfully",
+		})
 		return
 	}
 
