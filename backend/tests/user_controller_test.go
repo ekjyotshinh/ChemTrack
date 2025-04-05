@@ -24,6 +24,7 @@ func TestMain(m *testing.M) {
 
 	// Set the FIRESTORE_EMULATOR_HOST environment variable
 	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8256")
+	os.Setenv("ENVIRONMENT", "test")
 	// Set up Firestore client
 	client = setupFirestoreClient()
 
