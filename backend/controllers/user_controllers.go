@@ -327,3 +327,136 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": response})
 }
+
+// RequestPasswordReset godoc  
+// @Summary Request password reset  
+// @Description Request a password reset link and send it to the user's email  
+// @Tags users  
+// @Accept json  
+// @Produce json  
+// @Param email body string true "User email"  
+// @Success 200 {object} map[string]interface{}  
+// @Failure 400 {object} map[string]interface{}  
+// @Failure 500 {object} map[string]interface{}  
+// @Router /api/v1/users/request-password-reset [post]  
+func RequestPasswordReset(c *gin.Context) {  
+	var request struct {  
+		Email string `json:"email"`  
+	}  
+
+	if err := c.ShouldBindJSON(&request); err != nil {  
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})  
+		return  
+	}  
+
+	ctx := context.Background()  
+	// Check if user exists  
+	iter := client.Collection("users").Where("email", "==", request.Email).Documents(ctx)  
+	var user map[string]interface{}  
+
+	for {  
+		doc, err := iter.Next()  
+		if err != nil {  
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})  
+			return  
+		}  
+		user = doc.Data()  
+		break  
+	}  
+
+	// Generate a unique token 
+	token, err := helpers.GenerateToken()  
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})  
+		return  
+	}  
+
+	// Store the token 
+	expiration := time.Now().Add(1 * time.Hour)  
+	err = services.StoreToken(request.Email, token, expiration)  
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not store token"})  
+		return  
+	}  
+
+	// Send the password reset email   
+	resetLink := "https://your-frontend.com/reset-password?token=" + token  
+	err = services.SendResetEmail(request.Email, resetLink)  
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not send reset email"})  
+		return  
+	}  
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password reset link sent"})  
+}  
+
+// ResetPassword godoc  
+// @Summary Reset password  
+// @Description Reset the user's password using the provided token  
+// @Tags users  
+// @Accept json  
+// @Produce json  
+// @Param token query string true "Password reset token"  
+// @Param user body struct { Password string `json:"password"` } true "New password"  
+// @Success 200 {object} map[string]interface{}  
+// @Failure 400 {object} map[string]interface{}  
+// @Failure 404 {object} map[string]interface{}  
+// @Failure 500 {object} map[string]interface{}  
+// @Router /api/v1/users/reset-password [post]  
+func ResetPassword(c *gin.Context) {  
+	var request struct {  
+		Password string `json:"password"`  
+	}  
+
+	if err := c.ShouldBindJSON(&request); err != nil {  
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})  
+		return  
+	}  
+
+	token := c.Query("token")  
+	if token == "" {  
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token is required"})  
+		return  
+	}  
+
+	// Verify the token  
+	valid, err := services.VerifyToken(token)  
+	if err != nil || !valid {  
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired token"})  
+		return  
+	}  
+
+	// Get user from token storage (Implement to retrieve email based on your token handling)  
+	email, err := services.GetEmailFromToken(token)  
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve email"})  
+		return  
+	}  
+
+	// Hash the new password  
+	hashedPassword, err := HashPassword(request.Password)  
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})  
+		return  
+	}  
+
+	// Update the user's password  
+	_, err = client.Collection("users").Where("email", "==", email).Documents(context.Background()).Next()  
+	if err != nil {  
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})  
+		return  
+	}  
+
+	_, err = client.Collection("users").Doc(email).Set(ctx, map[string]interface{}{  
+		"password": hashedPassword,  
+	}, firestore.MergeAll) 
+	if err != nil {  
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})  
+		return  
+	}  
+
+	// Optionally remove the token from storage after resetting  
+	services.RemoveToken(token)  
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password successfully reset"})  
+}  

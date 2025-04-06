@@ -133,6 +133,11 @@ export default function LoginPage() {
           <TextInter onPress={() => router.push('/signupPage1')} style={styles.link}>
             Don't have an account? Sign-up
           </TextInter>
+
+          {/* Link to the forgot password page*/}
+          <TextInter onPress={() => router.push('/resetPassword')} style={styles.link}>
+            Forget Password?
+          </TextInter>
         </View>
       </ScrollView>
     </View>
@@ -164,4 +169,3 @@ const styles = StyleSheet.create({
   },
   link: { marginTop: 15, color: 'blue', textAlign: 'center', fontWeight: 'bold' },
 });
-
