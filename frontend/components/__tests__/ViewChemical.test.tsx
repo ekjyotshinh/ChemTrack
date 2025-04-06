@@ -7,7 +7,6 @@ import { useIsFocused } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import ModalContainer from '../viewChemicalModals/ModalContainer';
 import CloseIcon from '@/assets/icons/CloseIcon';
-
 // Mocking required modules
 jest.mock('@/contexts/UserContext', () => ({
     useUser: jest.fn(),
@@ -43,7 +42,6 @@ global.fetch = jest.fn(() =>
             ]),
     })
 ) as jest.Mock;
-
 
 describe('ViewChemicals Component', () => {
     beforeEach(() => {
@@ -81,13 +79,17 @@ describe('ViewChemicals Component', () => {
         jest.restoreAllMocks();
     });
 
-    test('renders correctly', async () => {
-        const { getByText, getByPlaceholderText } = render(<ViewChemicals />);
+    test('renders correctly and loads chemicals after fetch', async () => {
+        // Render the component first
+        render(<ViewChemicals />);
+
+        // Wait for the fetch call to complete and for the chemicals to appear
+        await waitFor(() => expect(screen.getByText('Test Chemical')).toBeTruthy());
 
         // Check if the search bar and buttons are visible
-        expect(getByPlaceholderText('Chemical name, CAS, or school...')).toBeTruthy();
-        expect(getByText('Filter By')).toBeTruthy();
-        expect(getByText('Sort By')).toBeTruthy();
+        expect(screen.getByPlaceholderText('Chemical name, CAS, or school...')).toBeTruthy();
+        expect(screen.getByText('Filter By')).toBeTruthy();
+        expect(screen.getByText('Sort By')).toBeTruthy();
     });
 
     test('opens and closes modal when chemical is selected', async () => {
