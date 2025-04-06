@@ -192,7 +192,7 @@ By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, eff
 
 -   Run unit tests for backend functions:
     ```sh
-    go test ./...
+    go test -v ./tests
     ```
 -   Use Postman or curl to manually test API endpoints.
 

@@ -19,16 +19,15 @@ jobs:
             - name: Set up Go
               uses: actions/setup-go@v4
               with:
-                  go-version: "1.23"
+                  go-version: "1.22"
 
             - name: Install Firebase CLI
-              run: |
-                  curl -sL https://firebase.tools | bash
+              run: npm install -g firebase-tools
 
             - name: Start Firestore Emulator
+              working-directory: backend
               run: |
                   nohup firebase emulators:start --only firestore --project chemtrack-3857a > /tmp/emulator.log 2>&1 &
-                  # Wait for the emulator to start on port 8080
                   for i in {1..10}; do
                     nc -z localhost 8080 && break
                     echo "Waiting for Firestore Emulator to be ready..."
@@ -42,7 +41,9 @@ jobs:
 
             - name: Run Tests
               working-directory: backend
-              run: go test ./tests
+              env:
+                  FIRESTORE_EMULATOR_HOST: localhost:8080
+              run: go test -v ./tests
 
             - name: Stop Firestore Emulator and Clean Up
               if: always()
