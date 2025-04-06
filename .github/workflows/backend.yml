@@ -27,8 +27,12 @@ jobs:
 
             - name: Start Firestore Emulator
               run: |
-                  nohup firebase emulators:start --only firestore --project chemtrack-3857a > /tmp/emulator.log 2>&1 &
-                  sleep 10  # give emulator time to start
+                  nohup firebase emulators:start --only firestore --project chemtrack-3857a --port 8080 > /tmp/emulator.log 2>&1 &
+                  # Poll the emulator until it's ready
+                  until curl -s http://localhost:8080; do
+                    echo "Waiting for Firestore Emulator to start..."
+                    sleep 5
+                  done
 
             - name: Install Dependencies
               working-directory: backend
@@ -40,8 +44,14 @@ jobs:
 
             - name: Stop Firestore Emulator and Clean Up
               run: |
-                  # Stop the Firestore emulator
-                  firebase emulators:stop
-                  # Remove the OS environment variable
+                  # Find the process ID of the emulator and kill it
+                  emulator_pid=$(ps aux | grep '[f]irebase' | awk '{print $2}')
+                  if [ -n "$emulator_pid" ]; then
+                    kill $emulator_pid
+                    echo "Firestore Emulator stopped."
+                  else
+                    echo "No Firestore Emulator process found."
+                  fi
+                  # Clean up any environment variables
                   unset FIRESTORE_EMULATOR_HOST
                   unset ENVIRONMENT
