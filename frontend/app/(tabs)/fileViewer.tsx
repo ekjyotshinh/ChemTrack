@@ -22,11 +22,12 @@ export default function PdfViewer() {
     setLoading(false); 
   };
 
-  if (!fileUrlUpdated || !titleNameUpdated) {
+  if (!fileUrlUpdated ) {
     return (
       <View style={styles.centeredView}>
+        <Header headerText={titleNameUpdated} />
         <Text style={styles.errorText}>
-          Missing PDF URL or chemical name. Unable to load the document.
+          No File available. Unable to load the document.
         </Text>
       </View>
     );
