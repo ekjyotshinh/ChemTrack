@@ -11,7 +11,7 @@ import (
 // we know the next part would work since we are using Sendgrids microservice for sending email.
 func SendEmailHelper(to, subject, body string) error {
 	// Skip sending emails if we're in a test environment
-	if os.Getenv("ENV") == "test" {
+	if os.Getenv("ENVIRONMENT") == "test" {
 		fmt.Println("Mock email: " + subject + " to " + to) 
 		return nil
 	}
