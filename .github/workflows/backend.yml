@@ -1,30 +1,47 @@
 name: Go Backend CI/CD
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
 
 jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    test:
+        runs-on: macos-latest
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.23' 
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        working-directory: backend
-        run: go mod tidy
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                  go-version: "1.23"
 
-      - name: Run Tests
-        working-directory: backend
-        run: go test ./...
+            - name: Install Firebase CLI
+              run: |
+                  curl -sL https://firebase.tools | bash
 
+            - name: Start Firestore Emulator
+              run: |
+                  nohup firebase emulators:start --only firestore --project chemtrack-3857a > /tmp/emulator.log 2>&1 &
+                  sleep 10  # give emulator time to start
+
+            - name: Install Dependencies
+              working-directory: backend
+              run: go mod tidy
+
+            - name: Run Tests
+              working-directory: backend
+              run: go test ./.tests
+
+            - name: Stop Firestore Emulator and Clean Up
+              run: |
+                  # Stop the Firestore emulator
+                  firebase emulators:stop
+                  # Remove the OS environment variable
+                  unset FIRESTORE_EMULATOR_HOST
+                  unset ENVIRONMENT
