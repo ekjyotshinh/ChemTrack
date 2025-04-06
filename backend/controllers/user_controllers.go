@@ -213,6 +213,7 @@ func GetUser(c *gin.Context) {
 // @Param user body User true "User data"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/users/{id} [put]
 func UpdateUser(c *gin.Context) {
@@ -224,6 +225,28 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// Check if email is already in use
+	if user.Email != "" {
+		ctx := context.Background()
+		iter := client.Collection("users").Where("email", "==", user.Email).Documents(ctx)
+		var existingUserID string
+
+		for {
+			doc, err := iter.Next()
+			if err != nil {
+				break // No user with the given email found -- so the users email can be update to this email
+			}
+			existingUserID = doc.Ref.ID
+			if existingUserID != userID {
+				// Found another user with the same email so cannot update the email to this email
+				c.JSON(http.StatusConflict, gin.H{"error": "Email is already in use"})
+				return
+			}
+		}
+	}
+
+
+	// Proceed with updating the user data
 	updateData := make(map[string]interface{})
 
 	if user.First != "" {
