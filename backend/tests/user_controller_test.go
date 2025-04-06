@@ -252,10 +252,7 @@ func TestGetUserWithInvalidID(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Contains(t, w.Body.String(), "User not found")
 }
-
-// Test UpdateUser
-func TestUpdateUser(t *testing.T) {
-
+func TestUpdateUserValid(t *testing.T) {
 	userID := "12345"
 	userRef := client.Collection("users").Doc(userID)
 	_, err := userRef.Set(context.Background(), map[string]interface{}{
@@ -290,6 +287,47 @@ func TestUpdateUser(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "User updated successfully")
 }
+
+func TestUpdateUserEmailAlreadyInUse(t *testing.T) {
+	// Add two users with different emails first
+	userID1 := "12345"
+	userRef1 := client.Collection("users").Doc(userID1)
+	_, err := userRef1.Set(context.Background(), map[string]interface{}{
+		"first": "Jane",
+		"last":  "Doe",
+		"email": "email.inuse@example.com",
+	})
+	if err != nil {
+		t.Fatalf("Failed to add mock user: %v", err)
+	}
+
+	userID2 := "67890"
+	userRef2 := client.Collection("users").Doc(userID2)
+	_, err = userRef2.Set(context.Background(), map[string]interface{}{
+		"first": "John",
+		"last":  "Doe",
+		"email": "email.notinuse@example.com",
+	})
+	if err != nil {
+		t.Fatalf("Failed to add mock user: %v", err)
+	}
+
+	// Attempt to update user2 with user1's email
+	updatedUser := User{
+		Email: "email.inuse@example.com", // Same email as user1
+	}
+
+	jsonValue, _ := json.Marshal(updatedUser)
+	req := httptest.NewRequest(http.MethodPut, "/api/v1/users/"+userID2, bytes.NewReader(jsonValue))
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	// Assert the response
+	assert.Equal(t, http.StatusConflict, w.Code)
+	assert.Contains(t, w.Body.String(), "Email is already in use")
+}
+
 
 // test delete user
 func TestDeleteUser(t *testing.T) {
