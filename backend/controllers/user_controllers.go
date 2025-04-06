@@ -60,19 +60,30 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
+	ctx := context.Background()
+
+	// Check if a user with the same email already exists
+	iter := client.Collection("users").Where("email", "==", user.Email).Documents(ctx)
+	existingUser, err := iter.Next()
+	if err == nil && existingUser.Exists() {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already in use"})
+		return
+	}
+
 	// Hash the user's password
 	hashedPassword, err := HashPassword(user.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 		return
 	}
+	
 
-	ctx := context.Background()
+	// Add the new user
 	doc, _, err := client.Collection("users").Add(ctx, map[string]interface{}{
 		"first":           user.First,
 		"last":            user.Last,
 		"email":           user.Email,
-		"password":        hashedPassword, // Store hashed password
+		"password":        hashedPassword,
 		"school":          user.School,
 		"is_admin":        user.IsAdmin,
 		"is_master":       user.IsMaster,
@@ -85,9 +96,8 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	// Return user info upon successful account addition
 	response := gin.H{
-		"id": doc.ID, // Firestore-generated document ID
+		"id": doc.ID,
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "User added successfully", "user": response})
