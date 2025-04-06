@@ -278,9 +278,32 @@ func TestDeleteUser(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "User deleted successfully")
 }
 
-// Test Login
 func TestLogin(t *testing.T) {
+	ctx := context.Background()
 
+	// Insert test user with hashed password
+	hashedPassword, err := controllers.HashPassword("password123")
+	if err != nil {
+		t.Fatalf("Failed to hash users password: %v", err)
+		return
+	}
+
+
+	_, err = client.Collection("users").Doc("testuser").Set(ctx, map[string]interface{}{
+		"first":           "John",
+		"last":            "Doe",
+		"email":           "john.doe@example.com",
+		"password":        hashedPassword,
+		"school":          "Test High",
+		"is_admin":        false,
+		"is_master":       false,
+		"allow_email":     true,
+		"allow_push":      true,
+		"expo_push_token": "test-token",
+	})
+
+
+	// Login payload
 	loginData := struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -291,6 +314,7 @@ func TestLogin(t *testing.T) {
 
 	jsonValue, _ := json.Marshal(loginData)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/login", bytes.NewReader(jsonValue))
+	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
 	r.ServeHTTP(w, req)
@@ -299,6 +323,7 @@ func TestLogin(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "Login successful")
 }
+
 
 // Test Login with invalid credentials
 func TestLoginWithInvalidCredentials(t *testing.T) {
