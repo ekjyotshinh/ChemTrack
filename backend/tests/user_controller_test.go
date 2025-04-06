@@ -119,16 +119,14 @@ type User struct {
 	AllowPush     bool   `json:"allow_push"`
 }
 
-// Test AddUser
-func TestAddUser(t *testing.T) {
-	// Prepare user data to add
+func TestAddUser_Success(t *testing.T) {
 	user := User{
 		First:         "John",
 		Last:          "Doe",
-		Email:         "john.doe@example.com",
-		Password:      "password123",
+		Email:         "john.success@example.com",
+		Password:      "secure123",
 		School:        "Test School",
-		ExpoPushToken: "expoPushToken",
+		ExpoPushToken: "token123",
 		IsAdmin:       false,
 		IsMaster:      false,
 		AllowEmail:    true,
@@ -141,9 +139,48 @@ func TestAddUser(t *testing.T) {
 
 	r.ServeHTTP(w, req)
 
-	// Assert the response
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "User added successfully")
+}
+
+func TestAddUser_DuplicateEmail(t *testing.T) {
+	// First, add a user
+	existingUser := User{
+		First:         "Jane",
+		Last:          "Doe",
+		Email:         "duplicate@example.com",
+		Password:      "password123",
+		School:        "Test School",
+		ExpoPushToken: "token456",
+		IsAdmin:       false,
+		IsMaster:      false,
+		AllowEmail:    true,
+		AllowPush:     true,
+	}
+
+	jsonValue, _ := json.Marshal(existingUser)
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(jsonValue))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// Try to add user with same email
+	req2 := httptest.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(jsonValue))
+	w2 := httptest.NewRecorder()
+	r.ServeHTTP(w2, req2)
+
+	assert.Equal(t, http.StatusBadRequest, w2.Code)
+	assert.Contains(t, w2.Body.String(), "Email already in use")
+}
+
+func TestAddUser_InvalidJSON(t *testing.T) {
+	invalidJSON := `{"first": "Missing end"`
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewBufferString(invalidJSON))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "Invalid input")
 }
 
 // Test GetUser
@@ -174,7 +211,7 @@ func TestGetUser(t *testing.T) {
 func TestGetUsers(t *testing.T) {
 	// Add mock data for users
 	users := []User{
-		{First: "John", Last: "Doe", Email: "john.doe@example.com", Password: "password123", School: "Test School"},
+		{First: "John", Last: "Doe", Email: "john.doe-get@example.com", Password: "password123", School: "Test School"},
 		{First: "Jane", Last: "Smith", Email: "jane.smith@example.com", Password: "password123", School: "Test School"},
 	}
 
@@ -198,7 +235,7 @@ func TestGetUsers(t *testing.T) {
 	// Assert the response
 	// should have both of that added users
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "john.doe@example.com")
+	assert.Contains(t, w.Body.String(), "john.doe-get@example.com")
 	assert.Contains(t, w.Body.String(), "jane.smith@example.com")
 }
 
@@ -254,75 +291,111 @@ func TestUpdateUser(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "User updated successfully")
 }
 
-// Test DeleteUser
+// test delete user
 func TestDeleteUser(t *testing.T) {
-
-	userID := "12345"
-	userRef := client.Collection("users").Doc(userID)
-	_, err := userRef.Set(context.Background(), map[string]interface{}{
-		"first": "John",
-		"last":  "Doe",
-		"email": "john.doe@example.com",
-	})
-	if err != nil {
-		t.Fatalf("Failed to add mock user: %v", err)
+	// Step 1: Add a user
+	user := User{
+		First:         "Delete",
+		Last:          "Me",
+		Email:         "delete.me@example.com",
+		Password:      "delete123",
+		School:        "Test School",
+		ExpoPushToken: "test-token",
+		IsAdmin:       false,
+		IsMaster:      false,
+		AllowEmail:    true,
+		AllowPush:     true,
 	}
 
-	req := httptest.NewRequest(http.MethodDelete, "/api/v1/users/"+userID, nil)
-	w := httptest.NewRecorder()
+	jsonValue, _ := json.Marshal(user)
+	reqAdd := httptest.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(jsonValue))
+	wAdd := httptest.NewRecorder()
+	r.ServeHTTP(wAdd, reqAdd)
 
-	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, wAdd.Code)
+	assert.Contains(t, wAdd.Body.String(), "User added successfully")
 
-	// Assert the response
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "User deleted successfully")
+	// Step 2: Extract user ID from add response
+	var addResp struct {
+		Message string `json:"message"`
+		User    struct {
+			ID string `json:"id"`
+		} `json:"user"`
+	}
+	err := json.Unmarshal(wAdd.Body.Bytes(), &addResp)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, addResp.User.ID)
+
+	// Step 3: Delete the user
+	deleteURL := "/api/v1/users/" + addResp.User.ID
+	reqDel := httptest.NewRequest(http.MethodDelete, deleteURL, nil)
+	wDel := httptest.NewRecorder()
+	r.ServeHTTP(wDel, reqDel)
+
+	// Step 4: Assert deletion
+	assert.Equal(t, http.StatusOK, wDel.Code)
+	assert.Contains(t, wDel.Body.String(), "User deleted successfully")
 }
 
 func TestLogin(t *testing.T) {
-	ctx := context.Background()
-
-	// Insert test user with hashed password
-	hashedPassword, err := controllers.HashPassword("password123")
-	if err != nil {
-		t.Fatalf("Failed to hash users password: %v", err)
-		return
+	// Step 1: Add a user
+	user := User{
+		First:         "John",
+		Last:          "Doe",
+		Email:         "login.test@example.com",
+		Password:      "password123",
+		School:        "Test School",
+		ExpoPushToken: "test-token",
+		IsAdmin:       false,
+		IsMaster:      false,
+		AllowEmail:    true,
+		AllowPush:     true,
 	}
 
+	userJSON, _ := json.Marshal(user)
+	reqAdd := httptest.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(userJSON))
+	reqAdd.Header.Set("Content-Type", "application/json")
+	wAdd := httptest.NewRecorder()
+	r.ServeHTTP(wAdd, reqAdd)
 
-	_, err = client.Collection("users").Doc("testuser").Set(ctx, map[string]interface{}{
-		"first":           "John",
-		"last":            "Doe",
-		"email":           "john.doe@example.com",
-		"password":        hashedPassword,
-		"school":          "Test High",
-		"is_admin":        false,
-		"is_master":       false,
-		"allow_email":     true,
-		"allow_push":      true,
-		"expo_push_token": "test-token",
-	})
+	assert.Equal(t, http.StatusOK, wAdd.Code)
 
+	var addResp struct {
+		User struct {
+			ID string `json:"id"`
+		} `json:"user"`
+	}
+	err := json.Unmarshal(wAdd.Body.Bytes(), &addResp)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, addResp.User.ID)
 
-	// Login payload
+	// Step 2: Login with that user
 	loginData := struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{
-		Email:    "john.doe@example.com",
-		Password: "password123",
+		Email:    user.Email,
+		Password: user.Password,
 	}
 
-	jsonValue, _ := json.Marshal(loginData)
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/login", bytes.NewReader(jsonValue))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
+	loginJSON, _ := json.Marshal(loginData)
+	reqLogin := httptest.NewRequest(http.MethodPost, "/api/v1/login", bytes.NewReader(loginJSON))
+	reqLogin.Header.Set("Content-Type", "application/json")
+	wLogin := httptest.NewRecorder()
+	r.ServeHTTP(wLogin, reqLogin)
 
-	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, wLogin.Code)
+	assert.Contains(t, wLogin.Body.String(), "Login successful")
 
-	// Assert the response
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "Login successful")
+	// Step 3: Delete the user
+	deleteReq := httptest.NewRequest(http.MethodDelete, "/api/v1/users/"+addResp.User.ID, nil)
+	wDelete := httptest.NewRecorder()
+	r.ServeHTTP(wDelete, deleteReq)
+
+	assert.Equal(t, http.StatusOK, wDelete.Code)
+	assert.Contains(t, wDelete.Body.String(), "User deleted successfully")
 }
+
 
 
 // Test Login with invalid credentials
