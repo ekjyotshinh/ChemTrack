@@ -168,7 +168,7 @@ func TestAddUser_DuplicateEmail(t *testing.T) {
 	w2 := httptest.NewRecorder()
 	r.ServeHTTP(w2, req2)
 
-	assert.Equal(t, http.StatusBadRequest, w2.Code)
+	assert.Equal(t, http.StatusConflict, w2.Code)
 	assert.Contains(t, w2.Body.String(), "Email already in use")
 }
 

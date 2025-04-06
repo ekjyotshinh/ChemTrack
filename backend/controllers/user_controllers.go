@@ -50,6 +50,7 @@ func CheckPasswordHash(password, hash string) bool {
 // @Param user body User true "User data"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
+// @Failure 409
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/users [post]
 func AddUser(c *gin.Context) {
@@ -66,7 +67,7 @@ func AddUser(c *gin.Context) {
 	iter := client.Collection("users").Where("email", "==", user.Email).Documents(ctx)
 	existingUser, err := iter.Next()
 	if err == nil && existingUser.Exists() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already in use"})
+		c.JSON(http.StatusConflict, gin.H{"error": "Email already in use"})
 		return
 	}
 
