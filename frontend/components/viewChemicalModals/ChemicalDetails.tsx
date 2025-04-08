@@ -57,6 +57,7 @@ interface Chemical {
     shelf: string;
     status: string;
     quantity: string;
+    sdsURL: string;
 }
 
 interface props {
@@ -191,7 +192,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                                 closeModal();  // Close the modal
                                 router.push({
                                     pathname: '/fileViewer',
-                                    params: { fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', title: selectedChemical.name }
+                                    params: { fileUrl: selectedChemical.sdsURL, title: selectedChemical.name }
                                 });
                             }}
                             color={Colors.white}
