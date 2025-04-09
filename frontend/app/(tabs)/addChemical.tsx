@@ -2,7 +2,7 @@ import CustomButton from '@/components/CustomButton';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Header from '@/components/Header';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 import UploadIcon from '@/assets/icons/UploadIcon';
@@ -18,7 +18,6 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
-//import FormData from 'form-data';
 
 export default function AddChemical() {
   const { userInfo } = useUser()
@@ -38,20 +37,16 @@ export default function AddChemical() {
 
   const [uploaded, setUploaded] = useState<boolean>(false)
   const [newPdf, setNewPdf] = useState<any>(null);
-  //const [sdsForm, setSdsForm] = useState<FormData>();
 
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
-  // used for pdf upload for sds
-  //const [selectedDocuments, setSelectedDocuments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
-  let sdsName: string = "placeholderName";
 
   const [isFilled, setIsFilled] = useState<boolean>(false)
 
   const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity, unit]
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
   const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded]
-  let sdsForm: FormData = new FormData();
+  const sdsForm = useRef<FormData | null>(null);
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   const router = useRouter();
@@ -92,8 +87,8 @@ export default function AddChemical() {
   ];
 
   // Empty form Data
-  const emptyFormData = (formData: FormData) => {
-    formData = new FormData();
+  const emptyFormData = () => {
+    sdsForm.current = new FormData();
     setUploaded(false);
   };
 
@@ -109,29 +104,22 @@ export default function AddChemical() {
       });
 
       // if selection goes through
-      if (!pickedPdf.canceled) {
+      if (pickedPdf && !pickedPdf.canceled) {
         // Check success
         const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
         setNewPdf(pickedPdf);
         console.log('Got the pdf: ', pickedPdf);
         console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
         console.log('File Name: ', pickedPdf.assets[0].name);
-        sdsName = pickedPdf.assets[0].name;
-        //const { uri, name, size, mimeType } = pickedPdf.assets[0];
-        const fileInfo: any = {
-          uri: Platform.OS === 'ios' ? pickedPdf.assets[0].uri.replace('file://', '') : pickedPdf.assets[0].uri,
-          //uri: uri,
-          name: pickedPdf.assets[0].name,
-          type: pickedPdf.assets[0].mimeType,
-        };
-        sdsForm.append('file', {
-          //uri: Platform.OS === 'ios' ? pickedPdf.assets[0].uri.replace('file://', '') : pickedPdf.assets[0].uri,
+        //setUploadText(sdsName);
+        processFileName(pickedPdf.assets[0].name);
+        sdsForm.current = new FormData();
+        sdsForm.current.append('sds', {
           uri: pickedPdf.assets[0].uri,
           name: pickedPdf.assets[0].name,
           type: pickedPdf.assets[0].mimeType,
         } as any);
 
-        //setSdsForm(uploadedPdf);
         setUploaded(true);
         Alert.alert('PDF Uploaded!');
       } else {
@@ -144,6 +132,19 @@ export default function AddChemical() {
       console.log(error);
     };
   };
+  // Add elipsis to long file names >= 20 characters
+  const processFileName = (name: string) => {
+    name = name.toString();
+    name = name.split('.').slice(0, -1).join('.'); // remove pdf extension
+    if (name.length <= 20) {
+      setUploadText(name);
+    } else if (name.length > 20) {
+      setUploadText(name.substring(0, 20) + '...');
+    } else {
+      setUploadText('File Uploaded');
+    }
+
+  }
 
   // Saves form
   const onSave = async () => {
@@ -165,8 +166,6 @@ export default function AddChemical() {
         cabinet: parseInt(cabinet, 10), // Convert cabinet to integer (if it's a number)
       };
 
-      const pdfData = sdsForm;
-
       try {
         // Send the data to the backend
         console.log('Request data:', JSON.stringify(data, null, 2));
@@ -180,22 +179,26 @@ export default function AddChemical() {
         });
         const responseData = await response.json();
 
-        const pdfResponse = await fetch(`${API_URL}/api/v1/files/sds/${responseData.chemical.id}`, {
-          method: 'POST',
 
-          body: pdfData,
-        });
-
-        if (response.ok && pdfResponse.ok) {
+        if (response.ok) {
           // Handle successful response
           console.log('Chemical added successfully:', responseData);
-          onClear();
-          Alert.alert('Success', 'Chemical information added');
-          router.push('/');
+          console.log(sdsForm);
+          const pdfResponse = await fetch(`${API_URL}/api/v1/files/sds/${responseData.chemical.id}`, {
+            method: 'POST',
+            body: sdsForm.current!,
+          });
+          if (pdfResponse.ok) {
+            onClear();
+            Alert.alert('Success', 'Chemical information added');
+            router.push('/');
+          } else {
+            console.log('Failed to add pdf:', pdfResponse);
+            Alert.alert('Error', 'Error occured');
+          }
         } else {
           // Handle server errors
           console.log('Failed to add chemical:', responseData);
-          console.log('Failed Pdf upload: ', pdfResponse);
           Alert.alert('Error', 'Error occured');
         }
       } catch (error) {
@@ -221,7 +224,7 @@ export default function AddChemical() {
     setPurchaseDate(undefined)
     setExpirationDate(undefined)
     setUploaded(false)
-    emptyFormData(sdsForm);
+    emptyFormData();
     setUnit('')
   }
 
@@ -335,7 +338,7 @@ export default function AddChemical() {
                 <CustomTextHeader headerText={'SDS'} />
                 <View style={{ alignItems: 'center' }}>
                   <CustomButton
-                    title={uploaded ? 'File Uploaded' : 'Upload'}
+                    title={uploaded ? uploadText : 'Upload'}
                     onPress={uploadPdf}
                     width={337}
                     icon={uploaded ?
