@@ -3,6 +3,7 @@ package helpers
 import (
 	"context"
 	"fmt"
+
 	"google.golang.org/api/option"
 
 	"io"
@@ -38,8 +39,8 @@ func UploadFileToGCSFromReader(ctx context.Context, bucketName, objectName strin
 	return publicURL, nil
 }
 
-//@TODO: Replace THIS function with the one above, so we can get rid of the folders. @AggressiveGas
-// uploadFileToGCS uploads a file to Google Cloud Storage  
+// @TODO: Replace THIS function with the one above, so we can get rid of the folders. @AggressiveGas
+// uploadFileToGCS uploads a file to Google Cloud Storage
 func UploadFileToGCS(ctx context.Context, bucketName, objectName, filePath string) error {
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
 	if err != nil {
@@ -65,7 +66,6 @@ func UploadFileToGCS(ctx context.Context, bucketName, objectName, filePath strin
 	return nil
 }
 
-
 // deleteFileFromGCS deletes a file from Google Cloud Storage
 func DeleteFileFromGCS(ctx context.Context, bucketName, objectName string) error {
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
@@ -82,4 +82,27 @@ func DeleteFileFromGCS(ctx context.Context, bucketName, objectName string) error
 	}
 
 	return nil
+}
+
+// DoesFileExistGCS checks if a file exists in Google Cloud Storage, returning true if it does, false otherwise
+func DoesFileExistGCS(ctx context.Context, bucketName, objectName string) bool {
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
+	if err != nil {
+		return false
+	}
+	defer client.Close()
+
+	bucket := client.Bucket(bucketName)
+	object := bucket.Object(objectName)
+
+	// Check if the object exists
+	_, err = object.Attrs(ctx)
+	if err != nil {
+		if err == storage.ErrObjectNotExist {
+			return false
+		}
+		return false
+	}
+
+	return true
 }

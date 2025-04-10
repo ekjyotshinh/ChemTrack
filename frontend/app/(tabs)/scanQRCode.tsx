@@ -7,10 +7,28 @@ import * as WebBrowser from 'expo-web-browser';
 import { useRouter } from 'expo-router';
 
 export default function ViewChemicals() {
+
+  interface Chemical {
+    id: string;
+    name: string;
+    CAS: string;
+    purchase_date: string;
+    expiration_date: string;
+    school: string;
+    room: string;
+    cabinet: string;
+    shelf: string;
+    status: string;
+    quantity: string;
+    location: string;
+    sdsURL: string;
+  }
+
+
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedData, setScannedData] = useState<string | null>(null);
-  const [selectedChemical, setSelectedChemical] = useState(null);
+  const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [sdsUrl, setSdsUrl] = useState('');
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
@@ -20,10 +38,11 @@ export default function ViewChemicals() {
   const viewPdf = async (pdfUrl: string) => {
     console.log('Opening PDF:', pdfUrl);
     try {
-      router.push({
-        pathname: '/fileViewer',
-        params: { pdfUrl }
-      });
+      if (selectedChemical) {
+        let sdsUrl: string = selectedChemical.sdsURL;
+        //viewPdf('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+        viewPdf(sdsUrl);
+      }
     }
     // For other errors besides responses
     catch (error) {

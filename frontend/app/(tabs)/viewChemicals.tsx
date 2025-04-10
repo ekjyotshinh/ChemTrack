@@ -83,6 +83,7 @@ export default function ViewChemicals() {
     status: string;
     quantity: string;
     location: string;
+    sdsURL: string;
   }
 
 

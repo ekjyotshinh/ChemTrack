@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 	"time"
+	"os"
+	"fmt"
 
 	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 
@@ -56,6 +58,16 @@ func AddSDS(c *gin.Context) {
 		return
 	}
 	defer src.Close()
+	
+	// Skip actual uploading SDS for test env
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock Adding SDS") 
+		c.JSON(http.StatusOK, gin.H{
+		"message": "SDS uploaded successfully",
+		"url":     "testingURL",
+		})
+		return
+	}
 
 	// Define GCS bucket and object name
 	bucketName := "chemtrack-testing2"
@@ -154,6 +166,15 @@ func DeleteSDS(c *gin.Context) {
 		return
 	}
 
+	// Skip actual uploading SDS for test env
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock Deleting SDS") 
+		c.JSON(http.StatusOK, gin.H{
+		"message": "SDS file deleted successfully",
+		})
+		return
+	}
+
 	// Extract the object name from the URL
 	// Example URL: https://storage.googleapis.com/chemtrack-testing/sds/12345.pdf
 	objectName := sdsURLStr[strings.LastIndex(sdsURLStr, "sds/"):]
@@ -223,6 +244,24 @@ func AddProfilePicture(c *gin.Context) {
 		return
 	}
 	defer src.Close()
+
+	// Skip actual upload for the profile picture for test env
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock Adding Profile picture") 
+			// Update Firestore document with the profile picture URL
+		_, err = client.Collection("users").Doc(userID).Update(ctx, []firestore.Update{
+			{Path: "profilePictureURL", Value: "testURL"},
+		})
+		if err != nil {
+			log.Println("Failed to update Firestore:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user record"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+		"message": "Profile picture uploaded successfully",
+		})
+		return
+	}
 
 	// Define GCS bucket and object name
 	bucketName := "chemtrack-testing2"
@@ -299,6 +338,25 @@ func UpdateProfilePicture(c *gin.Context) {
 	bucketName := "chemtrack-testing2"
 	objectName := "profile_pictures/" + userID + ".jpg"
 
+		// Skip actual upload for the profile picture for test env
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock Updating Profile picture") 
+			// Update Firestore document with the profile picture URL
+		_, err = client.Collection("users").Doc(userID).Update(ctx, []firestore.Update{
+			{Path: "profilePictureURL", Value: "testURL"},
+		})
+		if err != nil {
+			log.Println("Failed to update Firestore:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user record"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Profile picture updated successfully",
+			"url":     "testURL",
+		})
+		return
+	}
+
 	// Upload the file directly from memory
 	uploadURL, err := helpers.UploadFileToGCSFromReader(ctx, bucketName, objectName, src)
 	if err != nil {
@@ -360,6 +418,24 @@ func DeleteProfilePicture(c *gin.Context) {
 	profilePictureURLStr, ok := profilePictureURL.(string)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid profile picture URL format"})
+		return
+	}
+
+
+	// Skip actual delete for the profile picture for test env
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock Deleting Profile picture") 
+		// Remove the profile picture URL from Firestore
+		_, err = client.Collection("users").Doc(userId).Update(ctx, []firestore.Update{
+			{Path: "profilePictureURL", Value: nil}, // Remove the profile picture URL
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update Firestore record"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Profile picture deleted successfully",
+		})
 		return
 	}
 

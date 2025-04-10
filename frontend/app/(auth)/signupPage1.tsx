@@ -26,10 +26,14 @@ export default function SignUpPage() {
 
   // Function to handle the "Next" button press
   const handleNextPress = () => {
-    router.push({
-      pathname: '/signupPage2',          // Navigate to the updated next signup page
-      params: { email: email, password: password, selectedSchool: selectedSchool },
-    });
+    if((isValidEmail && password && selectedSchool)){
+      router.push({
+        pathname: '/signupPage2',          // Navigate to the updated next signup page
+        params: { email: email, password: password, selectedSchool: selectedSchool },
+      });
+    } else {
+      Alert.alert('Please enter a valid email, password and select a school');
+    }
   };
 
   // Function to handle the "Back" button press
@@ -91,7 +95,7 @@ export default function SignUpPage() {
                 color={(!isValidEmail || !password || !selectedSchool) ? Colors.grey : Colors.white}
               />}
             onPress={handleNextPress}
-            width={337}
+            width={337} 
           />
         </View>
       </ScrollView>
