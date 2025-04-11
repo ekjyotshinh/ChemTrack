@@ -225,10 +225,6 @@ export default function AddChemical() {
     setUnit('')
   }
 
-  const onUpload = () => {
-    console.log('Clicked SDS upload!')
-    setUploaded(!uploaded)
-  }
 
   return (
     <>
