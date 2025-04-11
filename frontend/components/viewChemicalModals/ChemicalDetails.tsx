@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import downloadFile from '../../functions/downloadFile';
 
+
 interface chemicalDetailProps {
     property: string
     value: string | null
