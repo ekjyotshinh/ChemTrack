@@ -36,7 +36,6 @@ export default function AddChemical() {
   const [expirationDate, setExpirationDate] = useState<Date>()
 
   const [uploaded, setUploaded] = useState<boolean>(false)
-  const [newPdf, setNewPdf] = useState<any>(null);
 
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
@@ -107,11 +106,9 @@ export default function AddChemical() {
       if (pickedPdf && !pickedPdf.canceled) {
         // Check success
         const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
-        setNewPdf(pickedPdf);
         console.log('Got the pdf: ', pickedPdf);
         console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
         console.log('File Name: ', pickedPdf.assets[0].name);
-        //setUploadText(sdsName);
         processFileName(pickedPdf.assets[0].name);
         sdsForm.current = new FormData();
         sdsForm.current.append('sds', {
