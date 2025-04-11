@@ -86,7 +86,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                 });
 
             const responseData = await response.json();
-            
+
             if (response.ok) {
                 const url = responseData.chemicalQRURL;
                 if (!url) {
@@ -142,7 +142,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                                 />
                             ) : (
                                 <View style={stylesPopup.qrCodePlaceholder}>
-                                    <TextInter style={{textAlign: 'center'}}>Error Fetching QR Code</TextInter>
+                                    <TextInter style={{ textAlign: 'center' }}>Error Fetching QR Code</TextInter>
                                 </View>
                             )
                         }

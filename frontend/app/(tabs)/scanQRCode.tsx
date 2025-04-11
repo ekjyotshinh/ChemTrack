@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 
 export default function ViewChemicals() {
 
-    interface Chemical {
+  interface Chemical {
     id: string;
     name: string;
     CAS: string;
@@ -24,7 +24,7 @@ export default function ViewChemicals() {
     sdsURL: string;
   }
 
-  
+
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedData, setScannedData] = useState<string | null>(null);
@@ -41,10 +41,10 @@ export default function ViewChemicals() {
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
     try {
-      if(selectedChemical){
-      let sdsUrl: string = selectedChemical.sdsURL;
-      //viewPdf('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
-      viewPdf(sdsUrl);
+      if (selectedChemical) {
+        let sdsUrl: string = selectedChemical.sdsURL;
+        //viewPdf('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+        viewPdf(sdsUrl);
       }
     }
     catch (error) {
