@@ -137,12 +137,7 @@ export default function TabLayout() {
           key={2}
           name="viewChemicals"
           options={{
-            title: 'View',
-            tabBarIcon: ({ focused }) => (
-              <NavView
-                color={focused ? 'black' : 'white'}
-              />
-            ),
+            href: null,
           }}
         />,
 
