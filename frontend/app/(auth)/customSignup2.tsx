@@ -12,37 +12,27 @@ import Colors from '@/constants/Colors';
 export default function customSignup2() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const router = useRouter();
-  const { email, password, userType, school, isAdmin, isMaster } = useLocalSearchParams();
+  const { id, password} = useLocalSearchParams();
 
-  const emailValue = Array.isArray(email) ? email[0] : email;
   const passwordValue = Array.isArray(password) ? password[0] : password;
-  const userTypeValue = Array.isArray(userType) ? userType[0] : userType;
-  const schoolValue = Array.isArray(school) ? school[0] : school;
+  const userId = Array.isArray(id) ? id[0] : id;
 
-  // Convert string "true"/"false" to boolean
-  const isAdminValue = isAdmin === 'true';
-  const isMasterValue = isMaster === 'true';
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const { updateUserInfo } = useUser();
-
+  const { updateUserInfo,userInfo } = useUser();
+// on create an account we are not creating an account but rather updating the user info for the already created account
   const handleCreateAccountPress = async () => {
-    const url = `${API_URL}/api/v1/users`;
+    const url = `${API_URL}/api/v1/users/${userId}`;
     const userData = {
       first: firstName,
       last: lastName,
-      email: emailValue,
       password: passwordValue,
-      school: schoolValue,
-      userType: userTypeValue,
-      is_admin: isAdminValue,
-      is_master: isMasterValue,
     };
 
     try {
       const res = await fetch(url, {
-        method: "POST",
+        method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       });
@@ -50,15 +40,15 @@ export default function customSignup2() {
       if (res.ok) {
         const data = await res.json();
         updateUserInfo({
-			name: `${firstName} ${lastName}`,
-			email: emailValue,
-			is_admin: isAdminValue,
-			is_master: isMasterValue,
-			school: schoolValue,
-			id: data.user.id,
-			allow_email: data.user.allow_email ?? false, 
-			allow_push: data.user.allow_push ?? false, 
-		});
+		    	name: `${firstName} ${lastName}`,
+		    	email: userInfo.email,
+		    	is_admin: userInfo.is_admin,
+		    	is_master: userInfo.is_master,
+		    	school: userInfo.school,
+		    	id: userInfo.id,
+		    	allow_email:false, 
+		    	allow_push:false, 
+		    });
 		  
         router.replace('/(tabs)');
       } else {
@@ -70,7 +60,12 @@ export default function customSignup2() {
   };
 
   const handleBackPress = () => {
-    router.push('/customSignup1');
+      router.push({
+        pathname: '/customSignup1',
+        params: { 
+          id: userId,
+        },
+      });
   };
 
   return (
