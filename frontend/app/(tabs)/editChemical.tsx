@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Text } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
@@ -19,7 +19,9 @@ import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
 import TrashIcon from '@/assets/icons/TrashIcon';
 
-export default function editChemicals() {
+
+
+export default function EditChemicals() {
   const [name, setName] = useState<string>('');
   const [room, setRoom] = useState<string>('');
   const [shelf, setShelf] = useState<string>('');
@@ -89,19 +91,7 @@ export default function editChemicals() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   // Fetch every time this page comes into focus
-  // Fixes issue of a user selecting a chemical, making edits, leaving the page, then selecting
-  // the same chemical and still seeing the edited version rather than what's in the database
-  useFocusEffect(
-    useCallback(() => {
-      if (chemicalIdString && userInfo && (userInfo.is_admin || userInfo.is_master)) {
-        fetchChemicalData(chemicalIdString);
-        // Only fetch school list if user is master
-        if (userInfo.is_master) {
-          fetchSchoolList({setSchoolList});
-        }
-      }
-    }, [chemicalIdString])
-  );
+  // Fixes issue of a user selecting a chemical, making edits, leaving the page, then selecting  // the same chemical and still seeing the edited version rather than what's in the database
 
   // Fetch the chemical data from the API based on the chemicalId
   const fetchChemicalData = async (id: string) => {
@@ -118,7 +108,7 @@ export default function editChemicals() {
         setCabinet(data.cabinet?.toString() || '');
         setSchool(data.school || '');
         setStatus(data.status || '');
-        const quantityArray = data.quantity.split(' '); // split the quantity into the numerical part and unit
+        const quantityArray = data.quantity ? data.quantity.split(' ') : ['', ''];
         setQuantity(quantityArray[0] || '');
         setUnit(quantityArray[1] || '');
         setCasParts([
@@ -139,6 +129,19 @@ export default function editChemicals() {
       Alert.alert('Error', 'Error fetching chemical data');
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (chemicalIdString && userInfo && (userInfo.is_admin || userInfo.is_master)) {
+        fetchChemicalData(chemicalIdString);
+        // Only fetch school list if user is master
+        if (userInfo.is_master) {
+          fetchSchoolList({setSchoolList});
+        }
+      }
+    }, [chemicalIdString])
+  );
+
   // Handle Back button press
   const handleBackPress = () => {
     router.push('/viewChemicals'); // Navigate back to the login page
@@ -151,13 +154,16 @@ export default function editChemicals() {
   const [isFilled, setIsFilled] = useState<boolean>(false);
 
   useEffect(() => {
-    const areStringsComplete: boolean = stringInputs.every(string => string.trim() !== '');
-    const areDatesComplete: boolean = dateInputs.every(date => date !== undefined);
-    const isCasComplete: boolean = casParts.every(string => string.trim() !== '');
-
-    setIsFilled(areStringsComplete && areDatesComplete && isCasComplete && uploaded);
-  }, allInputs);
-
+    const areStringsComplete = [name, room, shelf, cabinet, school, status, quantity, unit].every(s => s.trim() !== '');
+    const areDatesComplete = [purchaseDate, expirationDate].every(date => date !== undefined);
+    const isCasComplete = Array.isArray(casParts) && casParts.every(part => part && part.trim() !== '');
+  
+    const filled = areStringsComplete && areDatesComplete && isCasComplete && uploaded;
+    if (isFilled !== filled) {
+      setIsFilled(filled);
+    }
+  }, [name, room, shelf, cabinet, school, status, quantity, unit, purchaseDate, expirationDate, casParts.join(''), uploaded]);
+    
   const onSave = async () => {
     if (isFilled && userInfo && (userInfo.is_admin || userInfo.is_master)) {
       const formatDate = (date: Date | null | undefined): string | undefined =>
@@ -268,10 +274,18 @@ export default function editChemicals() {
       {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
         <View style={styles.container}>
           <BlueHeader headerText={name || 'Chemical Name'} onPress={handleBackPress} />
+          <Text>Edit Chemical</Text> 
           <ScrollView style={styles.scroll}>
             <View style={styles.innerContainer}>
+              
               {/* Name */}
-              <HeaderTextInput headerText="Name" value={name} onChangeText={(value) => setName(value)} />
+                 <HeaderTextInput
+                  headerText='Name'
+                  value={name}
+                  onChangeText={(value: string) => { setName(value) }}
+                  testID='name-input'
+                  />
+
               {/* CAS Number */}
               <View style={{ marginTop: Size.width(10) }}>
                 <CustomTextHeader headerText="CAS Number" />
@@ -280,23 +294,46 @@ export default function editChemicals() {
 
               {/* Purchase and Expiration Dates */}
               <View style={styles.row}>
-                <DateInput date={purchaseDate} setDate={setPurchaseDate} inputWidth={Size.width(154)} headerText="Purchase Date" />
-                <DateInput date={expirationDate} setDate={setExpirationDate} inputWidth={Size.width(154)} headerText="Expiration Date" />
+              <DateInput
+               date={purchaseDate}
+               setDate={setPurchaseDate}
+               inputWidth={Size.width(154)}
+               headerText={'Purchase Date'}
+               testID='purchase-date'
+             />
+             <DateInput
+               date={expirationDate}
+               setDate={setExpirationDate}
+               inputWidth={Size.width(154)}
+               headerText={'Expiration Date'}
+               testID='expiration-date'
+             />
               </View>
 
               {/* Status and Quality */}
               <View style={styles.row}>
                 <View style={{ width: Size.width(111) }}>
                   <CustomTextHeader headerText="Status" />
-                  <DropdownInput data={statuses} value={status} setValue={setStatus} />
+                  <DropdownInput data={statuses} value={status} setValue={setStatus} testID= 'status-dropdown' />
                 </View>
 
                 <View style={{ width: Size.width(88) }}>
-                  <HeaderTextInput headerText="Quantity" onChangeText={(value) => setQuantity(value)} inputWidth={Size.width(80)} isNumeric value={quantity}/>
+                  <HeaderTextInput 
+                  headerText="Quantity"
+                  onChangeText={(value) => setQuantity(value)} 
+                  inputWidth={Size.width(80)} 
+                  isNumeric value={quantity} 
+                  testID='quantity-input'
+                  />
                 </View>
+
                 <View style={{ width: Size.width(88) }}>
                   <CustomTextHeader headerText="Unit" />
-                  <DropdownInput data={units} value={unit} setValue={setUnit}  />
+                  <DropdownInput 
+                  data={units} 
+                  value={unit} 
+                  setValue={setUnit}
+                  testID="unit-dropdown" />
                 </View>
               </View>
 
@@ -304,16 +341,33 @@ export default function editChemicals() {
               <View style={styles.row}>
                 <View style={{ width: '100%' }}>
                   <CustomTextHeader headerText="School" />
-                  <DropdownInput data={schoolList} value={school} setValue={setSchool} />
+                  <DropdownInput data={schoolList} value={school} setValue={setSchool} testID='school-dropdown'/>
                 </View>
               </View>
               }
 
               {/* Room, cabinet, shelf number */}
               <View style={styles.row}>
-                <HeaderTextInput headerText="Room" onChangeText={(value) => setRoom(value)} inputWidth={Size.width(111)} value={room} />
-                <HeaderTextInput headerText="Cabinet" onChangeText={(value) => setCabinet(value)} inputWidth={Size.width(88)} isNumeric value={cabinet} />
-                <HeaderTextInput headerText="Shelf" onChangeText={(value) => setShelf(value)} inputWidth={Size.width(88)} isNumeric value={shelf} />
+                <HeaderTextInput headerText="Room" 
+                onChangeText={(value) => setRoom(value)} 
+                inputWidth={Size.width(111)} 
+                value={room} 
+                testID='room-input' 
+                />
+                <HeaderTextInput 
+                headerText="Cabinet" 
+                onChangeText={(value) => setCabinet(value)} 
+                inputWidth={Size.width(88)} 
+                isNumeric value={cabinet} 
+                testID='cabinet-input' 
+                />
+                <HeaderTextInput 
+                headerText="Shelf" 
+                onChangeText={(value) => setShelf(value)} 
+                inputWidth={Size.width(88)} 
+                isNumeric value={shelf} 
+                testID='shelf-input' 
+                />
               </View>
 
               {/* SDS button */}
@@ -324,7 +378,9 @@ export default function editChemicals() {
                     title={uploaded ? 'File Uploaded' : 'Replace PDF'}
                     onPress={replacePdf}
                     width={337}
-                    icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> : <UploadIcon width={24} height={24} />}
+                    icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> : 
+                    <UploadIcon width={24} height={24} />
+                  }
                     iconPosition="left"
                     color={uploaded ? 'black' : 'white'}
                     textColor={uploaded ? 'white' : 'black'}
@@ -354,7 +410,6 @@ export default function editChemicals() {
                   textColor="white"
                 />
               </View>
-
               {/* Extra padding */}
               <View style={{ height: 40 }} />
             </View>

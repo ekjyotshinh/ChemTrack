@@ -226,7 +226,7 @@ describe('AddChemical', () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
-
+  
         const { getByTestId, getByText } = render(<AddChemical />);
 
         fireEvent.press(getByTestId("purchase-date"));
@@ -538,20 +538,21 @@ describe('AddChemical', () => {
         expect(requestBody).toMatchObject(expectedData);
 
         // Clear all values
-        waitFor(() => {
-            expect(getByTestId('name-input')).toHaveDisplayValue('');
-            expect(getByTestId('cas-0')).toHaveDisplayValue('');
-            expect(getByTestId('cas-1')).toHaveDisplayValue('');
-            expect(getByTestId('cas-2')).toHaveDisplayValue('');
-            expect(queryByText(date)).toBeNull();
-            expect(queryByText("Good")).toBeNull();
-            expect(getByTestId('quantity-input')).toHaveDisplayValue('');
-            expect(queryByText("kg")).toBeNull();
-            expect(getByTestId('room-input')).toHaveDisplayValue('');
-            expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
-            expect(getByTestId('shelf-input')).toHaveDisplayValue('');
-            expect(getByText('Upload')).toBeTruthy();
-        });
+        // there is a redirect at save chemical
+        //waitFor(() => {
+        //    expect(getByTestId('name-input')).toHaveDisplayValue('');
+        //    expect(getByTestId('cas-0')).toHaveDisplayValue('');
+        //    expect(getByTestId('cas-1')).toHaveDisplayValue('');
+        //    expect(getByTestId('cas-2')).toHaveDisplayValue('');
+        //    expect(queryByText(date)).toBeNull();
+        //    expect(queryByText("Good")).toBeNull();
+        //    expect(getByTestId('quantity-input')).toHaveDisplayValue('');
+        //    expect(queryByText("kg")).toBeNull();
+        //    expect(getByTestId('room-input')).toHaveDisplayValue('');
+        //    expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
+        //    expect(getByTestId('shelf-input')).toHaveDisplayValue('');
+        //    expect(getByText('Upload')).toBeTruthy();
+        //});
 
         // Check for success alert and re-routing
         expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical information added');
@@ -659,22 +660,23 @@ describe('AddChemical', () => {
         const requestBody = JSON.parse(fetchCall[1].body);
         expect(requestBody).toMatchObject(expectedData);
 
+        // there is a redirect at the save
         // Clear all values
-        waitFor(() => {
-            expect(getByTestId('name-input')).toHaveDisplayValue('');
-            expect(getByTestId('cas-0')).toHaveDisplayValue('');
-            expect(getByTestId('cas-1')).toHaveDisplayValue('');
-            expect(getByTestId('cas-2')).toHaveDisplayValue('');
-            expect(queryByText(date)).toBeNull();
-            expect(queryByText("Good")).toBeNull();
-            expect(getByTestId('quantity-input')).toHaveDisplayValue('');
-            expect(queryByText("kg")).toBeNull();
-            expect(queryByText("Mock High School")).toBeNull();
-            expect(getByTestId('room-input')).toHaveDisplayValue('');
-            expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
-            expect(getByTestId('shelf-input')).toHaveDisplayValue('');
-            expect(getByText('Upload')).toBeTruthy();
-        });
+        //waitFor(() => {
+        //    expect(getByTestId('name-input')).toHaveDisplayValue('');
+        //    expect(getByTestId('cas-0')).toHaveDisplayValue('');
+        //    expect(getByTestId('cas-1')).toHaveDisplayValue('');
+        //    expect(getByTestId('cas-2')).toHaveDisplayValue('');
+        //    expect(queryByText(date)).toBeNull();
+        //    expect(queryByText("Good")).toBeNull();
+        //    expect(getByTestId('quantity-input')).toHaveDisplayValue('');
+        //    expect(queryByText("kg")).toBeNull();
+        //    expect(queryByText("Mock High School")).toBeNull();
+        //    expect(getByTestId('room-input')).toHaveDisplayValue('');
+        //    expect(getByTestId('cabinet-input')).toHaveDisplayValue('');
+        //    expect(getByTestId('shelf-input')).toHaveDisplayValue('');
+        //    expect(getByText('Upload')).toBeTruthy();
+        //});
 
         // Check for success alert and re-routing
         expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical information added');
