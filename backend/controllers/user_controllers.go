@@ -50,6 +50,7 @@ func CheckPasswordHash(password, hash string) bool {
 // @Param user body User true "User data"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
+// @Failure 409
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/users [post]
 func AddUser(c *gin.Context) {
@@ -60,19 +61,30 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
+	ctx := context.Background()
+
+	// Check if a user with the same email already exists
+	iter := client.Collection("users").Where("email", "==", user.Email).Documents(ctx)
+	existingUser, err := iter.Next()
+	if err == nil && existingUser.Exists() {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email already in use"})
+		return
+	}
+
 	// Hash the user's password
 	hashedPassword, err := HashPassword(user.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 		return
 	}
+	
 
-	ctx := context.Background()
+	// Add the new user
 	doc, _, err := client.Collection("users").Add(ctx, map[string]interface{}{
 		"first":           user.First,
 		"last":            user.Last,
 		"email":           user.Email,
-		"password":        hashedPassword, // Store hashed password
+		"password":        hashedPassword,
 		"school":          user.School,
 		"is_admin":        user.IsAdmin,
 		"is_master":       user.IsMaster,
@@ -85,9 +97,8 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	// Return user info upon successful account addition
 	response := gin.H{
-		"id": doc.ID, // Firestore-generated document ID
+		"id": doc.ID,
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "User added successfully", "user": response})
@@ -203,6 +214,7 @@ func GetUser(c *gin.Context) {
 // @Param user body User true "User data"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /api/v1/users/{id} [put]
 func UpdateUser(c *gin.Context) {
@@ -214,6 +226,28 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// Check if email is already in use
+	if user.Email != "" {
+		ctx := context.Background()
+		iter := client.Collection("users").Where("email", "==", user.Email).Documents(ctx)
+		var existingUserID string
+
+		for {
+			doc, err := iter.Next()
+			if err != nil {
+				break // No user with the given email found -- so the users email can be update to this email
+			}
+			existingUserID = doc.Ref.ID
+			if existingUserID != userID {
+				// Found another user with the same email so cannot update the email to this email
+				c.JSON(http.StatusConflict, gin.H{"error": "Email is already in use"})
+				return
+			}
+		}
+	}
+
+
+	// Proceed with updating the user data
 	updateData := make(map[string]interface{})
 
 	if user.First != "" {

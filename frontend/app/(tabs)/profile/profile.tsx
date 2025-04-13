@@ -79,18 +79,6 @@ export default function Profile() {
       .join('')
       .toUpperCase();
 
-  /*
-  const mockAdmin: UserInfo = {
-    name: 'Test Admin',
-    email: 'admin@example.com',
-    is_admin: true,
-    is_master: false,
-    school: 'Test School',
-    id: '123',
-    allow_email: true,
-    allow_push: false,
-  };
-  (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });*/
 
   const handleUpdateInfo = async () => {
     const [firstName, ...rest] = name.split(' ');
@@ -117,16 +105,21 @@ export default function Profile() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to update user info');
-
-      updateUserInfo({
-        ...userInfo,
-        name: `${firstName} ${lastName}`,
-        email,
-      });
-
-      setIsEditing(false);
-      Alert.alert('Success', 'Your info has been updated!');
+      if (response.ok) {
+        updateUserInfo({
+          ...userInfo,
+          name: `${firstName} ${lastName}`,
+          email,
+        });
+      
+        setIsEditing(false);
+        Alert.alert('Success', 'Your info has been updated!');
+      } else if (response.status === 409) {
+        Alert.alert('Email already in use', 'The email you entered is already associated with another account.');
+      } else {
+        const data = await response.json();
+        Alert.alert('Error', data.error || 'Failed to update your information.');
+      }
     } catch (error) {
       Alert.alert('Error', 'Failed to update your information.');
       console.error(error);

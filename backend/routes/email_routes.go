@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"github.com/ekjyotshinh/ChemTrack/backend/controllers"
 	"github.com/gin-gonic/gin"
+	"github.com/ekjyotshinh/ChemTrack/backend/controllers"
+
 )
 
 func RegisterRoutesEmail(router *gin.Engine) {

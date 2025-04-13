@@ -224,6 +224,13 @@ export default function TabLayout() {
           href: null,
         }}
       />
+            {/* Hidden Error/Unauthorized Tab */}
+      <Tabs.Screen
+        name="fileViewer"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
