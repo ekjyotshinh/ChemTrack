@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
   },
-  link: { marginTop: 15, color: 'blue', textAlign: 'center', fontWeight: 'bold' },
+  link: { marginTop: 15, color: Colors.blue, textAlign: 'center', fontWeight: 'bold' },
   forgotPassword: { 
     alignSelf: 'flex-end', 
     marginTop: 10, 
