@@ -1,3 +1,4 @@
+// user for updating password
 import { useState, useEffect } from 'react';
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -8,11 +9,12 @@ import Size from '@/constants/Size';
 import TextInter from '@/components/TextInter';
 import BlueHeader from '@/components/BlueHeader';
 import LoginIcon from '@/assets/icons/LoginIcon';
+import passwordRegex from '@/functions/PasswordRegex';
 
 // Make sure this file is saved at the correct path: app/(auth)/forgotPassword.tsx
 export default function ForgotPassword() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
-  const [newPassword, setNewPassword] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [token, setToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,19 +33,19 @@ export default function ForgotPassword() {
       console.log("No token received in URL params");
     }
   }, [params]);
-
+// Validate password - at least one uppercase, one lowercase, one number, and one special character
+  passwordRegex({ password, setIsValidPassword });
   useEffect(() => {
-    // Validate password - at least 8 characters, containing at least one number and one letter
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    setIsValidPassword(passwordRegex.test(newPassword));
     
     // Check if passwords match
-    setPasswordsMatch(newPassword === confirmPassword && newPassword !== '');
-  }, [newPassword, confirmPassword]);
+    setPasswordsMatch(password === confirmPassword && password !== '');
+  }, [password, confirmPassword]);
 
   const handleResetPassword = async () => {
+    console.log("Attempting password reset with token:", token);
+    //passwordRegex({ password, setIsValidPassword });
     if (!isValidPassword) {
-      Alert.alert('Error', 'Password must be at least 8 characters and contain at least one letter and one number.');
+      Alert.alert('Error', 'Password must be at least 8 characters and have at least one uppercase, one lowercase, one number, and one special character');
       return;
     }
 
@@ -71,7 +73,7 @@ export default function ForgotPassword() {
         },
         body: JSON.stringify({
           token,
-          newPassword,
+          password,
         }),
       });
 
@@ -82,7 +84,7 @@ export default function ForgotPassword() {
       if (response.ok) {
         Alert.alert(
           'Success',
-          'Your password has been reset successfully.',
+          'Your password has been reset successfully. PLease login with the newer password',
           [{ text: 'Login', onPress: () => router.push('/login') }]
         );
       } else {
@@ -112,9 +114,9 @@ export default function ForgotPassword() {
 
           <View style={styles.inputContainer}>
             <HeaderTextInput
-              onChangeText={password => setNewPassword(password)}
+              onChangeText={password => setPassword(password)}
               headerText={'New Password'}
-              value={newPassword}
+              value={password}
               secureTextEntry={true}
               hasIcon={true}
               inputWidth={Size.width(340)}
@@ -134,9 +136,9 @@ export default function ForgotPassword() {
             />
           </View>
 
-          {newPassword.length > 0 && !isValidPassword && (
+          {password.length > 0 && !isValidPassword && (
             <TextInter style={styles.warningText}>
-              Password must be at least 8 characters and contain at least one letter and one number.
+              Password must be at least 8 characters and contain at least one uppercase, one lowercase, one number, and one special character.
             </TextInter>
           )}
 
