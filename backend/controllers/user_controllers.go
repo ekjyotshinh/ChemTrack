@@ -459,9 +459,13 @@ func ForgotPassword(c *gin.Context) {
 		return
 	}
 	
+	//TODO: Update the reset password before deployment to the correct URL
 	// Create reset URL
 	// Create reset URL (still needed for the token in the email instructions)
-	resetURL := "chemtrack://reset-password?token=" + resetToken
+	//resetURL := "chemtrack://resetPassword?token=" + resetToken
+	// this is EJ's private expo go app URL
+	// for testing it you can update it to yours
+	resetURL := "exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/resetPassword?token=" + resetToken
 
 	// Email body with reset link - Format the email in HTML for better presentation
 	emailBody := `
@@ -476,13 +480,13 @@ func ForgotPassword(c *gin.Context) {
 				<li>Open the ChemTrack app on your device</li>
 				<li>Go to the Login screen</li>
 				<li>Tap "Forgot Password"</li>
-				<li>Enter your email: ` + req.Email + `</li>
-				<li>When prompted, use this reset token:</li>
+				<li>Click on "Click to enter Token"</li>
+				<li>In the input field add this reset token:</li>
 			</ol>
 			<div style="padding: 10px; background-color: #f0f0f0; border: 1px dashed #ccc; font-family: monospace; margin: 10px 0;">
 				` + resetToken + `
 			</div>
-			<p>Or if your app supports deep links, you can try clicking this button:</p>
+			<p>Clink this button to open in App</p>
 			<div style="margin: 15px 0;">
 				<a href="` + resetURL + `" style="background-color: #4285f4; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block;">Open in App</a>
 			</div>
