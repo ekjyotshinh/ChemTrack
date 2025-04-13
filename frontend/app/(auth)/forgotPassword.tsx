@@ -73,7 +73,7 @@ export default function ForgotPassword() {
         },
         body: JSON.stringify({
           token,
-          password,
+          newPassword: password,
         }),
       });
 

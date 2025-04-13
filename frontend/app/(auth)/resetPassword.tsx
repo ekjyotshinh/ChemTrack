@@ -1,7 +1,7 @@
 // Toekn generation and  authentication screen
-import { useState } from 'react';  
+import { useState,useEffect } from 'react';  
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';  
-import { useRouter } from 'expo-router';  
+import { useRouter,useLocalSearchParams } from 'expo-router';  
 import CustomButton from '@/components/CustomButton';  
 import Colors from '@/constants/Colors';   
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';  
@@ -16,10 +16,23 @@ export default function ResetPassword() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(false);
-  
-  emailRegex({ email, setIsValidEmail });
+  const [manualToken, setManualToken] = useState('');
+  const [inputToken, setInputToken] = useState(false);
 
-  const router = useRouter();  
+  const router = useRouter(); 
+  const tokenParams = useLocalSearchParams();
+
+  emailRegex({ email, setIsValidEmail });
+  // Pre-fill token and show token input UI if token is in URL
+  useEffect(() => {
+    if (tokenParams?.token) {
+      const extractedToken = String(tokenParams.token);
+      setManualToken(extractedToken);
+      setInputToken(true);
+    }
+  }, [tokenParams]); 
+
+  
 
   const handleResetPassword = async () => {
     if (!email || !isValidEmail) {
@@ -51,14 +64,7 @@ export default function ResetPassword() {
     } finally {
       setIsLoading(false);
     }
-  };  
-
-  const handleClear = () => {
-    setEmail('');
-  }
-
-  const [manualToken, setManualToken] = useState('');
-  const [inputToken, setInputToken] = useState(false);
+  };
 
   const handleManualToken = async () => {
     if (manualToken.length > 0) {
