@@ -1,3 +1,4 @@
+// Toekn generation and  authentication screen
 import { useState } from 'react';  
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';  
 import { useRouter } from 'expo-router';  
@@ -39,36 +40,8 @@ export default function ResetPassword() {
       const data = await response.json(); 
       console.log('Response data:', data);
 
-      if (response.ok) {
-        if (data.debug_token) {
-          Alert.alert(
-            'Test Mode - Reset Token',
-            `Token: ${data.debug_token}\n\nIn production, this would be sent via email.`,
-            [
-              { 
-                text: 'Use This Token', 
-                onPress: () => {
-                  try {
-                    console.log("Attempting navigation with token:", data.debug_token);
-                    router.push({
-                      pathname: "/(auth)/forgotPassword",
-                      params: { token: data.debug_token }
-                    });
-                  } catch (error) {
-                    console.error("Navigation error:", error);
-                    Alert.alert(
-                      "Navigation Error",
-                      "Could not navigate to password reset screen. Please try again."
-                    );
-                  }
-                }
-              },
-              { text: 'Cancel' }
-            ]
-          );
-        } else {
-          Alert.alert('Email Sent', 'Check your email for reset instructions.', [{ text: 'OK', onPress: () => router.push('/login') }]);
-        }
+      if (response.ok) { 
+        Alert.alert('Email Sent', 'Check your email for reset instructions.', [{ text: 'OK', onPress: () => setInputToken(true) }]);
       } else {
         Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
       }
@@ -85,7 +58,7 @@ export default function ResetPassword() {
   }
 
   const [manualToken, setManualToken] = useState('');
-  const [showManualTokenInput, setShowManualTokenInput] = useState(false);
+  const [inputToken, setInputToken] = useState(false);
 
   const handleManualToken = async () => {
     if (manualToken.length > 0) {
@@ -154,8 +127,8 @@ export default function ResetPassword() {
         <View style={{ marginTop: Size.height(40) }}>  
           <TextInter style={styles.descriptionText}>  
             Enter your email address and we'll send you instructions to reset your password.  
-          </TextInter>  
-
+          </TextInter> 
+          {!inputToken && ( 
           <View style={{ alignItems: 'center', marginTop: Size.height(30) }}>  
             <HeaderTextInput  
               onChangeText={setEmail}  
@@ -168,7 +141,8 @@ export default function ResetPassword() {
               autoCorrect={false}
             />  
           </View>  
-
+          )}
+          {!inputToken && (
           <View style={styles.buttonContainer}>  
             <CustomButton  
               title={isLoading ? "Sending..." : "Send Reset Link"}  
@@ -179,25 +153,17 @@ export default function ResetPassword() {
               icon={<LoginIcon width={24} height={24} color={isValidEmail ? Colors.white : Colors.grey} />}  
               iconPosition='left'
             />
+            <TextInter 
+              onPress= {() => setInputToken(true) }
+              style={styles.enterTokenText}
+            >
+              Click to enter Token
+            </TextInter>
 
-            <View style={styles.rowContainer}>  
-              <CustomButton  
-                title="Clear"  
-                onPress={handleClear}  
-                color={Colors.red}  
-                width={160}  
-              />  
-              <CustomButton  
-                title="Enter Token Manually"  
-                onPress={() => setShowManualTokenInput(true)}  
-                color={Colors.blue}  
-                textColor={Colors.white}  
-                width={160}  
-              />  
-            </View>  
           </View>  
+          )}
 
-          {showManualTokenInput && (
+          {inputToken && (
             <View style={{ alignItems: 'center', marginTop: Size.height(15) }}>
               <HeaderTextInput
                 onChangeText={setManualToken}
@@ -252,5 +218,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: 327,
     marginTop: Size.height(15),
+  },
+    enterTokenText: { 
+    alignSelf: 'center', 
+    marginTop: 10, 
+    color: Colors.blue, 
+    fontSize: 14,
+    fontWeight: '600', // Make it slightly bolder
+    padding: 5, // Add some padding to create a larger touch target
   },
 });
