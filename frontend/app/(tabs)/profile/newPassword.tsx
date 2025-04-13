@@ -44,39 +44,11 @@ export default function ResetPassword() {
       console.log('Response data:', data);
 
       if (response.ok) {
-        // Check if we're in test mode with a direct token
-        if (data.debug_token) {
-          Alert.alert(
-            'Test Mode - Reset Token',
-            `Token: ${data.debug_token}\n\nIn production, this would be sent via email.`,
-            [
-              { 
-                text: 'Use This Token', 
-                onPress: () => {
-                  // Try various navigation approaches to find one that works
-                  try {
-                    // Option 1: Full path with params object
-                    router.push({
-                      pathname: '/profile/newPassword',
-                      params: { token: data.debug_token }
-                    });
-                  } catch (e) {
-                    console.error("Navigation error:", e);
-                    // Option 2: String path with query parameter
-                    router.push(`/profile/newPassword?token=${data.debug_token}`);
-                  }
-                }
-              },
-              { text: 'Cancel' }
-            ]
-          );
-        } else {
-          Alert.alert(
-            'Email Sent',
-            'If your email is registered with us, you will receive password reset instructions shortly.',
-            [{ text: 'OK', onPress: () => router.push('/login') }]
-          );
-        }
+        Alert.alert(
+          'Email Sent',
+          'If your email is registered with us, you will receive password reset instructions shortly.',
+          [{ text: 'OK', onPress: () => router.push('/profile/profile') }]
+        );
       } else {
         Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
       }
@@ -94,7 +66,7 @@ export default function ResetPassword() {
 
   return (  
     <View style={styles.container}>  
-      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/login')} />  
+      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/profile/profile')} />  
 
       <ScrollView style={styles.scrollContainer}>  
         <View style={{ marginTop: Size.height(40) }}>  
