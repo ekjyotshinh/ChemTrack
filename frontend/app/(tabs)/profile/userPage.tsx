@@ -14,6 +14,7 @@ import AdminUserIcon from "@/assets/icons/AdminUserIcon";
 import MasterUserIcon from "@/assets/icons/MasterUserIcon";
 import Colors from "@/constants/Colors";
 import CustomTextHeader from "@/components/inputFields/CustomTextHeader";
+import DropdownInput from '@/components/inputFields/DropdownInput';
 import HeaderTextInput from "@/components/inputFields/HeaderTextInput";
 import Size from "@/constants/Size";
 import BlueHeader from "@/components/BlueHeader";
@@ -21,11 +22,15 @@ import { useRouter } from "expo-router";
 import emailRegex from "@/functions/EmailRegex";
 import { useUser } from "@/contexts/UserContext";
 import ErrorPage from "../errorPage";
+import fetchSchoolList from '@/functions/fetchSchool';
+
 
 const InviteUserPage: React.FC = () => {
     const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const [email, setEmail] = useState<string>("");
     const [school, setSchool] = useState<string>("");
+    const [selectedSchool, setSelectedSchool] = useState('');
+    const [otherSchool, setOtherSchool] = useState('');
     const [userType, setUserType] = useState<"Master" | "Admin" | null>(null);
 
     const [isValidEmail, setIsValidEmail] = useState(false);
@@ -35,14 +40,22 @@ const InviteUserPage: React.FC = () => {
 
     const { userInfo } = useUser();
 
-    // Make sure that all fields are filled
+    const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
+
     useEffect(() => {
-        if (email && school && userType && isValidEmail) {
-            setAllFieldsFilled(true);
+        fetchSchoolList({setSchoolList});
+    }, []);
+
+    // Make sure that all fields are filled
+   useEffect(() => {
+        const isSchoolValid = selectedSchool === "Other" ? !!otherSchool : !!selectedSchool;
+        if (email && isSchoolValid && userType && isValidEmail) {
+          setAllFieldsFilled(true);
         } else {
-            setAllFieldsFilled(false);
+          setAllFieldsFilled(false);
         }
-    }, [email, school, userType, isValidEmail]);
+    }, [email, selectedSchool, otherSchool, userType, isValidEmail]);
+      
     const deleteUserOnUnsuccessfulInvite = async (id:string) => {
         try {
             const response = await fetch(`${API_URL}/api/v1/users/${id}`, {
@@ -68,13 +81,15 @@ const InviteUserPage: React.FC = () => {
 
     const handleSendInvite = async () => {
         //creating user data to be used to create an account
+        const school = selectedSchool === "Other" ? otherSchool : selectedSchool;
+
         const userData = {
-            first: "",
-            last: "",
-            email: email, // Use the extracted email value here
-            school: school, // Use the extracted selected school here
-            is_admin: userType == "Admin",
-            is_master: userType == "Master",
+        first: "",
+        last: "",
+        email: email,
+        school: school,
+        is_admin: userType === "Admin",
+        is_master: userType === "Master",
         };
         if (email && school && userType) {
             if (!isValidEmail) {
@@ -113,11 +128,10 @@ const InviteUserPage: React.FC = () => {
                                 body: JSON.stringify({
                                     to: email,
                                     subject: "ChemTrack User Invitation",
-                                    //body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Click the link below to sign up.\n\n[Sign Up Here](chemtrack://signupPage1?email=${email}&userType=${userType}&school=${encodeURIComponent(school)})`,
                                     // Ajays Link
-                                    body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Click the link below to sign up:<br><br><a href="exp://a4sykbo-ajay_12-8082.exp.direct/--/customSignup1?id=${id}">Sign Up Link</a>`,
+                                    body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Download the app from the Play Store, then tap the link below to complete your sign-up.<br><br> exp://a4sykbo-ajay_12-8081.exp.direct/--/customSignup1?id=${id}`,
                                     // EJ's Link
-                                    //body: `You have been invited to join ChemTrack at ${school} as a ${userType}.<br><br>Click the link below to sign up:<br><br><a href="exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}">Sign Up Link</a>`,
+                                    //body: `You have been invited to join ChemTrack at ${school} as a ${userType}.<br><br>Download the app from the Play Store, then tap the link below to complete your sign-up.<br><br><a href="exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}">Sign Up Link</a>`,
                                 }),
                             }
                         );
@@ -155,7 +169,8 @@ const InviteUserPage: React.FC = () => {
 
     const handleClear = (): void => {
         setEmail("");
-        setSchool("");
+        setSelectedSchool("");
+        setOtherSchool("");
         setUserType(null);
     };
 
@@ -193,15 +208,30 @@ const InviteUserPage: React.FC = () => {
                                         autoCorrect={false}
                                     />
                                     <View style={{ height: Size.height(10) }} />
+
+                                    <View style={{ width: Size.width(340), marginBottom: Size.height(10) }}>
+                                        <CustomTextHeader headerText="School" />
+                                        <DropdownInput
+                                            data={[...schoolList, { label: 'Other', value: 'Other' }]}
+                                            value={selectedSchool}
+                                            setValue={setSelectedSchool}
+                                        />
+                                    </View>
+
+                                    <View style={{ height: Size.height(10) }} />
+
+                                    {selectedSchool === "Other" && (
                                     <HeaderTextInput
-                                        onChangeText={(school) =>
-                                            setSchool(school)
-                                        }
-                                        headerText={"School"}
-                                        value={school}
+                                        onChangeText={(text) => setOtherSchool(text)}
+                                        headerText={"Enter your school"}
+                                        value={otherSchool}
                                         inputWidth={Size.width(340)}
                                         hasIcon={true}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
                                     />
+                                    )}
+
                                     <View style={{ height: Size.height(10) }} />
 
                                     {/* User Type Selection with Icons */}

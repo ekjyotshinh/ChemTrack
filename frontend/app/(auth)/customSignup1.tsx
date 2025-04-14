@@ -54,10 +54,6 @@ export default function customSignup1() {
     }
   };
     
-
-
-
-
 	console.log("isMaster:", isMaster);
 	console.log("isAdmin:", isAdmin);
 
