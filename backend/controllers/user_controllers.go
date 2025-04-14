@@ -273,10 +273,20 @@ func UpdateUser(c *gin.Context) {
 	if user.ExpoPushToken != "" {
 		updateData["expo_push_token"] = user.ExpoPushToken
 	}
-	updateData["is_admin"] = user.IsAdmin
-	updateData["is_master"] = user.IsMaster
-	updateData["allow_email"] = user.AllowEmail
-	updateData["allow_push"] = user.AllowPush
+	if user.IsAdmin {
+		updateData["is_admin"] = user.IsAdmin
+	}
+	if user.IsMaster {
+		updateData["is_master"] = user.IsMaster
+	}
+
+	if user.AllowEmail{
+	    updateData["allow_email"] = user.AllowEmail
+	}
+	if user.AllowPush{
+	    updateData["allow_push"] = user.AllowPush
+	}
+
 
 	ctx := context.Background()
 	_, err := client.Collection("users").Doc(userID).Set(ctx, updateData, firestore.MergeAll)
