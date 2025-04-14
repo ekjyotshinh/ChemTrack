@@ -274,19 +274,8 @@ export default function EditChemicals() {
         }
       );
 
-      const sdsResponse = await fetch(
-        `${API_URL}/api/v1/files/sds/${chemicalIdString}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-
-      );
 
       const responseData = await response.json();
-      const sdsResponseData = await sdsResponse.json();
 
       if (response.ok) {
         Alert.alert('Success', 'Chemical successfully deleted');
