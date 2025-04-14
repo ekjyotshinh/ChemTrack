@@ -24,9 +24,10 @@ export default function customSignup1() {
 
   // Fetch user data
   useEffect(() => {
+    if (!userId) return;
     console.log("userId from URL:", userId);
     getUserData();
-  }, []);
+  }, [userId]);
 
   const getUserData = async () => {
     try {
@@ -50,6 +51,7 @@ export default function customSignup1() {
         Alert.alert("Error fetching data");
       }
     } catch (error) {
+      console.error('Failed to fetch user data:', error);
       Alert.alert("Error fetching data");
     }
   };
@@ -58,6 +60,11 @@ export default function customSignup1() {
 	console.log("isAdmin:", isAdmin);
 
   const handleNextPress = () => {
+    if (!userId) {
+      Alert.alert('Invalid user ID');
+      return;
+    }
+
     updateUserInfo({
 			name: '',
 			email: emailValue,
@@ -87,22 +94,22 @@ export default function customSignup1() {
       <ScrollView style={{ width: '100%' }}>
         <View style={styles.formContainer}>
           {/* Email (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'Email'} value={emailValue} hasIcon={false} editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="emailInput" headerText={'Email'} value={emailValue} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* Password Input */}
-          <HeaderTextInput headerText={'Password'} value={password} onChangeText={setPassword} secureTextEntry hasIcon />
+          <HeaderTextInput testID="passwordInput" headerText={'Password'} value={password} onChangeText={setPassword} secureTextEntry hasIcon />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* School (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'School'} value={schoolValue} hasIcon={false} editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="schoolInput" headerText={'School'} value={schoolValue} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* User Type (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'User Type'} value={isAdmin ? 'Admin' : 'Master'} hasIcon={false} editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="userTypeInput" headerText={'User Type'} value={isAdmin ? 'Admin' : 'Master'} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(250) }} />
           <CustomButton

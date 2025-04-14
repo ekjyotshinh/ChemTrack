@@ -142,9 +142,8 @@ const InviteUserPage: React.FC = () => {
                                 "Invitation sent successfully!",
                                 [{ text: "OK" }]
                             );
-                            setEmail("");
-                            setSchool("");
-                            setUserType(null);
+                            handleClear();
+
                         } else {
                             deleteUserOnUnsuccessfulInvite(id)
                         }
