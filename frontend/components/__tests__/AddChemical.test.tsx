@@ -70,6 +70,9 @@ jest.spyOn(View.prototype, 'measureInWindow').mockImplementation((cb) => {
 
 jest.mock('@/functions/fetchSchool', () => jest.fn());
 
+// Mock fetch globally
+global.fetch = jest.fn();
+
 describe('AddChemical', () => {
     let router: { replace: jest.Mock; push: jest.Mock };
 
@@ -226,7 +229,7 @@ describe('AddChemical', () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
-  
+
         const { getByTestId, getByText } = render(<AddChemical />);
 
         fireEvent.press(getByTestId("purchase-date"));
@@ -285,6 +288,12 @@ describe('AddChemical', () => {
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
 
+        // Mock Form Data
+        const appendMock = jest.fn();
+        global.FormData = jest.fn().mockImplementation(() => {
+            return { append: appendMock };  // Return an object with our mocked append function
+        });
+
         const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
 
         fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
@@ -336,7 +345,7 @@ describe('AddChemical', () => {
         });
 
         fireEvent.press(getByText('Upload'));
-        expect(await findByText('File Uploaded')).toBeTruthy();
+        expect(await findByText('test')).toBeTruthy();
 
         fireEvent.press(getByText("Clear"));
 
@@ -364,6 +373,12 @@ describe('AddChemical', () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
+
+        // Mock Form Data
+        const appendMock = jest.fn();
+        global.FormData = jest.fn().mockImplementation(() => {
+            return { append: appendMock };  // Return an object with our mocked append function
+        });
 
         const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
 
@@ -427,7 +442,7 @@ describe('AddChemical', () => {
         });
 
         fireEvent.press(getByText('Upload'));
-        expect(await findByText('File Uploaded')).toBeTruthy();
+        expect(await findByText('test')).toBeTruthy();
 
         fireEvent.press(getByText("Clear"));
 
@@ -453,13 +468,31 @@ describe('AddChemical', () => {
     test("ADMIN: Test save chemical button", async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
 
+        // Mock Form Data
+        const appendMock = jest.fn();
+        global.FormData = jest.fn().mockImplementation(() => {
+            return { append: appendMock };
+        });
+
         // Simulate adding chemical call
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({ message: "Chemical added successfully" }),
-            })
-        ) as jest.Mock;
+        const addChemicalResponse = {
+            ok: true,
+            json: jest.fn().mockResolvedValue({
+                message: 'Chemical added successfully',
+                chemical: { id: '123' },
+
+            }),
+        };
+
+        // Simulate adding sds call
+        const addPdfResponse = {
+            ok: true,
+            json: () => Promise.resolve({ message: "SDS uploaded successfully" }),
+        };
+        // Mock fetch responses
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => addChemicalResponse)
+            .mockImplementationOnce(() => addPdfResponse);
 
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
@@ -467,7 +500,7 @@ describe('AddChemical', () => {
         const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
 
         fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
-        fireEvent.changeText(getByTestId('cas-0'), '1234');
+        fireEvent.changeText(getByTestId('cas-0'), '123456');
         fireEvent.changeText(getByTestId('cas-1'), '56');
         fireEvent.changeText(getByTestId('cas-2'), '7');
 
@@ -514,14 +547,28 @@ describe('AddChemical', () => {
         });
 
         fireEvent.press(getByText('Upload'));
-        expect(await findByText('File Uploaded')).toBeTruthy();
+        await waitFor(() => {
+            expect(DocumentPicker.getDocumentAsync).toHaveBeenCalled();
+            expect(appendMock).toHaveBeenCalledWith(
+                'sds',
+                expect.objectContaining({
+                    uri: 'file:///test.pdf',
+                    name: 'test.pdf',
+                    type: 'application/pdf',
+                })
+            );
+        });
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('PDF Uploaded!');
+        });
+        expect(await findByText('test')).toBeTruthy();
 
         fireEvent.press(getByText('Save Chemical'));
-        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
 
         const expectedData = {
             name: 'Mock Chemical',
-            cas: 1234567,
+            cas: 123456567,
             purchase_date: date,
             expiration_date: date,
             status: 'Good',
@@ -531,7 +578,7 @@ describe('AddChemical', () => {
             shelf: 420,
             school: 'Test School',
         }
-        
+
         // Does the data match the expected data?
         const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
         const requestBody = JSON.parse(fetchCall[1].body);
@@ -565,13 +612,31 @@ describe('AddChemical', () => {
             setSchoolList([{ label: 'Mock High School', value: 'Mock High School' }]);
         });
 
+        // Mock Form Data
+        const appendMock = jest.fn();
+        global.FormData = jest.fn().mockImplementation(() => {
+            return { append: appendMock };
+        });
+
         // Simulate adding chemical call
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({ message: "Chemical added successfully" }),
-            })
-        ) as jest.Mock;
+        const addChemicalResponse = {
+            ok: true,
+            json: jest.fn().mockResolvedValue({
+                message: 'Chemical added successfully',
+                chemical: { id: '123' },
+
+            }),
+        };
+
+        // Simulate adding sds call
+        const addPdfResponse = {
+            ok: true,
+            json: () => Promise.resolve({ message: "SDS uploaded successfully" }),
+        };
+        // Mock fetch responses
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => addChemicalResponse)
+            .mockImplementationOnce(() => addPdfResponse);
 
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
@@ -579,7 +644,7 @@ describe('AddChemical', () => {
         const { getByTestId, getByText, findByText, queryByText } = render(<AddChemical />);
 
         fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
-        fireEvent.changeText(getByTestId('cas-0'), '1234');
+        fireEvent.changeText(getByTestId('cas-0'), '123456');
         fireEvent.changeText(getByTestId('cas-1'), '56');
         fireEvent.changeText(getByTestId('cas-2'), '7');
 
@@ -637,14 +702,29 @@ describe('AddChemical', () => {
         });
 
         fireEvent.press(getByText('Upload'));
-        expect(await findByText('File Uploaded')).toBeTruthy();
+        await waitFor(() => {
+            expect(DocumentPicker.getDocumentAsync).toHaveBeenCalled();
+            expect(appendMock).toHaveBeenCalledWith(
+                'sds',
+                expect.objectContaining({
+                    uri: 'file:///test.pdf',
+                    name: 'test.pdf',
+                    type: 'application/pdf',
+                })
+            );
+        });
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('PDF Uploaded!');
+        });
+        expect(await findByText('test')).toBeTruthy();
+
 
         fireEvent.press(getByText('Save Chemical'));
-        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
 
         const expectedData = {
             name: 'Mock Chemical',
-            cas: 1234567,
+            cas: 123456567,
             purchase_date: date,
             expiration_date: date,
             status: 'Good',
@@ -654,7 +734,7 @@ describe('AddChemical', () => {
             shelf: 420,
             school: 'Mock High School',
         }
-        
+
         // Does the data match the expected data?
         const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
         const requestBody = JSON.parse(fetchCall[1].body);
