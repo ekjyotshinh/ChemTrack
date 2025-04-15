@@ -207,11 +207,21 @@ export default function EditChemicals() {
 
         if (response.ok) {
           if (changedPdf) {
-            const pdfResponse = await fetch(`${API_URL}/api/v1/files/sds/${responseData.chemical.id}`, {
+            const pdfDeleteResponse = await fetch(
+              `${API_URL}/api/v1/files/sds/${chemicalIdString}`,
+              {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+
+            );
+            const pdfPostResponse = await fetch(`${API_URL}/api/v1/files/sds/${chemicalIdString}`, {
               method: 'POST',
               body: sdsForm.current!,
             });
-            if (!pdfResponse.ok) {
+            if (!pdfDeleteResponse.ok || !pdfPostResponse.ok) {
               console.log('Failed to update pdf:', sdsForm.current);
               Alert.alert('Error', 'Error occurred while updating Pdf');
             } else {
