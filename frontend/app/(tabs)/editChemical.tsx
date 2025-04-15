@@ -35,6 +35,7 @@ export default function EditChemicals() {
   const [expirationDate, setExpirationDate] = useState<Date>();
   const [uploaded, setUploaded] = useState<boolean>(false);
   const [changedPdf, setChangedPdf] = useState<boolean>(false);
+  const [existingPdf, setExistingPdf] = useState<boolean>(false);
   const [editChemical, setEditChemical] = useState<any>(null);
 
   const router = useRouter();
@@ -129,6 +130,7 @@ export default function EditChemicals() {
         setPurchaseDate(data.purchase_date ? new Date(data.purchase_date) : undefined);
         setExpirationDate(data.expiration_date ? new Date(data.expiration_date) : undefined);
         setUploaded(!!data.sdsURL);
+        setExistingPdf(!!data.sdsURL);
       } else {
         console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
@@ -206,29 +208,49 @@ export default function EditChemicals() {
         const responseData = await response.json();
 
         if (response.ok) {
+          // If a different PDF is uploaded than database's
           if (changedPdf) {
-            const pdfDeleteResponse = await fetch(
-              `${API_URL}/api/v1/files/sds/${chemicalIdString}`,
-              {
-                method: 'DELETE',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
+            // If there is a pdf initially uploaded, delete and change, else just add
+            if (existingPdf) {
+              const pdfDeleteResponse = await fetch(
+                `${API_URL}/api/v1/files/sds/${chemicalIdString}`,
+                {
+                  method: 'DELETE',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+
+              );
+              const pdfPostResponse = await fetch(`${API_URL}/api/v1/files/sds/${chemicalIdString}`, {
+                method: 'POST',
+                body: sdsForm.current!,
+              });
+
+              if (!pdfDeleteResponse.ok || !pdfPostResponse.ok) {
+                console.log('Failed to update pdf:', sdsForm.current);
+                Alert.alert('Error', 'Error occurred while updating Pdf over original');
+              } else {
+                console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
+                Alert.alert('Success', 'Chemical and SDS information updated');
+                router.push('/');
               }
 
-            );
-            const pdfPostResponse = await fetch(`${API_URL}/api/v1/files/sds/${chemicalIdString}`, {
-              method: 'POST',
-              body: sdsForm.current!,
-            });
-            if (!pdfDeleteResponse.ok || !pdfPostResponse.ok) {
-              console.log('Failed to update pdf:', sdsForm.current);
-              Alert.alert('Error', 'Error occurred while updating Pdf');
             } else {
-              console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
-              Alert.alert('Success', 'Chemical and SDS information updated');
-              router.push('/');
+              const pdfPostResponse = await fetch(`${API_URL}/api/v1/files/sds/${chemicalIdString}`, {
+                method: 'POST',
+                body: sdsForm.current!,
+              });
+              if (!pdfPostResponse.ok) {
+                console.log('Failed to update pdf:', sdsForm.current);
+                Alert.alert('Error', 'Error occurred while updating Pdf');
+              } else {
+                console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
+                Alert.alert('Success', 'Chemical and SDS information updated');
+                router.push('/');
+              }
             }
+
           } else {
             console.log('Chemical updated successfully:', responseData);
             Alert.alert('Success', 'Chemical information updated');
