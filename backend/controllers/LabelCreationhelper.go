@@ -42,11 +42,6 @@ func AddLabel(c *gin.Context) {
 		return
 	}
 	chemID := doc.Ref.ID
-	Chemname, ok := doc.Data()["name"].(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve chemical name"})
-		return
-	}
 
 	// Fetch the QR code using the new QR code API
 	qrCodeURL := fmt.Sprintf("http://localhost:8080/api/v1/files/qrcode/%s", chemID) // Replace with the actual API URL
@@ -91,7 +86,7 @@ func AddLabel(c *gin.Context) {
 	textX := width/2 + margin
 	textY := height / 2 // Center vertically
 	pdf.SetFont("Arial", "B", 14)
-	pdf.Text(textX, textY-5, Chemname)
+	pdf.Text(textX, textY-5, chemID)
 
 	// Generate the PDF
 	var buf bytes.Buffer
