@@ -1,4 +1,4 @@
-// Toekn generation and  authentication screen
+// Token generation and authentication screen
 import { useState,useEffect } from 'react';  
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';  
 import { useRouter,useLocalSearchParams } from 'expo-router';  
@@ -31,8 +31,6 @@ export default function ResetPassword() {
       setInputToken(true);
     }
   }, [tokenParams]); 
-
-  
 
   const handleResetPassword = async () => {
     if (!email || !isValidEmail) {
@@ -170,7 +168,7 @@ export default function ResetPassword() {
           )}
 
           {inputToken && (
-            <View style={{ alignItems: 'center', marginTop: Size.height(15) }}>
+            <View style={{ alignItems: 'center', marginTop: Size.height(40) }}>
               <HeaderTextInput
                 onChangeText={setManualToken}
                 headerText={'Reset Token'}
@@ -185,9 +183,9 @@ export default function ResetPassword() {
                 color={manualToken.length > 0 ? Colors.blue : Colors.white}
                 textColor={manualToken.length > 0 ? Colors.white : Colors.grey}
                 onPress={handleManualToken}
-                width={360}
+                width={327}
                 icon={<LoginIcon width={24} height={24} color={manualToken.length > 0 ? Colors.white : Colors.grey} />}
-                iconPosition='left'
+                iconPosition='left'  
               />
             </View>
           )}
@@ -232,5 +230,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600', // Make it slightly bolder
     padding: 5, // Add some padding to create a larger touch target
-  },
+  },   
 });
