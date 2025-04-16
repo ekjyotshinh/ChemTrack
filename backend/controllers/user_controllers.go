@@ -1,13 +1,18 @@
 package controllers
 
 import (
-	"context"
-	"net/http"
+    "context"
+    "crypto/rand"
+    "crypto/sha256"
+    "encoding/hex"
+    "net/http"
+    "time"
 
-	"cloud.google.com/go/firestore"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/api/iterator"
+    "cloud.google.com/go/firestore"
+    "github.com/gin-gonic/gin"
+    "github.com/ekjyotshinh/ChemTrack/backend/helpers"  // Re-enabled this import
+    "golang.org/x/crypto/bcrypt"
+    "google.golang.org/api/iterator"
 )
 
 // User represents the structure of a user
@@ -23,6 +28,18 @@ type User struct {
 	AllowEmail    bool   `json:"allow_email"` // flag for email notifications
 	AllowPush     bool   `json:"allow_push"`  // flag for push notifications
 }
+
+// Request types for password reset
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+type ResetPasswordRequest struct {
+	Token       string `json:"token"`
+	NewPassword string `json:"newPassword" `
+}
+
+
 
 var client *firestore.Client
 
@@ -370,4 +387,289 @@ func Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": response})
+}
+
+// ForgotPassword handles password reset requests
+// @Summary Sends a password reset email
+// @Description Generates a reset token and sends an email to the user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body ForgotPasswordRequest true "User email"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/v1/auth/forgot-password [post]
+
+// ForgotPassword handles password reset requests
+func ForgotPassword(c *gin.Context) {
+	var req ForgotPasswordRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	// Generate a secure random token
+	tokenBytes := make([]byte, 32)
+	if _, err := rand.Read(tokenBytes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+	
+	// Convert to hex string for URL safety
+	resetToken := hex.EncodeToString(tokenBytes)
+	
+	// Hash token for storage
+	hasher := sha256.New()
+	hasher.Write([]byte(resetToken))
+	hashedToken := hex.EncodeToString(hasher.Sum(nil))
+	
+	// Set expiration time (1 hour)
+	expiryTime := time.Now().Add(15 * time.Minute)
+	
+	// Find user by email
+	ctx := context.Background()
+	iter := client.Collection("users").Where("email", "==", req.Email).Documents(ctx)
+	
+	var userFound bool
+	var userID string
+	
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			// Log the error but don't expose it to the client
+			userFound = false
+			break
+		}
+		
+		userID = doc.Ref.ID
+		userFound = true
+		
+		// Store the reset token and expiration time
+		_, err = client.Collection("users").Doc(userID).Set(ctx, map[string]interface{}{
+			"reset_token": hashedToken,
+			"reset_expiry": expiryTime,
+		}, firestore.MergeAll)
+		
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process request"})
+			return
+		}
+		
+		break
+	}
+	
+	// Always return a success message even if user not found (for security)
+	if !userFound {
+		c.JSON(http.StatusOK, gin.H{"message": "If that email exists in our system, we have sent a password reset link"})
+		return
+	}
+	
+	//TODO: Update the reset password before deployment to the correct URL
+	// Create reset URL
+	// Create reset URL (still needed for the token in the email instructions)
+	//resetURL := "chemtrack://resetPassword?token=" + resetToken
+	// this is EJ's private expo go app URL
+	// for testing it you can update it to yours
+	resetURL := "exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/resetPassword?token=" + resetToken
+
+	// Email body with reset link - Format the email in HTML for better presentation
+	emailBody := `
+	<html>
+	<body style="font-family: Arial, sans-serif; line-height: 1.6;">
+		<h2>ChemTrack Password Reset</h2>
+		<p>You requested a password reset for your ChemTrack account.</p>
+		
+		<div style="margin: 20px 0; padding: 15px; border: 1px solid #e0e0e0; background-color: #f8f8f8; border-radius: 5px;">
+			<p><strong>Instructions:</strong></p>
+			<ol>
+				<li>Open the ChemTrack app on your device</li>
+				<li>Go to the Login screen</li>
+				<li>Tap "Forgot Password"</li>
+				<li>Click on "Click to enter Token"</li>
+				<li>In the input field add this reset token:</li>
+			</ol>
+			<div style="padding: 10px; background-color: #f0f0f0; border: 1px dashed #ccc; font-family: monospace; margin: 10px 0;">
+				` + resetToken + `
+			</div>
+			<p>Clink this button to open in App</p>
+			<div style="margin: 15px 0;">
+				<a href="` + resetURL + `" style="background-color: #4285f4; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block;">Open in App</a>
+			</div>
+		</div>
+		
+		<p>This reset token will expire in 15 minutes.</p>
+		<p>If you didn't request this reset, please ignore this email.</p>
+	</body>
+	</html>
+	`
+
+	// Send the email - make sure to use HTML content type
+	if err := helpers.SendEmailHelper(req.Email, "ChemTrack Password Reset", emailBody); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email"})
+		return
+	}
+	// This is the problematic line - make sure there are no missing commas
+	c.JSON(http.StatusOK, gin.H{
+		"message": "If that email exists in our system, we have sent a password reset link",
+	})
+}
+// ResetPassword validates a reset token and updates the user's password
+// @Summary Reset user password
+// @Description Resets a user's password using a valid token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body ResetPasswordRequest true "Reset token and new password"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/v1/auth/reset-password [post]
+func ResetPassword(c *gin.Context) {
+	var req ResetPasswordRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+	
+	// Hash the token to compare with stored hash
+	hasher := sha256.New()
+	hasher.Write([]byte(req.Token))
+	hashedToken := hex.EncodeToString(hasher.Sum(nil))
+	
+	// Find user with this token
+	ctx := context.Background()
+	iter := client.Collection("users").Where("reset_token", "==", hashedToken).Documents(ctx)
+	
+	var userFound bool
+	var userID string
+	var userData map[string]interface{}
+	
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			userFound = false
+			break
+		}
+		
+		userID = doc.Ref.ID
+		userData = doc.Data()
+		userFound = true
+		break
+	}
+	
+	if !userFound {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired token"})
+		return
+	}
+	
+	// Check if token is expired
+	if expiry, ok := userData["reset_expiry"].(time.Time); ok {
+		if time.Now().After(expiry) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Reset token has expired"})
+			return
+		}
+	} else {
+		// If we can't parse the expiry time, consider the token invalid
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token"})
+		return
+	}
+	
+	// Hash the new password
+	hashedPassword, err := HashPassword(req.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process password"})
+		return
+	}
+	
+	// Update the password and clear reset token fields
+	_, err = client.Collection("users").Doc(userID).Set(ctx, map[string]interface{}{
+		"password": hashedPassword,
+		"reset_token": firestore.Delete,
+		"reset_expiry": firestore.Delete,
+	}, firestore.MergeAll)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
+	
+	c.JSON(http.StatusOK, gin.H{"message": "Password has been reset successfully"})
+}
+
+// VerifyResetToken validates if a password reset token exists and is not expired
+// @Summary Verify reset token
+// @Description Verify if a reset token is valid and not expired
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body map[string]string true "Token to verify"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/v1/auth/verify-token [post]
+func VerifyResetToken(c *gin.Context) {
+	var req struct {
+		Token string `json:"token" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+	
+	// Hash the token to compare with stored hash (same as in ResetPassword)
+	hasher := sha256.New()
+	hasher.Write([]byte(req.Token))
+	hashedToken := hex.EncodeToString(hasher.Sum(nil))
+	
+	// Find user with this token
+	ctx := context.Background()
+	iter := client.Collection("users").Where("reset_token", "==", hashedToken).Documents(ctx)
+	
+	var userFound bool
+	var userData map[string]interface{}
+	
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify token"})
+			return
+		}
+		
+		userData = doc.Data()
+		userFound = true
+		break
+	}
+	
+	if !userFound {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token"})
+		return
+	}
+	
+	// Check if token is expired
+	if expiry, ok := userData["reset_expiry"].(time.Time); ok {
+		if time.Now().After(expiry) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Reset token has expired"})
+			return
+		}
+	} else {
+		// If we can't parse the expiry time, consider the token invalid
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token format"})
+		return
+	}
+	
+	// Token is valid and not expired
+	c.JSON(http.StatusOK, gin.H{"message": "Token is valid"})
 }

@@ -1,11 +1,11 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-// import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { UserProvider } from '@/contexts/UserContext'; // Import the UserProvider
+import { UserProvider } from '@/contexts/UserContext';
+import { Linking } from 'react-native';
 
 import 'react-native-gesture-handler'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'; 
@@ -24,7 +24,6 @@ import {
   Inter_800ExtraBold, 
   Inter_900Black 
 } from '@expo-google-fonts/inter';
-import { ScrollView } from 'react-native';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -79,6 +78,69 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Function to handle deep links
+    const handleDeepLink = (event: { url: string }) => {
+      const url = event.url;
+      console.log("Deep link received:", url);
+      
+      if (url.includes('reset-password')) {
+        // Extract token from URL
+        const tokenMatch = url.match(/token=([^&]+)/);
+        if (tokenMatch && tokenMatch[1]) {
+          const token = tokenMatch[1];
+          console.log("Password reset token:", token);
+          
+          // Try multiple navigation approaches
+          try {
+            // Use a simple string approach for navigation
+            console.log("Attempting to navigate with token:", token);
+            router.push(`/(tabs)/profile/newPassword?token=${encodeURIComponent(token)}`);
+          } catch (e) {
+            console.error("First navigation attempt failed:", e);
+            try {
+              // Second approach
+              router.push({
+                pathname: "/(tabs)/profile/newPassword",
+                params: { token }
+              });
+            } catch (e2) {
+              console.error("Second navigation attempt failed:", e2);
+              // Last resort approach
+              setTimeout(() => {
+                router.push(`/(tabs)/profile/newPassword?token=${encodeURIComponent(token)}`);
+              }, 500);
+            }
+          }
+        }
+      }
+    };
+    
+    // Add event listener for when the app is already open
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+    
+    // Handle case where app was opened from a deep link
+    const getInitialURL = async () => {
+      try {
+        const initialUrl = await Linking.getInitialURL();
+        if (initialUrl) {
+          console.log("App opened with URL:", initialUrl);
+          handleDeepLink({ url: initialUrl });
+        }
+      } catch (e) {
+        console.error("Error getting initial URL:", e);
+      }
+    };
+    
+    getInitialURL();
+    
+    // Clean up
+    return () => {
+      subscription.remove();
+    };
+  }, [router]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
