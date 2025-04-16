@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Dimensions, ScrollView, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
@@ -7,41 +7,85 @@ import Size from '@/constants/Size';
 import Colors from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
 import BlueHeader from '@/components/BlueHeader';
+import { useUser } from '@/contexts/UserContext';
 
 export default function customSignup1() {
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const router = useRouter();
-  const { email, userType, school } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
+  const userId = Array.isArray(id) ? id[0] : id;
 
-  const emailValue = Array.isArray(email) ? email[0] : email;
-  const userTypeValue = Array.isArray(userType) ? userType[0].toLowerCase() : userType?.toLowerCase();
-  const schoolValue = Array.isArray(school) ? school[0] : school;
-
+  const [emailValue, setEmailValue] = useState('');
   const [password, setPassword] = useState('');
+  const [schoolValue, setSchoolValue] = useState('');
+  const [isMaster, setIsMaster] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const { updateUserInfo,userInfo } = useUser();
 
-  // Dynamically set isMaster and isAdmin
-  const isMaster = userTypeValue === 'master';
-  const isAdmin = userTypeValue === 'admin';
+  // Fetch user data
+  useEffect(() => {
+    if (!userId) return;
+    console.log("userId from URL:", userId);
+    getUserData();
+  }, [userId]);
 
-  	console.log("userTypeValue:", userTypeValue); // Debugging
+  const getUserData = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/users/${userId}`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log(data);
+
+        const { email, is_master, is_admin, school } = data;
+        setEmailValue(email);
+        setSchoolValue(school);
+        setIsMaster(is_master);
+        setIsAdmin(is_admin);
+      } else {
+        Alert.alert("Error fetching data");
+      }
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+      Alert.alert("Error fetching data");
+    }
+  };
+    
 	console.log("isMaster:", isMaster);
 	console.log("isAdmin:", isAdmin);
 
   const handleNextPress = () => {
+    if (!userId) {
+      Alert.alert('Invalid user ID');
+      return;
+    }
+
+    updateUserInfo({
+			name: '',
+			email: emailValue,
+			is_admin: isAdmin,
+			is_master: isMaster,
+			school: schoolValue,
+			id: userId,
+			allow_email: false, 
+			allow_push: false, 
+		});
     router.push({
       pathname: '/customSignup2',
       params: { 
-        email: emailValue, 
-        password, 
-        userType: userTypeValue, 
-        school: schoolValue,
-        isMaster: isMaster ? "true" : "false",  // Convert boolean to string
-      	isAdmin: isAdmin ? "true" : "false",    // Convert boolean to string
+        id: userId,
+        password: password
       },
     });
   };
 
   const handleBackPress = () => {
-    router.push('/signupPage1');
+    router.push('/login');
   };
  
   return (
@@ -50,22 +94,22 @@ export default function customSignup1() {
       <ScrollView style={{ width: '100%' }}>
         <View style={styles.formContainer}>
           {/* Email (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'Email'} value={emailValue} hasIcon editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="emailInput" headerText={'Email'} value={emailValue} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* Password Input */}
-          <HeaderTextInput headerText={'Password'} value={password} onChangeText={setPassword} secureTextEntry hasIcon />
+          <HeaderTextInput testID="passwordInput" headerText={'Password'} value={password} onChangeText={setPassword} secureTextEntry hasIcon />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* School (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'School'} value={schoolValue} hasIcon editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="schoolInput" headerText={'School'} value={schoolValue} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* User Type (Pre-filled and Disabled) */}
-          <HeaderTextInput headerText={'User Type'} value={userTypeValue} hasIcon editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="userTypeInput" headerText={'User Type'} value={isAdmin ? 'Admin' : 'Master'} hasIcon={false} editable={false} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(250) }} />
           <CustomButton
