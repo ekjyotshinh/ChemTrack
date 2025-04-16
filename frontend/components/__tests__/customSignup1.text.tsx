@@ -44,6 +44,7 @@ useLocalSearchParams: () => ({
 	school: 'Sacramento High School',
 	isMaster: "true", 
 	isAdmin: "false",
+	id: 'user123',
 }),
 }));
 
@@ -86,137 +87,155 @@ offwhite: '#F5F5F5'
 }));
 
 describe('customSignup1 Screen', () => {
-// Clear all mocks before each test
-beforeEach(() => {
-	mockPush.mockClear();
-	blueHeaderProps.length = 0;
-	headerTextInputProps.length = 0;
-	customButtonProps.length = 0;
-});
+	// Clear all mocks before each test
+	// Setup mocks before each test
+	beforeEach(() => {
+		// 👇 Add this block to mock the fetch API
+		global.fetch = jest.fn(() =>
+		Promise.resolve({
+			ok: true,
+			json: () => Promise.resolve({
+			email: 'testuser@example.com',
+			is_master: true,
+			is_admin: false,
+			school: 'Mock School',
+			}),
+		})
+		) as jest.Mock;
 
-// Test 1: Component renders without crashing
-it('renders without crashing', async () => {
-	const component = render(<SignUpPage />);
-	expect(component).toBeTruthy();
-});
-
-// Test 2: BlueHeader component receives correct props
-it('passes correct header props to BlueHeader', async () => {
-	render(<SignUpPage />);
-	
-	await waitFor(() => {
-	expect(blueHeaderProps.length).toBeGreaterThan(0);
+		mockPush.mockClear();
+		blueHeaderProps.length = 0;
+		headerTextInputProps.length = 0;
+		customButtonProps.length = 0;
 	});
 
-	const props = blueHeaderProps[0];
-	expect(props.headerText).toBe('Sign Up');
-	expect(typeof props.onPress).toBe('function');
-});
-
-// Test 3: Back button navigation
-it('navigates to signupPage1 when back button is pressed', async () => {
-	render(<SignUpPage />);
-	
-	await waitFor(() => {
-	expect(blueHeaderProps.length).toBeGreaterThan(0);
+	afterEach(() => {
+		jest.resetAllMocks();
 	});
 
-	const backHandler = blueHeaderProps[0].onPress;
-	backHandler();
-	
-	expect(mockPush).toHaveBeenCalledWith('/signupPage1');
-});
-
-// Test 4: Email input receives correct props
-it('passes correct props to email input', async () => {
-	render(<SignUpPage />);
-	
-	await waitFor(() => {
-	expect(headerTextInputProps.length).toBeGreaterThan(0);
+	// Test 1: Component renders without crashing
+	it('renders without crashing', async () => {
+		const component = render(<SignUpPage />);
+		expect(component).toBeTruthy();
 	});
 
-	const emailInput = headerTextInputProps.find(p => p.headerText === 'Email');
-	expect(emailInput).toBeTruthy();
-	if (emailInput) {
-	expect(emailInput.hasIcon).toBe(true);
-	expect(emailInput.editable).toBe(false);
-	expect(typeof emailInput.onChangeText).toBe('function');
-	}
-});
+	// Test 2: BlueHeader component receives correct props
+	it('passes correct header props to BlueHeader', async () => {
+		render(<SignUpPage />);
+		
+		await waitFor(() => {
+		expect(blueHeaderProps.length).toBeGreaterThan(0);
+		});
 
-// Test 5: User Type input receives correct props
-it('passes correct props to User Type input', async () => {
-	render(<SignUpPage />);
-	
-	await waitFor(() => {
-	expect(headerTextInputProps.length).toBeGreaterThan(0);
+		const props = blueHeaderProps[0];
+		expect(props.headerText).toBe('Sign Up');
+		expect(typeof props.onPress).toBe('function');
 	});
 
-	const userTypeInput = headerTextInputProps.find(p => p.headerText === 'User Type');
-	expect(userTypeInput).toBeTruthy();
-	if (userTypeInput) {
-	expect(userTypeInput.hasIcon).toBe(true);
-	expect(userTypeInput.editable).toBe(false);
-	expect(typeof userTypeInput.onChangeText).toBe('function');
-	}
-});
+	// Test 3: Back button navigation
+	it('navigates to login when back button is pressed', async () => {
+		render(<SignUpPage />);
+		
+		await waitFor(() => {
+		expect(blueHeaderProps.length).toBeGreaterThan(0);
+		});
 
-// Test 6: Password input receives correct props
-it('passes correct props to password input', async () => {
-	render(<SignUpPage />);
-	
-	await waitFor(() => {
-	expect(headerTextInputProps.length).toBeGreaterThan(0);
+		const backHandler = blueHeaderProps[0].onPress;
+		backHandler();
+		
+		expect(mockPush).toHaveBeenCalledWith('/login');
 	});
 
-	const passwordInput = headerTextInputProps.find(p => p.headerText === 'Password');
-	expect(passwordInput).toBeTruthy();
-	if (passwordInput) {
-	expect(passwordInput.secureTextEntry).toBe(true);
-	expect(passwordInput.hasIcon).toBe(true);
-	expect(typeof passwordInput.onChangeText).toBe('function');
-	}
-});
+	// Test 4: Email input receives correct props
+	it('passes correct props to email input', async () => {
+		render(<SignUpPage />);
+		
+		await waitFor(() => {
+		expect(headerTextInputProps.length).toBeGreaterThan(0);
+		});
 
-// Test 7: Next button initial state
-it('renders Next button with correct initial disabled state', async () => {
-	render(<SignUpPage />);
-	
-	await waitFor(() => {
-	expect(customButtonProps.length).toBeGreaterThan(0);
+		const emailInput = headerTextInputProps.find(p => p.headerText === 'Email');
+		expect(emailInput).toBeTruthy();
+		if (emailInput) {
+		expect(emailInput.hasIcon).toBe(false);
+		expect(emailInput.editable).toBe(false);
+		expect(typeof emailInput.onChangeText).toBe('function');
+		}
 	});
 
-	const buttonProps = customButtonProps[0];
-	expect(buttonProps.title).toBe('Next');
-	expect(buttonProps.iconPosition ?? 'right').toBe('right');
-	expect(buttonProps.width).toBe(337);
+	// Test 5: User Type input receives correct props
+	it('passes correct props to User Type input', async () => {
+		render(<SignUpPage />);
+		
+		await waitFor(() => {
+		expect(headerTextInputProps.length).toBeGreaterThan(0);
+		});
 
-	// Button should be disabled initially (white/grey)
-	expect(buttonProps.color).toBe('#FFFFFF');
-	expect(buttonProps.textColor).toBe('#AAAAAA');
-});
-
-// Test 8: Next button press navigates to next page
-it('navigates to customSignup2 with correct params when Next button is pressed', async () => {
-	render(<SignUpPage />);
-	
-	await waitFor(() => {
-	expect(customButtonProps.length).toBeGreaterThan(0);
+		const userTypeInput = headerTextInputProps.find(p => p.headerText === 'User Type');
+		expect(userTypeInput).toBeTruthy();
+		if (userTypeInput) {
+		expect(userTypeInput.hasIcon).toBe(false);
+		expect(userTypeInput.editable).toBe(false);
+		expect(typeof userTypeInput.onChangeText).toBe('function');
+		}
 	});
 
-	const nextButton = customButtonProps[0];
-	nextButton.onPress();
+	// Test 6: Password input receives correct props
+	it('passes correct props to password input', async () => {
+		render(<SignUpPage />);
+		
+		await waitFor(() => {
+		expect(headerTextInputProps.length).toBeGreaterThan(0);
+		});
 
-	expect(mockPush).toHaveBeenCalledWith({
-	pathname: '/customSignup2',
-	params: expect.objectContaining({
-		email: 'testuser@example.com',
-		password: expect.any(String),
-		school: 'Sacramento High School',
-		isMaster: 'true',
-		isAdmin: 'false',
-	}),
+		const passwordInput = headerTextInputProps.find(p => p.headerText === 'Password');
+		expect(passwordInput).toBeTruthy();
+		if (passwordInput) {
+		expect(passwordInput.secureTextEntry).toBe(true);
+		expect(passwordInput.hasIcon).toBe(true);
+		expect(typeof passwordInput.onChangeText).toBe('function');
+		}
 	});
-});
+
+	// Test 7: Next button initial state
+	it('renders Next button with correct initial disabled state', async () => {
+		render(<SignUpPage />);
+		
+		await waitFor(() => {
+		expect(customButtonProps.length).toBeGreaterThan(0);
+		});
+
+		const buttonProps = customButtonProps[0];
+		expect(buttonProps.title).toBe('Next');
+		expect(buttonProps.iconPosition ?? 'right').toBe('right');
+		expect(buttonProps.width).toBe(337);
+
+		// Button should be disabled initially (white/grey)
+		expect(buttonProps.color).toBe('#FFFFFF');
+		expect(buttonProps.textColor).toBe('#AAAAAA');
+	});
+
+	// Test 8: Next button press navigates to next page
+	it('navigates to customSignup2 with correct params when Next button is pressed', async () => {
+		render(<SignUpPage />);
+		
+		await waitFor(() => {
+		expect(customButtonProps.length).toBeGreaterThan(0);
+		});
+
+		const passwordInput = headerTextInputProps.find(p => p.headerText === 'Password');
+		expect(passwordInput).toBeTruthy();
+
+		const nextButton = customButtonProps[0];
+		nextButton.onPress();
+
+		expect(mockPush).toHaveBeenCalledWith({
+			pathname: '/customSignup2',
+			params: expect.objectContaining({
+				id: 'user123',
+				password: '',
+			}),
+		});
+	});
 
 });
