@@ -65,10 +65,7 @@ const NotificationsScreen = () => {
     const { userInfo, updateUserInfo } = useUser();
     const [isEmailNotif, setIsEmailNotif] = useState(userInfo.allow_email)
     const [isAppNotif, setIsAppNotif] = useState(userInfo.allow_push)
-    const [isExpirationNotif, setIsExpirationNotif] = useState(true)
-    const [isLowQuantityNotif, setIsLowQuantityNotif] = useState(true)
-
-
+    
     const notificationListener = useRef<any>()
     const responseListener = useRef<any>()
 
@@ -206,19 +203,7 @@ const NotificationsScreen = () => {
                             if (success) setIsAppNotif(value);
                         }}
                     />
-                    <Setting
-                        title={'Notify for expirations'}
-                        description={'Receive notifications for expiring chemicals.'}
-                        isBool={isExpirationNotif}
-                        setIsBool={setIsExpirationNotif}
-                    />
-                    <Setting
-                        title={'Notify for low quantity'}
-                        description={'Receive notifications for chemicals with low quantity.'}
-                        isBool={isLowQuantityNotif}
-                        setIsBool={setIsLowQuantityNotif}
-                    />
-
+                    
                 </View>
             </ScrollView>
         </View>
