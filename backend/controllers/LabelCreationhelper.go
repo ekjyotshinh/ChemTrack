@@ -43,6 +43,13 @@ func AddLabel(c *gin.Context) {
 	}
 	chemID := doc.Ref.ID
 
+	// Retrieve the chemical name from the Firestore document
+	chemName, ok := doc.Data()["name"].(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve chemical name"})
+		return
+	}
+
 	// Fetch the QR code using the new QR code API
 	qrCodeURL := fmt.Sprintf("http://localhost:8080/api/v1/files/qrcode/%s", chemID) // Replace with the actual API URL
 	resp, err := http.Get(qrCodeURL)
@@ -70,23 +77,33 @@ func AddLabel(c *gin.Context) {
 	pdf.AddPage()
 
 	// Layout
-	margin := 10.0               // Margin from edges in mm
-	imgWidth := width/2 - margin // Half width minus margin
-	imgHeight := 40.0            // Set image height
-	imgY := (height - imgHeight) / 2
+	margin := 10.0                  // Margin from edges in mm
+	qrWidth := 40.0                 // QR code width
+	qrHeight := 40.0                // QR code height
+	qrX := width - qrWidth - margin // QR code position (right side)
 
-	// QR code
+	// Adjust the QR code position slightly downward
+	qrY := (height-qrHeight)/2 + 5 // Center QR code vertically and move it down by 5mm
+
+	// Register the QR code image
 	imgOptions := fpdf.ImageOptions{ImageType: "png", ReadDpi: true}
 	pdf.RegisterImageOptionsReader("qrcode", imgOptions, &qrCodeBuffer)
 
-	// Place the QR code on the label
-	pdf.ImageOptions("qrcode", margin, imgY, imgWidth, 0, false, imgOptions, 0, "")
+	// Place the QR code on the right side of the label
+	pdf.ImageOptions("qrcode", qrX, qrY, qrWidth, qrHeight, false, imgOptions, 0, "")
 
-	// Chemical name
-	textX := width/2 + margin
-	textY := height / 2 // Center vertically
+	// Add the chemical ID at the top center
 	pdf.SetFont("Arial", "B", 14)
-	pdf.Text(textX, textY-5, chemID)
+
+	// Adjust the chemical ID position slightly upward
+	pdf.SetXY(0, margin-5) // Move the chemical ID up by 5mm
+	pdf.CellFormat(width, 10, chemID, "", 1, "C", false, 0, "")
+
+	// Add the chemical name on the left side of the label
+	pdf.SetFont("Arial", "", 12) // Set font for the chemical name
+	nameX := margin              // Position on the left side (aligned with the margin)
+	nameY := (height / 2)        // Center the chemical name vertically
+	pdf.Text(nameX, nameY, chemName)
 
 	// Generate the PDF
 	var buf bytes.Buffer
