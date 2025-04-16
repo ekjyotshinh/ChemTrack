@@ -1,132 +1,109 @@
-import React, { useState, useEffect } from 'react';  
+import { useState } from 'react';  
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';  
 import { useRouter } from 'expo-router';  
 import CustomButton from '@/components/CustomButton';  
-import Colors from '@/constants/Colors';  
+import Colors from '@/constants/Colors';   
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';  
 import Size from '@/constants/Size';  
 import TextInter from '@/components/TextInter';  
-import BlueHeader from '@/components/BlueHeader';  
-import { useUser } from '@/contexts/UserContext';  
-import ResetIcon from '@/assets/icons/ResetIcon';
+import LoginIcon from '@/assets/icons/LoginIcon';
+import BlueHeader from '@/components/BlueHeader';
+import emailRegex from '@/functions/EmailRegex';
 
-export default function NewPassword() {  
+export default function ResetPassword() {  
+  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const [isValidEmail, setIsValidEmail] = useState(false);
+  emailRegex({ email, setIsValidEmail });
+  
   const router = useRouter();  
-  const { userInfo } = useUser();  
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`; // Ensure your API_URL is configured correctly  
 
-  const [newPassword, setNewPassword] = useState('');  
-  const [confirmPassword, setConfirmPassword] = useState('');  
+  const handleResetPassword = async () => {
+    if (!email || !isValidEmail) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    } 
 
-  const handleChangePassword = async () => {  
-    
-    if (!newPassword || !confirmPassword) {  
-      Alert.alert('Error', 'Please fill in all fields.');  
-      return;  
-    }  
+    setIsLoading(true);
 
-    if (newPassword !== confirmPassword) {  
-      Alert.alert('Error', 'Passwords do not match.');  
-      return;  
-    }  
+    try {
+      // Make API request to initiate password reset
+      console.log(`Sending request to ${API_URL}/api/v1/auth/forgot-password`);
+      const response = await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      }); 
 
-    // Change this later if we want more secure passwords
-    // Making it at least 6 since Firebase by default uses at least 6 characters for passwords
-    if (newPassword.length < 6) {
-      Alert.alert('Error', 'Passwords must be at least 6 characters');  
-      return; 
+      console.log('Response status:', response.status);
+      const data = await response.json(); 
+      console.log('Response data:', data);
+
+      if (response.ok) {
+        Alert.alert(
+          'Email Sent',
+          'If your email is registered with us, you will receive password reset instructions shortly.',
+          [{ text: 'OK', onPress: () => router.push('/profile/profile') }]
+        );
+      } else {
+        Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending reset request:', error);
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-
-    try {  
-      // Send a PUT request to update the user's password  
-      const response = await fetch(`${API_URL}/api/v1/users/${userInfo.id}`, {  
-        method: 'PUT',  
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({
-          Password: newPassword,
-          is_admin: userInfo.is_admin, // currently if these flags are not passed we set them to false
-          is_master: userInfo.is_master, // currently if these flags are not passed we set them to false
-          allow_email: userInfo.allow_email, // currently if these flags are not passed we set them to false
-          allow_push: userInfo.allow_push, // currently if these flags are not passed we set them to false
-        }), 
-
-      });  
-
-      if (!response.ok) throw new Error('Failed to update password');  
-
-   
-      Alert.alert(  
-        'Success',  
-        'Password changed successfully.',  
-        [{ text: 'OK', onPress: () => router.push('/profile/profile') }]  
-      );  
-
-      // Clear password fields after successful update  
-      setNewPassword('');  
-      setConfirmPassword('');  
-    } catch (error) {  
-      Alert.alert('Error', 'Failed to update your password. Please try again.');  
-      console.error(error);  
-    }  
   };  
 
-  const [isValidPassword, setIsValidPassword] = useState(false);
-
-  // Use effect to manage isValidPassword, which determines the button's colors
-  useEffect(() => {
-    if ((newPassword && confirmPassword) && newPassword == confirmPassword && newPassword.length >= 6) {
-      setIsValidPassword(true);
-    } else {
-      setIsValidPassword(false);
-    }
-  }, [newPassword, confirmPassword]);
+  const handleClear = () => {
+    setEmail('');
+  }
 
   return (  
     <View style={styles.container}>  
-      <BlueHeader headerText="Reset Password" onPress={() => router.push('/profile/profile')} />  
+      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/profile/profile')} />  
 
       <ScrollView style={styles.scrollContainer}>  
         <View style={{ marginTop: Size.height(40) }}>  
           <TextInter style={styles.descriptionText}>  
-            Enter your new password below to update your account password.  
+            Enter your email address and we'll send you instructions to reset your password.  
           </TextInter>  
 
           <View style={{ alignItems: 'center', marginTop: Size.height(30) }}>  
             <HeaderTextInput  
-              testID="new-password-input"
-              onChangeText={setNewPassword}  
-              headerText="New Password"  
-              value={newPassword}  
+              onChangeText={email => setEmail(email)}  
+              headerText={'Email'}  
+              value={email}  
               hasIcon={true}  
               inputWidth={Size.width(340)}  
-              secureTextEntry={true}  
-              autoCapitalize="none"  
-            />
-
-            <View style={{ height: Size.height(25) }} /> 
-
-            <HeaderTextInput  
-              testID="confirm-password-input"
-              onChangeText={setConfirmPassword}  
-              headerText="Confirm New Password"  
-              value={confirmPassword}  
-              hasIcon={true}  
-              inputWidth={Size.width(340)}  
-              secureTextEntry={true}  
-              autoCapitalize="none"  
+              keyboardType='email-address'  
+              autoCapitalize='none'  
+              autoCorrect={false}
             />  
           </View>  
 
           <View style={styles.buttonContainer}>  
             <CustomButton  
-              title="Change Password"  
-              color={isValidPassword ? Colors.blue : Colors.white}  
-              textColor={isValidPassword ? Colors.white : Colors.grey}  
-              onPress={handleChangePassword}  
+              title={isLoading ? "Sending..." : "Send Reset Link"}  
+              color={isValidEmail ? Colors.blue : Colors.white}
+              textColor={isValidEmail ? Colors.white : Colors.grey}  
+              onPress={handleResetPassword}  
               width={337}  
-              icon={<ResetIcon width={24} height={24} color={isValidPassword ? Colors.white : Colors.grey} />}
+              icon={<LoginIcon width={24} height={24} color={isValidEmail ? Colors.white : Colors.grey} />}  
               iconPosition='left'
-            />  
+            />
+
+            <CustomButton
+              title="Clear"
+              onPress={handleClear}
+              color={Colors.red}
+              width={327}
+            />
           </View>  
         </View>  
       </ScrollView>  
@@ -156,4 +133,4 @@ const styles = StyleSheet.create({
     marginTop: Size.height(40),  
     gap: Size.height(15),  
   },  
-});  
+});

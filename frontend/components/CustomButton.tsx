@@ -14,6 +14,7 @@ interface ButtonProps {
   fontSize?: number;
   height?: number;
   isSpaceBetween?: boolean;
+  disabled?: boolean; // Added disabled prop
 }
 
 export default function CustomButton({
@@ -27,19 +28,27 @@ export default function CustomButton({
   iconPosition = 'left', // Default icon position
   fontSize = 16,
   isSpaceBetween = false,
+  disabled = false, // Default value for disabled
 }: ButtonProps) {
 
   const justyBtnContent = isSpaceBetween ? 'space-between' : 'center';
+  // Calculate opacity based on disabled state
+  const buttonOpacity = disabled ? 0.6 : 1;
 
   return (
     <TouchableOpacity
       style={
         [styles.button, 
-          { backgroundColor: color || Colors.blue, width: Size.width(width), 
+          { 
+            backgroundColor: color || Colors.blue, 
+            width: Size.width(width), 
             height: Size.height(height), 
-            justifyContent: justyBtnContent
+            justifyContent: justyBtnContent,
+            opacity: buttonOpacity // Apply opacity when disabled
           }]}
       onPress={onPress}
+      disabled={disabled} // Add the disabled prop to TouchableOpacity
+      activeOpacity={0.8}
     >
       {icon && iconPosition === 'left' && (
         <View style={[styles.iconContainer, { left: Size.width(24) }]}>

@@ -1,23 +1,36 @@
-import { useState, useEffect } from 'react';  
+// Token generation and authentication screen
+import { useState,useEffect } from 'react';  
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';  
-import { useRouter } from 'expo-router';  
+import { useRouter,useLocalSearchParams } from 'expo-router';  
 import CustomButton from '@/components/CustomButton';  
 import Colors from '@/constants/Colors';   
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';  
 import Size from '@/constants/Size';  
 import TextInter from '@/components/TextInter';  
-import LoginIcon from '@/assets/icons/LoginIcon'; // You might want to use a different icon  
+import LoginIcon from '@/assets/icons/LoginIcon';
 import BlueHeader from '@/components/BlueHeader';
 import emailRegex from '@/functions/EmailRegex';
 
 export default function ResetPassword() {  
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [email, setEmail] = useState('');
-  
+  const [isLoading, setIsLoading] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(false);
+  const [manualToken, setManualToken] = useState('');
+  const [inputToken, setInputToken] = useState(false);
+
+  const router = useRouter(); 
+  const tokenParams = useLocalSearchParams();
+
   emailRegex({ email, setIsValidEmail });
-  
-  const router = useRouter();  
+  // Pre-fill token and show token input UI if token is in URL
+  useEffect(() => {
+    if (tokenParams?.token) {
+      const extractedToken = String(tokenParams.token);
+      setManualToken(extractedToken);
+      setInputToken(true);
+    }
+  }, [tokenParams]); 
 
   const handleResetPassword = async () => {
     if (!email || !isValidEmail) {
@@ -25,55 +38,104 @@ export default function ResetPassword() {
       return;
     } 
 
+    setIsLoading(true);
+
     try {
-      // Make the request to the backend to send an email
-      const response = await fetch(`${API_URL}/api/v1/email/send`, {
+      console.log(`Sending request to ${API_URL}/api/v1/auth/forgot-password`);
+      const response = await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          to: email,
-          subject: 'Password Reset Request',
-          body: 'Email sent successfully from the resent password screen. (TODO: figure out the logic, I think that if the user is logged in there should not be any need for this step. --> Maybe this screens should be at the login with some link like reset password)',
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       }); 
 
       const data = await response.json(); 
+      console.log('Response data:', data);
 
-      if (response.ok) {
-        Alert.alert(
-          'Success',
-          'Email sent successfully. (TODO: figure out the logic, I think that if the user is logged in there should not be any need for this step.)',
-          [{ text: 'OK', onPress: () => router.push('/profile/newPassword') }]
-        );
+      if (response.ok) { 
+        Alert.alert('Email Sent', 'Check your email for reset instructions.', [{ text: 'OK', onPress: () => setInputToken(true) }]);
       } else {
         Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error sending reset request:', error);
       Alert.alert('Error', 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  };  
+  };
 
-  const handleClear = (): void => {
-    setEmail('');
-  }
-
+  const handleManualToken = async () => {
+    if (manualToken.length > 0) {
+      const trimmedToken = manualToken.trim();
+      
+      // Basic validation - ensure it's a 64-character hex string
+      const isValidTokenFormat = /^[a-f0-9]{64}$/i.test(trimmedToken);
+      
+      if (!isValidTokenFormat) {
+        Alert.alert(
+          "Invalid Token Format",
+          "The token you entered doesn't match the expected format. Please check your email and enter the exact token provided.",
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+      
+      setIsLoading(true);
+      
+      try {
+        console.log("Verifying token with server:", trimmedToken);
+        
+        const response = await fetch(`${API_URL}/api/v1/auth/verify-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token: trimmedToken
+          }),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Token is valid, proceed to password reset
+          console.log("Token verified successfully");
+          router.push({
+            pathname: "/(auth)/forgotPassword",
+            params: { token: trimmedToken }
+          });
+        } else {
+          // Token is invalid
+          console.log("Token verification failed:", data.error);
+          Alert.alert('Invalid Token', data.error || 'The reset token is not valid or has expired. Please check your email or request a new reset link.');
+        }
+      } catch (error) {
+        console.error("Token verification error:", error);
+        Alert.alert(
+          "Verification Error",
+          "Could not verify the reset token. Please try again or request a new reset link."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      Alert.alert('Error', 'Please enter a reset token.');
+    }
+  };
 
   return (  
     <View style={styles.container}>  
-      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/profile/profile')} />  
+      <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/login')} />  
 
       <ScrollView style={styles.scrollContainer}>  
         <View style={{ marginTop: Size.height(40) }}>  
           <TextInter style={styles.descriptionText}>  
             Enter your email address and we'll send you instructions to reset your password.  
-          </TextInter>  
-
+          </TextInter> 
+          {!inputToken && ( 
           <View style={{ alignItems: 'center', marginTop: Size.height(30) }}>  
             <HeaderTextInput  
-              onChangeText={email => setEmail(email)}  
+              onChangeText={setEmail}  
               headerText={'Email'}  
               value={email}  
               hasIcon={true}  
@@ -83,26 +145,50 @@ export default function ResetPassword() {
               autoCorrect={false}
             />  
           </View>  
-
+          )}
+          {!inputToken && (
           <View style={styles.buttonContainer}>  
             <CustomButton  
-              title="Send Reset Link"  
+              title={isLoading ? "Sending..." : "Send Reset Link"}  
               color={isValidEmail ? Colors.blue : Colors.white}
               textColor={isValidEmail ? Colors.white : Colors.grey}  
               onPress={handleResetPassword}  
-              width={337}  
+              width={327}  
               icon={<LoginIcon width={24} height={24} color={isValidEmail ? Colors.white : Colors.grey} />}  
-              iconPosition='left'  
+              iconPosition='left'
             />
-
-            <CustomButton
-              title="Clear"
-              onPress={handleClear}
-              color={Colors.red}
-              width={327}
-            />
+            <TextInter 
+              onPress= {() => setInputToken(true) }
+              style={styles.enterTokenText}
+            >
+              Click to enter Token
+            </TextInter>
 
           </View>  
+          )}
+
+          {inputToken && (
+            <View style={{ alignItems: 'center', marginTop: Size.height(40) }}>
+              <HeaderTextInput
+                onChangeText={setManualToken}
+                headerText={'Reset Token'}
+                value={manualToken}
+                hasIcon={true}
+                inputWidth={Size.width(340)}
+                autoCapitalize='none'
+                autoCorrect={false}
+              />
+              <CustomButton
+                title="Use Token"
+                color={manualToken.length > 0 ? Colors.blue : Colors.white}
+                textColor={manualToken.length > 0 ? Colors.white : Colors.grey}
+                onPress={handleManualToken}
+                width={327}
+                icon={<LoginIcon width={24} height={24} color={manualToken.length > 0 ? Colors.white : Colors.grey} />}
+                iconPosition='left'  
+              />
+            </View>
+          )}
         </View>  
       </ScrollView>  
     </View>  
@@ -131,4 +217,18 @@ const styles = StyleSheet.create({
     marginTop: Size.height(40),  
     gap: Size.height(15),  
   },  
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: 327,
+    marginTop: Size.height(15),
+  },
+    enterTokenText: { 
+    alignSelf: 'center', 
+    marginTop: 10, 
+    color: Colors.blue, 
+    fontSize: 14,
+    fontWeight: '600', // Make it slightly bolder
+    padding: 5, // Add some padding to create a larger touch target
+  },   
 });

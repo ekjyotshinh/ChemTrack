@@ -5,7 +5,7 @@ const linking = {
   prefixes: ['chemtrack://'],
   config: {
     screens: {
-      signup: 'signup', // Matches the deep link path
+      signup: 'customSignup1', // Matches the deep link path
     },
   },
 };
