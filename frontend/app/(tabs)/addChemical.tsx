@@ -2,8 +2,8 @@ import CustomButton from '@/components/CustomButton';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Header from '@/components/Header';
 import CustomTextHeader from '@/components/inputFields/CustomTextHeader';
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
 import CasTextBoxes from '@/components/inputFields/CasTextBoxes';
 import UploadIcon from '@/assets/icons/UploadIcon';
 import ReturnIcon from '@/assets/icons/ReturnIcon';
@@ -37,18 +37,15 @@ export default function AddChemical() {
 
   const [uploaded, setUploaded] = useState<boolean>(false)
 
-
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
-  // used for pdf upload for sds
-  //const [selectedDocuments, setSelectedDocuments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
-  let sdsName: string = "placeholderName";
 
   const [isFilled, setIsFilled] = useState<boolean>(false)
 
   const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity, unit]
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
   const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded]
+  const sdsForm = useRef<FormData | null>(null);
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   const router = useRouter();
@@ -67,10 +64,10 @@ export default function AddChemical() {
     }
   }, allInputs)
 
-  const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
+  const [schoolList, setSchoolList] = useState<any>([{ label: '', value: '' }]);
 
   useEffect(() => {
-    fetchSchoolList({setSchoolList});
+    fetchSchoolList({ setSchoolList });
   }, []);
 
   const statuses = [
@@ -88,6 +85,12 @@ export default function AddChemical() {
     { label: 'kg', value: 'kg' },
   ];
 
+  // Empty form Data
+  const emptyFormData = () => {
+    sdsForm.current = new FormData();
+    setUploaded(false);
+  };
+
   // Upload pdf
 
   const uploadPdf = async () => {
@@ -95,18 +98,25 @@ export default function AddChemical() {
       // Get pdf
       const pickedPdf = await DocumentPicker.getDocumentAsync({
         multiple: false, // allow user to only select 1 file
-        type: ["application/pdf"], // Restrict to pdfs only
+        type: "application/pdf", // Restrict to pdfs only
         copyToCacheDirectory: false,
       });
 
       // if selection goes through
-      if (!pickedPdf.canceled) {
+      if (pickedPdf && !pickedPdf.canceled) {
         // Check success
         const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
         console.log('Got the pdf: ', pickedPdf);
         console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
         console.log('File Name: ', pickedPdf.assets[0].name);
-        sdsName = pickedPdf.assets[0].name;
+        processFileName(pickedPdf.assets[0].name);
+        sdsForm.current = new FormData();
+        sdsForm.current.append('sds', {
+          uri: pickedPdf.assets[0].uri,
+          name: pickedPdf.assets[0].name,
+          type: pickedPdf.assets[0].mimeType,
+        } as any);
+
         setUploaded(true);
         Alert.alert('PDF Uploaded!');
       } else {
@@ -119,6 +129,19 @@ export default function AddChemical() {
       console.log(error);
     };
   };
+  // Add elipsis to long file names >= 20 characters
+  const processFileName = (name: string) => {
+    name = name.toString();
+    name = name.split('.').slice(0, -1).join('.'); // remove pdf extension
+    if (name.length <= 20) {
+      setUploadText(name);
+    } else if (name.length > 20) {
+      setUploadText(name.substring(0, 20) + '...');
+    } else {
+      setUploadText('File Uploaded');
+    }
+
+  }
 
   // Saves form
   const onSave = async () => {
@@ -153,12 +176,23 @@ export default function AddChemical() {
         });
         const responseData = await response.json();
 
+
         if (response.ok) {
           // Handle successful response
           console.log('Chemical added successfully:', responseData);
-          onClear();
-          Alert.alert('Success', 'Chemical information added');
-          router.push('/');
+          console.log(sdsForm);
+          const pdfResponse = await fetch(`${API_URL}/api/v1/files/sds/${responseData.chemical.id}`, {
+            method: 'POST',
+            body: sdsForm.current!,
+          });
+          if (pdfResponse.ok) {
+            onClear();
+            Alert.alert('Success', 'Chemical information added');
+            router.push('/');
+          } else {
+            console.log('Failed to add pdf:', pdfResponse);
+            Alert.alert('Error', 'Error occured');
+          }
         } else {
           // Handle server errors
           console.log('Failed to add chemical:', responseData);
@@ -187,163 +221,160 @@ export default function AddChemical() {
     setPurchaseDate(undefined)
     setExpirationDate(undefined)
     setUploaded(false)
+    emptyFormData();
     setUnit('')
   }
 
-  const onUpload = () => {
-    console.log('Clicked SDS upload!')
-    setUploaded(!uploaded)
-  }
 
   return (
     <>
-    {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
-      <View style={styles.container}>
-      <Header headerText='Add Chemical' />
-      <ScrollView style={styles.scroll}>
-        <View style={styles.innerContainer}>
+      {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
+        <View style={styles.container}>
+          <Header headerText='Add Chemical' />
+          <ScrollView style={styles.scroll}>
+            <View style={styles.innerContainer}>
 
-          {/* Name */}
-          <HeaderTextInput
-            headerText='Name'
-            value={name}
-            onChangeText={(value: string) => { setName(value) }}
-            testID='name-input'
-          />
-
-          {/* CAS Number */}
-          <View style={{ marginTop: Size.width(10) }}>
-            <CustomTextHeader headerText='CAS Number' />
-            <CasTextBoxes casParts={casParts} setCasParts={setCasParts} testIDs={['cas-0','cas-1','cas-2']} />
-          </View>
-
-          {/* Purchase and Expiration Dates */}
-          <View style={styles.row}>
-            <DateInput
-              date={purchaseDate}
-              setDate={setPurchaseDate}
-              inputWidth={Size.width(154)}
-              headerText={'Purchase Date'}
-              testID='purchase-date'
-            />
-            <DateInput
-              date={expirationDate}
-              setDate={setExpirationDate}
-              inputWidth={Size.width(154)}
-              headerText={'Expiration Date'}
-              testID='expiration-date'
-            />
-          </View>
-
-          {/* Status and Quality */}
-          <View style={styles.row}>
-            <View style={{ width: Size.width(111) }}>
-              <CustomTextHeader headerText='Status' />
-              <DropdownInput data={statuses} value={status} setValue={setStatus} testID='status-dropdown' />
-            </View>
-
-            <View style={{ width: Size.width(88) }}>
+              {/* Name */}
               <HeaderTextInput
-                headerText={'Quantity'}
-                onChangeText={(value) => setQuantity(value)}
-                inputWidth={Size.width(80)} 
-                value={quantity}
-                testID='quantity-input'
-                isNumeric={true}
+                headerText='Name'
+                value={name}
+                onChangeText={(value: string) => { setName(value) }}
+                testID='name-input'
               />
-            </View>
 
-            <View style={{ width: Size.width(88) }}>
-              <CustomTextHeader headerText="Unit" />
-              <DropdownInput data={units} value={unit} setValue={setUnit} testID='unit-dropdown' />
-            </View>
-          </View>
-
-          {(userInfo && userInfo.is_master) &&
-            <View style={styles.row}>
-              <View style={{width: '100%'}}>
-                <CustomTextHeader headerText='School' />
-                <DropdownInput data={schoolList} value={school} setValue={setSchool} testID='school-dropdown' />
+              {/* CAS Number */}
+              <View style={{ marginTop: Size.width(10) }}>
+                <CustomTextHeader headerText='CAS Number' />
+                <CasTextBoxes casParts={casParts} setCasParts={setCasParts} testIDs={['cas-0', 'cas-1', 'cas-2']} />
               </View>
+
+              {/* Purchase and Expiration Dates */}
+              <View style={styles.row}>
+                <DateInput
+                  date={purchaseDate}
+                  setDate={setPurchaseDate}
+                  inputWidth={Size.width(154)}
+                  headerText={'Purchase Date'}
+                  testID='purchase-date'
+                />
+                <DateInput
+                  date={expirationDate}
+                  setDate={setExpirationDate}
+                  inputWidth={Size.width(154)}
+                  headerText={'Expiration Date'}
+                  testID='expiration-date'
+                />
+              </View>
+
+              {/* Status and Quality */}
+              <View style={styles.row}>
+                <View style={{ width: Size.width(111) }}>
+                  <CustomTextHeader headerText='Status' />
+                  <DropdownInput data={statuses} value={status} setValue={setStatus} testID='status-dropdown' />
+                </View>
+
+                <View style={{ width: Size.width(88) }}>
+                  <HeaderTextInput
+                    headerText={'Quantity'}
+                    onChangeText={(value) => setQuantity(value)}
+                    inputWidth={Size.width(80)}
+                    value={quantity}
+                    testID='quantity-input'
+                    isNumeric={true}
+                  />
+                </View>
+
+                <View style={{ width: Size.width(88) }}>
+                  <CustomTextHeader headerText="Unit" />
+                  <DropdownInput data={units} value={unit} setValue={setUnit} testID='unit-dropdown' />
+                </View>
+              </View>
+
+              {(userInfo && userInfo.is_master) &&
+                <View style={styles.row}>
+                  <View style={{ width: '100%' }}>
+                    <CustomTextHeader headerText='School' />
+                    <DropdownInput data={schoolList} value={school} setValue={setSchool} testID='school-dropdown' />
+                  </View>
+                </View>
+              }
+
+              {/* Room, cabinet, shelf number */}
+              <View style={styles.row}>
+                <HeaderTextInput
+                  headerText={'Room'}
+                  onChangeText={(value: string) => setRoom(value)}
+                  inputWidth={Size.width(111)}
+                  value={room}
+                  testID="room-input"
+                />
+                <HeaderTextInput
+                  headerText={'Cabinet'}
+                  onChangeText={(value: string) => setCabinet(value)}
+                  inputWidth={Size.width(88)}
+                  isNumeric={true}
+                  value={cabinet}
+                  testID='cabinet-input'
+                />
+                <HeaderTextInput
+                  headerText={'Shelf'}
+                  onChangeText={(value: string) => setShelf(value)}
+                  inputWidth={Size.width(88)}
+                  isNumeric={true}
+                  value={shelf}
+                  testID='shelf-input'
+                />
+              </View>
+
+              {/* SDS button */}
+              <View style={{ marginTop: 10, marginBottom: 10 }}>
+                <CustomTextHeader headerText={'SDS'} />
+                <View style={{ alignItems: 'center' }}>
+                  <CustomButton
+                    title={uploaded ? uploadText : 'Upload'}
+                    onPress={uploadPdf}
+                    width={337}
+                    icon={uploaded ?
+                      <ResetIcon width={24} height={24} color='white' /> :
+                      <UploadIcon width={24} height={24} />
+                    }
+                    iconPosition="left"
+                    color={uploaded ? 'black' : 'white'}
+                    textColor={uploaded ? 'white' : 'black'}
+                  />
+                </View>
+              </View>
+
+              <View style={{ alignItems: 'center' }}>
+                {/* Save and Clear buttons */}
+                <CustomButton
+                  title={'Save Chemical'}
+                  textColor={isFilled ? 'white' : Colors.grey}
+                  color={isFilled ? Colors.blue : 'white'}
+                  onPress={onSave}
+                  width={337}
+                  icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : Colors.grey} />}
+                  iconPosition="left"
+                />
+
+                <CustomButton
+                  title={'Clear'}
+                  onPress={onClear}
+                  width={337}
+                  icon={<ReturnIcon width={24} height={24} />}
+                  iconPosition="left"
+                  color={Colors.red}
+                  textColor='white'
+                />
+              </View>
+
+              {/* Extra padding */}
+              <View style={{ height: 40 }} />
+
             </View>
-          }
-
-          {/* Room, cabinet, shelf number */}
-          <View style={styles.row}>
-            <HeaderTextInput
-              headerText={'Room'}
-              onChangeText={(value: string) => setRoom(value)}
-              inputWidth={Size.width(111)}
-              value={room}
-              testID="room-input"
-            />
-            <HeaderTextInput
-              headerText={'Cabinet'}
-              onChangeText={(value: string) => setCabinet(value)}
-              inputWidth={Size.width(88)}
-              isNumeric={true}
-              value={cabinet}
-              testID='cabinet-input'
-            />
-            <HeaderTextInput
-              headerText={'Shelf'}
-              onChangeText={(value: string) => setShelf(value)}
-              inputWidth={Size.width(88)}
-              isNumeric={true}
-              value={shelf}
-              testID='shelf-input'
-            />
-          </View>
-
-          {/* SDS button */}
-          <View style={{ marginTop: 10, marginBottom: 10 }}>
-            <CustomTextHeader headerText={'SDS'} />
-            <View style={{ alignItems: 'center' }}>
-              <CustomButton
-                title={uploaded ? 'File Uploaded' : 'Upload'}
-                onPress={uploadPdf}
-                width={337}
-                icon={uploaded ?
-                  <ResetIcon width={24} height={24} color='white' /> :
-                  <UploadIcon width={24} height={24} />
-                }
-                iconPosition="left"
-                color={uploaded ? 'black' : 'white'}
-                textColor={uploaded ? 'white' : 'black'}
-              />
-            </View>
-          </View>
-
-          <View style={{ alignItems: 'center' }}>
-            {/* Save and Clear buttons */}
-            <CustomButton
-              title={'Save Chemical'}
-              textColor={isFilled ? 'white' : Colors.grey}
-              color={isFilled ? Colors.blue : 'white'}
-              onPress={onSave}
-              width={337}
-              icon={<SaveIcon width={24} height={24} color={isFilled ? 'white' : Colors.grey} />}
-              iconPosition="left"
-            />
-
-            <CustomButton
-              title={'Clear'}
-              onPress={onClear}
-              width={337}
-              icon={<ReturnIcon width={24} height={24} />}
-              iconPosition="left"
-              color={Colors.red}
-              textColor='white'
-            />
-          </View>
-
-          {/* Extra padding */}
-          <View style={{ height: 40 }} />
-
-        </View>
-      </ScrollView>
-      </View>) : (<ErrorPage />)}
-      </>
+          </ScrollView>
+        </View>) : (<ErrorPage />)}
+    </>
   );
 }
 

@@ -35,6 +35,16 @@ export default function SignUpPage2() {
 
   // Handle Create Account button press
   const handleCreateAccountPress = async () => {
+    // only proceed if there is firstname and last name
+    if(!firstName){
+      Alert.alert('Please enter a first name');
+      return;
+    }
+    if(!lastName){
+      Alert.alert('Please enter a last name');
+      return;
+    }
+      
     console.log(API_URL); // Log the API_URL for debugging
 
     const url = `${API_URL}/api/v1/users`;
@@ -72,8 +82,11 @@ export default function SignUpPage2() {
           allow_push: false,
         });
         router.replace('/(tabs)');
+      } else if (res.status === 409) {
+      Alert.alert("Account already exists", "An account already exists with this email.");
       } else {
-        Alert.alert("Error creating Account!");
+        const data = await res.json();
+        Alert.alert(data.error);
         router.push('/signupPage1');
       }
     } catch (error) {
@@ -120,8 +133,8 @@ export default function SignUpPage2() {
           <CustomButton
             iconPosition='right'
             title='Create Account'
-            color={(!firstName && !lastName) ? Colors.white : Colors.blue}
-            textColor={(!firstName && !lastName) ? Colors.grey : Colors.white}
+            color={(!firstName || !lastName) ? Colors.white : Colors.blue}
+            textColor={(!firstName || !lastName) ? Colors.grey : Colors.white}
             icon={
               <Ionicons
                 name="checkmark"

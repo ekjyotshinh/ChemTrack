@@ -44,4 +44,12 @@ func RegisterRoutesUser(router *gin.Engine) {
 
 	// Authentication route
 	r.POST("/login", controllers.Login) // User login
+	
+	// Password reset routes
+	r.POST("/auth/forgot-password", controllers.ForgotPassword) // Request password reset
+	r.POST("/auth/reset-password", controllers.ResetPassword)   // Reset password with token
+	
+	// Verify reset token route
+	r.POST("/auth/verify-token", controllers.VerifyResetToken) // Verify reset token
 }
+

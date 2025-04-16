@@ -11,6 +11,7 @@ import DropdownInput from '@/components/inputFields/DropdownInput';
 import CustomButton from '@/components/CustomButton';
 import BlueHeader from '@/components/BlueHeader';
 import emailRegex from '@/functions/EmailRegex';
+import passwordRegex from '@/functions/PasswordRegex';
 import fetchSchoolList from '@/functions/fetchSchool';
 
 // Define the SignUpPage component
@@ -20,17 +21,41 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [selectedSchool, setSelectedSchool] = useState('');
   const router = useRouter();  // Initialize router for navigation
-
+  const [isValidPassword, setIsValidPassword] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(false);
+  // Validate email
   emailRegex({ email, setIsValidEmail });
-
+  // Validate password - at least one uppercase, one lowercase, one number, and one special character
+  passwordRegex({ password, setIsValidPassword });
   // Function to handle the "Next" button press
-  const handleNextPress = () => {
-    router.push({
-      pathname: '/signupPage2',          // Navigate to the updated next signup page
-      params: { email: email, password: password, selectedSchool: selectedSchool },
-    });
-  };
+  function handleNextPress() {
+      if (!isValidEmail) {
+        Alert.alert('Invalid Email', 'Please enter a valid email address.');
+        return;
+      }
+    
+      if (!isValidPassword) {
+        Alert.alert(
+          'Invalid Password',
+          'Password must be at least 8 characters and include one uppercase letter, one lowercase letter, one number, and one special character.'
+        );
+        return;
+      }
+    
+      if (!selectedSchool) {
+        Alert.alert('No School Selected', 'Please select a school to continue.');
+        return;
+      }
+      
+    if ((isValidEmail && isValidPassword && selectedSchool)) {
+      router.push({
+        pathname: '/signupPage2',
+        params: { email: email, password: password, selectedSchool: selectedSchool },
+      });
+    } else {
+      Alert.alert('Please enter a valid email, password and select a school');
+    }
+  }
 
   // Function to handle the "Back" button press
   const handleBackPress = () => {
@@ -91,7 +116,7 @@ export default function SignUpPage() {
                 color={(!isValidEmail || !password || !selectedSchool) ? Colors.grey : Colors.white}
               />}
             onPress={handleNextPress}
-            width={337}
+            width={337} 
           />
         </View>
       </ScrollView>

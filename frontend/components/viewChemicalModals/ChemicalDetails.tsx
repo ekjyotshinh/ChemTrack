@@ -1,5 +1,5 @@
-import { View, Modal, ScrollView, StyleSheet } from 'react-native'
-import { ReactNode } from 'react'
+import { View, Image, ScrollView, StyleSheet } from 'react-native'
+import { ReactNode, useEffect, useState } from 'react'
 import Colors from '@/constants/Colors';
 import TextInter from '../TextInter';
 import Size from '@/constants/Size';
@@ -57,6 +57,7 @@ interface Chemical {
     shelf: string;
     status: string;
     quantity: string;
+    sdsURL: string;
 }
 
 interface props {
@@ -68,8 +69,45 @@ interface props {
 }
 
 const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal, router }: props) => {
+    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
+    const gapSize = Size.height(12);
+    const [QRCodeImageURL, setQRCodeImageURL] = useState('');
 
-    const gapSize = Size.height(12)
+    // Fetch QR code, checks if it exists and sets the URL
+    // If it doesn't exist, set the URL to empty string, otherwise set it to the fetched URL
+    const fetchQRCode = async (id: string) => {
+        try {
+            const response = await fetch(`${API_URL}/api/v1/files/qrcode/url/${id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+            const responseData = await response.json();
+
+            if (response.ok) {
+                const url = responseData.chemicalQRURL;
+                if (!url) {
+                    setQRCodeImageURL('');
+                } else {
+                    setQRCodeImageURL(url);
+                }
+            } else {
+                setQRCodeImageURL('');
+                console.log('Failed to fetch QR code:', response.statusText);
+            }
+        } catch (error) {
+            console.log('Error fetching QR code:', error);
+        }
+    }
+
+    useEffect(() => {
+        if (selectedChemical) {
+            fetchQRCode(selectedChemical.id);
+        }
+    }, [selectedChemical])
 
     // Determine color based on location status
     const getStatusColor = (status: string) => {
@@ -93,16 +131,28 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
         <ModalContainer modalVisible={modalVisible} closeModal={closeModal}>
             <ScrollContainer>
                 {selectedChemical && (<>
-                    <View style={stylesPopup.qrTitleContainer}>
+                    <View style={[stylesPopup.qrTitleContainer, QRCodeImageURL && stylesPopup.qrTitleContainerOffset]}>
                         {/* QR Code Placeholder */}
-                        <View style={stylesPopup.qrCodePlaceholder}>
-                            <TextInter>QR Code</TextInter>
-                        </View>
+                        {
+                            QRCodeImageURL ? (
+                                <Image
+                                    source={{ uri: QRCodeImageURL }}
+                                    style={{ width: 120, height: 120, marginBottom: 10, }}
+                                    resizeMode="cover"
+                                />
+                            ) : (
+                                <View style={stylesPopup.qrCodePlaceholder}>
+                                    <TextInter style={{ textAlign: 'center' }}>Error Fetching QR Code</TextInter>
+                                </View>
+                            )
+                        }
 
                         {/* Chemical Name & CAS */}
-                        <View style={stylesPopup.nameCASContainer}>
-                            <TextInter style={stylesPopup.chemicalName}>{selectedChemical.name}</TextInter>
-                            <ChemicalDetail property={'CAS: '} value={processCAS(selectedChemical.CAS)} />
+                        <View style={[stylesPopup.nameCASContainer, QRCodeImageURL && stylesPopup.nameCASContainerOffset]}>
+                            <View style={{ flex: 1, alignItems: 'center' }}>
+                                <TextInter style={stylesPopup.chemicalName}>{selectedChemical.name}</TextInter>
+                                <ChemicalDetail property={'CAS: '} value={processCAS(selectedChemical.CAS)} />
+                            </View>
                         </View>
                     </View>
 
@@ -120,7 +170,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
 
                     {/* Status & Quantity */}
                     <ChemicalDetail property={'Status: '} value={selectedChemical.status} color={getStatusColor(selectedChemical.status)} />
-                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity}  margin={gapSize} />
+                    <ChemicalDetail property={'Quantity: '} value={selectedChemical.quantity} margin={gapSize} />
 
                     {/* Buttons */}
                     <View style={stylesPopup.buttonContainer}>
@@ -139,10 +189,10 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             icon={<ViewDocIcon color={Colors.black} />}
                             textColor={Colors.black}
                             onPress={() => {
-                            closeModal();  // Close the modal
+                                closeModal();  // Close the modal
                                 router.push({
-                                pathname: '/fileViewer', 
-                                params: {  fileUrl:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', title: selectedChemical.name } 
+                                    pathname: '/fileViewer',
+                                    params: { fileUrl: selectedChemical.sdsURL, title: selectedChemical.name }
                                 });
                             }}
                             color={Colors.white}
@@ -178,17 +228,27 @@ const stylesPopup = StyleSheet.create({
         marginTop: 20,
     },
     qrTitleContainer: {
-        flex: 1,
+        display: 'flex',
         flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        marginBottom: Size.height(5)
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: Size.height(5),
+    },
+    // Offset bc QR code image has inherent padding
+    qrTitleContainerOffset: {
+        right: 14,
     },
     nameCASContainer: {
         flex: 1,
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
-        marginLeft: 5
+        marginLeft: 5,
+        textAlign: 'center',
+    },
+    // Offset bc QR code image has inherent padding
+    nameCASContainerOffset: {
+        paddingTop: 10,
+        left: 14,
     },
     buttonContainer: {
         alignItems: 'center',

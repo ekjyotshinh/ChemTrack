@@ -26,5 +26,6 @@ func RegisterRoutesFiles(router *gin.Engine) {
 	r.DELETE("/files/label/:chemicalIdNumber", controllers.DeleteLabel) // Delete label
 
 	// QR code routes
-	r.GET("/files/qrcode/:chemicalIdNumber", controllers.GetQRCode) // Generate a QR code for a chemical
+	r.GET("/files/qrcode/:chemicalIdNumber", controllers.GetQRCode)        // Generate a QR code for a chemical
+	r.GET("/files/qrcode/url/:chemicalIdNumber", controllers.GetQRCodeURL) // Get the QR code URL for a chemical
 }

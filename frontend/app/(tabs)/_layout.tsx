@@ -45,7 +45,7 @@ export default function TabLayout() {
           name="scanQRCode"
           options={{
             title: 'Scan',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavScan
                 color={focused ? 'black' : 'white'}
               />
@@ -58,7 +58,7 @@ export default function TabLayout() {
           name="viewChemicals"
           options={{
             title: 'View',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavView
                 color={focused ? 'black' : 'white'}
               />
@@ -71,7 +71,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavHome
                 color={focused ? 'black' : 'white'}
               />
@@ -84,7 +84,7 @@ export default function TabLayout() {
           name="addChemical"
           options={{
             title: 'Add',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavAdd
                 color={focused ? 'black' : 'white'}
               />
@@ -97,7 +97,7 @@ export default function TabLayout() {
           name="profile/profile"
           options={{
             title: 'Account',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavProfile
                 color={focused ? 'black' : 'white'}
               />
@@ -112,7 +112,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavHome
                 color={focused ? 'black' : 'white'}
               />
@@ -125,7 +125,7 @@ export default function TabLayout() {
           name="scanQRCode"
           options={{
             title: 'Scan',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavScan
                 color={focused ? 'black' : 'white'}
               />
@@ -138,7 +138,7 @@ export default function TabLayout() {
           name="viewChemicals"
           options={{
             title: 'View',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavView
                 color={focused ? 'black' : 'white'}
               />
@@ -151,7 +151,7 @@ export default function TabLayout() {
           name="profile/profile"
           options={{
             title: 'Account',
-            tabBarIcon: ({ focused }) => (
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
               <NavProfile
                 color={focused ? 'black' : 'white'}
               />
@@ -212,6 +212,21 @@ export default function TabLayout() {
       {/* newPassword Tab */}
       <Tabs.Screen
         name="profile/newPassword"
+        options={{
+          href: null,
+        }}
+      />
+
+      {/* Reset Password Screens - hidden from tabs */}
+      <Tabs.Screen
+        name="reset-password"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="new-password"
         options={{
           href: null,
         }}
