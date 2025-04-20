@@ -1,6 +1,6 @@
 import Colors from '@/constants/Colors'
 import React from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, GestureResponderEvent} from 'react-native'
+import { StyleSheet, View, TouchableOpacity, GestureResponderEvent} from 'react-native'
 import TextInter from './TextInter'
 import Size from '@/constants/Size'
 import { Ionicons } from '@expo/vector-icons'
@@ -51,13 +51,15 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        left: Size.width(24)
+        left: Size.width(24),
+        zIndex: 1,
     },
     header: {
         marginBottom: Size.height(15),
         fontSize: 22,
         color: Colors.white,
         fontWeight: 'bold',
+        textAlign: 'center',
         // make sure this matches margin for
         // the screen so the text lines up
         marginHorizontal: Size.width(33),

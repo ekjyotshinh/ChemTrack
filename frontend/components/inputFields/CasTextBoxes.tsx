@@ -74,7 +74,7 @@ export default function CasTextBoxes({ casParts, setCasParts, testIDs }: CasProp
 
     return (
         <View style={styles.container}>
-            {CasTextBox(0, 135, 7, true, testIDs[0])}
+            {CasTextBox(0, 135, 6, true, testIDs[0])}
             <Divider />
             {CasTextBox(1, 75, 2, true, testIDs[1])}
             <Divider />
