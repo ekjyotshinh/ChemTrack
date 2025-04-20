@@ -605,17 +605,19 @@ export default function ViewChemicals() {
 
                 {/* Footer Buttons */}
                 <View style={sharedStyles.footer}>
+                  {/* Include conditionals so buttons will be active only when we have a filter selected */}
                   <CustomButton
                     title="Reset All"
-                    onPress={handleResetFilters}
-                    color={Colors.lightgrey}
-                    textColor={Colors.black}
+                    onPress={selectedStatus.length > 0 ? handleResetFilters : ()=>{}}
+                    color={Colors.white}
+                    textColor={selectedStatus.length > 0 ? Colors.black : Colors.grey}
                     width={160}
                   />
                   <CustomButton
                     title="Apply Filters"
-                    onPress={closeFilterModal}
-                    color={Colors.blue}
+                    onPress={selectedStatus.length > 0 ? closeFilterModal : ()=>{}}
+                    color={selectedStatus.length > 0 ? Colors.blue : Colors.white}
+                    textColor={selectedStatus.length > 0 ? Colors.white : Colors.grey}
                     width={160}
                   />
                 </View>
@@ -874,7 +876,7 @@ const sharedStyles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: Colors.offwhite,
     borderRadius: 16,
     padding: 20,
     maxHeight: '80%',
