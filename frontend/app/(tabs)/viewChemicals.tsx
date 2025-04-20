@@ -90,7 +90,7 @@ export default function ViewChemicals() {
   const [chemicalsData, setChemicalsData] = useState([]);
   const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
   const router = useRouter();
-  const [selectedSort, setSelectedSort] = useState("Newest first (by date)"); // Default sorting option
+  const [selectedSort, setSelectedSort] = useState("Newest (Purchase Date)"); // Default sorting option
 
   // Add these above your component return statement
   const getIsSelected = (sectionTitle: string, option: string) => {
@@ -249,7 +249,7 @@ export default function ViewChemicals() {
       `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
     ].some(field => {
       const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
-      const cleanSearch = search.replace(/[^a-z0-9]/g, '');
+      const cleanSearch = search.toLowerCase().replace(/[^a-z0-9]/g, '');
       return cleanField.includes(cleanSearch);
     });
 
@@ -296,14 +296,13 @@ export default function ViewChemicals() {
 
   const [sortVisible, setSortVisible] = useState(false);
   const sortOptions = [
-    "Newest first (by date)",
-    "Oldest first (by date)",
+    "Near Expiration",
     "Status (High to Low)",
     "Status (Low to High)",
-    "Lowest quantity first",
-    "A-Z",
-    "Z-A",
-    "By expiration",
+    "Newest (Purchase Date)",
+    "Oldest (Purchase Date)",
+    "Chemical Name (A-Z)",
+    "Chemical Name (Z-A)",
   ];
 
   // Sorting function
@@ -322,23 +321,23 @@ export default function ViewChemicals() {
           return (priority[a['status']] || 4) - (priority[b['status']] || 4);
         });
         break;
-      case "Newest first (by date)":
+      case "Newest (Purchase Date)":
         sortedList.sort(
           (a, b) => new Date(b['purchase_date']).getTime() - new Date(a['purchase_date']).getTime()
         );
         break;
-      case "Oldest first (by date)":
+      case "Oldest (Purchase Date)":
         sortedList.sort(
           (a, b) => new Date(a['purchase_date']).getTime() - new Date(b['purchase_date']).getTime()
         );
         break;
-      case "A-Z":
+      case "Chemical Name (A-Z)":
         sortedList.sort((a, b) => (a['name'] > b['name'] ? 1 : -1));
         break;
-      case "Z-A":
+      case "Chemical Name (Z-A)":
         sortedList.sort((a, b) => (a['name'] < b['name'] ? 1 : -1));
         break;
-      case "By expiration":
+      case "Near Expiration":
         sortedList.sort(
           (a, b) => new Date(a['expiration_date']).getTime() - new Date(b['expiration_date']).getTime()
         );
@@ -393,7 +392,7 @@ export default function ViewChemicals() {
               "Chemical name, CAS, or school..." : "Chemical name or CAS"}
             placeholderTextColor={Colors.previewText}
             value={searchQuery}
-            onChangeText={(text) => setSearchQuery(text.toLowerCase().trim())}
+            onChangeText={(text) => setSearchQuery(text.trim())}
             onSubmitEditing={handleSearch} // trigger search on submit/enter
           />
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
