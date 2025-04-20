@@ -51,6 +51,13 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.white,
         alignItems: 'center',
         elevation: 20,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 12,
+        },
+        shadowOpacity: 0.58,
+        shadowRadius: 10.0,
         marginTop: 'auto',
     },
     closeButton: {

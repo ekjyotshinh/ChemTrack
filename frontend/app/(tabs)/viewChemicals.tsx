@@ -136,6 +136,7 @@ export default function ViewChemicals() {
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const [selectedPurchaseDate, setSelectedPurchaseDate] = useState<string[]>([]);
   const [selectedExpirationDate, setSelectedExpirationDate] = useState<string[]>([]);
+  const [isFilterSelected, setIsFilteredSelected] = useState<boolean>(false);
 
   // Function to handle search button click
   const handleSearch = () => {
@@ -378,6 +379,17 @@ export default function ViewChemicals() {
     }
   }, [isFocused]);
 
+  // Let's us know when any filter is selected
+  // Used to update whether filter buttons will be active or not
+  useEffect(() => {
+    setIsFilteredSelected(
+      selectedStatus.length > 0 ||
+      selectedPurchaseDate.length > 0 ||
+      selectedExpirationDate.length > 0
+    );
+  }, [selectedStatus, selectedPurchaseDate, 
+    selectedExpirationDate]);
+
   return (
     <View style={styles.container}>
       <Header headerText='View Chemicals' />
@@ -607,16 +619,16 @@ export default function ViewChemicals() {
                   {/* Include conditionals so buttons will be active only when we have a filter selected */}
                   <CustomButton
                     title="Reset All"
-                    onPress={selectedStatus.length > 0 ? handleResetFilters : ()=>{}}
+                    onPress={isFilterSelected ? handleResetFilters : ()=>{}}
                     color={Colors.white}
-                    textColor={selectedStatus.length > 0 ? Colors.black : Colors.grey}
+                    textColor={isFilterSelected ? Colors.black : Colors.grey}
                     width={160}
                   />
                   <CustomButton
                     title="Apply Filters"
-                    onPress={selectedStatus.length > 0 ? closeFilterModal : ()=>{}}
-                    color={selectedStatus.length > 0 ? Colors.blue : Colors.white}
-                    textColor={selectedStatus.length > 0 ? Colors.white : Colors.grey}
+                    onPress={isFilterSelected ? closeFilterModal : ()=>{}}
+                    color={isFilterSelected ? Colors.blue : Colors.white}
+                    textColor={isFilterSelected ? Colors.white : Colors.grey}
                     width={160}
                   />
                 </View>
