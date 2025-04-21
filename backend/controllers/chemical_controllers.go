@@ -78,6 +78,8 @@ func AddChemical(c *gin.Context) {
 
 	// Generate a QR code for the chemical
 	GenerateQRCode(chemical.ID)
+	// Creating the label upon chemical creation
+	GenerateAndUploadLabel(chemical.ID)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Chemical added successfully", "chemical": chemical})
 }
