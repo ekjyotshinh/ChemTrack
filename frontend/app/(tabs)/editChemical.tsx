@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Text } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
@@ -34,15 +34,18 @@ export default function EditChemicals() {
   const [purchaseDate, setPurchaseDate] = useState<Date>();
   const [expirationDate, setExpirationDate] = useState<Date>();
   const [uploaded, setUploaded] = useState<boolean>(false);
+  const [changedPdf, setChangedPdf] = useState<boolean>(false);
+  const [existingPdf, setExistingPdf] = useState<boolean>(false);
   const [editChemical, setEditChemical] = useState<any>(null);
-  let sdsName: string = "placeholderName";
 
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const chemicalIdString = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUser();
+  const [uploadText, setUploadText] = useState<string>('');
+  const sdsForm = useRef<FormData | null>(null);
 
-  const [schoolList, setSchoolList] = useState<any>([{label: '', value: ''}]);
+  const [schoolList, setSchoolList] = useState<any>([{ label: '', value: '' }]);
 
   const statuses = [
     { label: 'Good', value: 'Good' },
@@ -69,14 +72,21 @@ export default function EditChemicals() {
         copyToCacheDirectory: false,
       });
       // if selection goes through
-      if (!pickedPdf.canceled) {
+      if (pickedPdf && !pickedPdf.canceled) {
         // Check success
         const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
         console.log('Got the pdf: ', pickedPdf);
         console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
         console.log('File Name: ', pickedPdf.assets[0].name);
-        sdsName = pickedPdf.assets[0].name;
+        sdsForm.current = new FormData();
+        sdsForm.current.append('sds', {
+          uri: pickedPdf.assets[0].uri,
+          name: pickedPdf.assets[0].name,
+          type: pickedPdf.assets[0].mimeType,
+        } as any);
+        setUploadText(pickedPdf.assets[0].name);
         setUploaded(true);
+        setChangedPdf(true);
         Alert.alert('PDF Uploaded!');
       } else {
         Alert.alert("Pdf selection canceled.");
@@ -119,7 +129,8 @@ export default function EditChemicals() {
 
         setPurchaseDate(data.purchase_date ? new Date(data.purchase_date) : undefined);
         setExpirationDate(data.expiration_date ? new Date(data.expiration_date) : undefined);
-        setUploaded(!!data.uploaded);
+        setUploaded(!!data.sdsURL);
+        setExistingPdf(!!data.sdsURL);
       } else {
         console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
@@ -136,7 +147,7 @@ export default function EditChemicals() {
         fetchChemicalData(chemicalIdString);
         // Only fetch school list if user is master
         if (userInfo.is_master) {
-          fetchSchoolList({setSchoolList});
+          fetchSchoolList({ setSchoolList });
         }
       }
     }, [chemicalIdString])
@@ -157,13 +168,13 @@ export default function EditChemicals() {
     const areStringsComplete = [name, room, shelf, cabinet, school, status, quantity, unit].every(s => s.trim() !== '');
     const areDatesComplete = [purchaseDate, expirationDate].every(date => date !== undefined);
     const isCasComplete = Array.isArray(casParts) && casParts.every(part => part && part.trim() !== '');
-  
+
     const filled = areStringsComplete && areDatesComplete && isCasComplete && uploaded;
     if (isFilled !== filled) {
       setIsFilled(filled);
     }
   }, [name, room, shelf, cabinet, school, status, quantity, unit, purchaseDate, expirationDate, casParts.join(''), uploaded]);
-    
+
   const onSave = async () => {
     if (isFilled && userInfo && (userInfo.is_admin || userInfo.is_master)) {
       const formatDate = (date: Date | null | undefined): string | undefined =>
@@ -197,9 +208,54 @@ export default function EditChemicals() {
         const responseData = await response.json();
 
         if (response.ok) {
-          console.log('Chemical updated successfully:', responseData);
-          Alert.alert('Success', 'Chemical information updated');
-          router.push('/');
+          // If a different PDF is uploaded than database's
+          if (changedPdf) {
+            // If there is a pdf initially uploaded, delete and change, else just add
+            if (existingPdf) {
+              const pdfDeleteResponse = await fetch(
+                `${API_URL}/api/v1/files/sds/${chemicalIdString}`,
+                {
+                  method: 'DELETE',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+
+              );
+              const pdfPostResponse = await fetch(`${API_URL}/api/v1/files/sds/${chemicalIdString}`, {
+                method: 'POST',
+                body: sdsForm.current!,
+              });
+
+              if (!pdfDeleteResponse.ok || !pdfPostResponse.ok) {
+                console.log('Failed to update pdf:', sdsForm.current);
+                Alert.alert('Error', 'Error occurred while updating Pdf over original');
+              } else {
+                console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
+                Alert.alert('Success', 'Chemical and SDS information updated');
+                router.push('/');
+              }
+
+            } else {
+              const pdfPostResponse = await fetch(`${API_URL}/api/v1/files/sds/${chemicalIdString}`, {
+                method: 'POST',
+                body: sdsForm.current!,
+              });
+              if (!pdfPostResponse.ok) {
+                console.log('Failed to update pdf:', sdsForm.current);
+                Alert.alert('Error', 'Error occurred while updating Pdf');
+              } else {
+                console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
+                Alert.alert('Success', 'Chemical and SDS information updated');
+                router.push('/');
+              }
+            }
+
+          } else {
+            console.log('Chemical updated successfully:', responseData);
+            Alert.alert('Success', 'Chemical information updated');
+            router.push('/');
+          }
         } else {
           console.log('Failed to update chemical:', responseData);
           Alert.alert('Error', 'Error occurred while updating chemical');
@@ -212,7 +268,7 @@ export default function EditChemicals() {
       Alert.alert('Error', 'Please fill in all fields!');
     }
   };
-  
+
   // Show delete alert pop up to confirm user's action
   const onDelete = async () => {
     Alert.alert(
@@ -250,6 +306,7 @@ export default function EditChemicals() {
         }
       );
 
+
       const responseData = await response.json();
 
       if (response.ok) {
@@ -274,99 +331,99 @@ export default function EditChemicals() {
       {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
         <View style={styles.container}>
           <BlueHeader headerText={name || 'Chemical Name'} onPress={handleBackPress} />
-          <Text>Edit Chemical</Text> 
+          <Text>Edit Chemical</Text>
           <ScrollView style={styles.scroll}>
             <View style={styles.innerContainer}>
-              
+
               {/* Name */}
-                 <HeaderTextInput
-                  headerText='Name'
-                  value={name}
-                  onChangeText={(value: string) => { setName(value) }}
-                  testID='name-input'
-                  />
+              <HeaderTextInput
+                headerText='Name'
+                value={name}
+                onChangeText={(value: string) => { setName(value) }}
+                testID='name-input'
+              />
 
               {/* CAS Number */}
               <View style={{ marginTop: Size.width(10) }}>
                 <CustomTextHeader headerText="CAS Number" />
-                <CasTextBoxes casParts={casParts} setCasParts={setCasParts}  testIDs={['cas-0','cas-1','cas-2']}/>
+                <CasTextBoxes casParts={casParts} setCasParts={setCasParts} testIDs={['cas-0', 'cas-1', 'cas-2']} />
               </View>
 
               {/* Purchase and Expiration Dates */}
               <View style={styles.row}>
-              <DateInput
-               date={purchaseDate}
-               setDate={setPurchaseDate}
-               inputWidth={Size.width(154)}
-               headerText={'Purchase Date'}
-               testID='purchase-date'
-             />
-             <DateInput
-               date={expirationDate}
-               setDate={setExpirationDate}
-               inputWidth={Size.width(154)}
-               headerText={'Expiration Date'}
-               testID='expiration-date'
-             />
+                <DateInput
+                  date={purchaseDate}
+                  setDate={setPurchaseDate}
+                  inputWidth={Size.width(154)}
+                  headerText={'Purchase Date'}
+                  testID='purchase-date'
+                />
+                <DateInput
+                  date={expirationDate}
+                  setDate={setExpirationDate}
+                  inputWidth={Size.width(154)}
+                  headerText={'Expiration Date'}
+                  testID='expiration-date'
+                />
               </View>
 
               {/* Status and Quality */}
               <View style={styles.row}>
                 <View style={{ width: Size.width(111) }}>
                   <CustomTextHeader headerText="Status" />
-                  <DropdownInput data={statuses} value={status} setValue={setStatus} testID= 'status-dropdown' />
+                  <DropdownInput data={statuses} value={status} setValue={setStatus} testID='status-dropdown' />
                 </View>
 
                 <View style={{ width: Size.width(88) }}>
-                  <HeaderTextInput 
-                  headerText="Quantity"
-                  onChangeText={(value) => setQuantity(value)} 
-                  inputWidth={Size.width(80)} 
-                  isNumeric value={quantity} 
-                  testID='quantity-input'
+                  <HeaderTextInput
+                    headerText="Quantity"
+                    onChangeText={(value) => setQuantity(value)}
+                    inputWidth={Size.width(80)}
+                    isNumeric value={quantity}
+                    testID='quantity-input'
                   />
                 </View>
 
                 <View style={{ width: Size.width(88) }}>
                   <CustomTextHeader headerText="Unit" />
-                  <DropdownInput 
-                  data={units} 
-                  value={unit} 
-                  setValue={setUnit}
-                  testID="unit-dropdown" />
+                  <DropdownInput
+                    data={units}
+                    value={unit}
+                    setValue={setUnit}
+                    testID="unit-dropdown" />
                 </View>
               </View>
 
               {userInfo && userInfo.is_master &&
-              <View style={styles.row}>
-                <View style={{ width: '100%' }}>
-                  <CustomTextHeader headerText="School" />
-                  <DropdownInput data={schoolList} value={school} setValue={setSchool} testID='school-dropdown'/>
+                <View style={styles.row}>
+                  <View style={{ width: '100%' }}>
+                    <CustomTextHeader headerText="School" />
+                    <DropdownInput data={schoolList} value={school} setValue={setSchool} testID='school-dropdown' />
+                  </View>
                 </View>
-              </View>
               }
 
               {/* Room, cabinet, shelf number */}
               <View style={styles.row}>
-                <HeaderTextInput headerText="Room" 
-                onChangeText={(value) => setRoom(value)} 
-                inputWidth={Size.width(111)} 
-                value={room} 
-                testID='room-input' 
+                <HeaderTextInput headerText="Room"
+                  onChangeText={(value) => setRoom(value)}
+                  inputWidth={Size.width(111)}
+                  value={room}
+                  testID='room-input'
                 />
-                <HeaderTextInput 
-                headerText="Cabinet" 
-                onChangeText={(value) => setCabinet(value)} 
-                inputWidth={Size.width(88)} 
-                isNumeric value={cabinet} 
-                testID='cabinet-input' 
+                <HeaderTextInput
+                  headerText="Cabinet"
+                  onChangeText={(value) => setCabinet(value)}
+                  inputWidth={Size.width(88)}
+                  isNumeric value={cabinet}
+                  testID='cabinet-input'
                 />
-                <HeaderTextInput 
-                headerText="Shelf" 
-                onChangeText={(value) => setShelf(value)} 
-                inputWidth={Size.width(88)} 
-                isNumeric value={shelf} 
-                testID='shelf-input' 
+                <HeaderTextInput
+                  headerText="Shelf"
+                  onChangeText={(value) => setShelf(value)}
+                  inputWidth={Size.width(88)}
+                  isNumeric value={shelf}
+                  testID='shelf-input'
                 />
               </View>
 
@@ -378,9 +435,9 @@ export default function EditChemicals() {
                     title={uploaded ? 'File Uploaded' : 'Replace PDF'}
                     onPress={replacePdf}
                     width={337}
-                    icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> : 
-                    <UploadIcon width={24} height={24} />
-                  }
+                    icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> :
+                      <UploadIcon width={24} height={24} />
+                    }
                     iconPosition="left"
                     color={uploaded ? 'black' : 'white'}
                     textColor={uploaded ? 'white' : 'black'}
