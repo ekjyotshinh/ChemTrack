@@ -5,6 +5,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import ChemicalDetails from '@/components/viewChemicalModals/ChemicalDetails';
 import * as WebBrowser from 'expo-web-browser';
 import { useRouter } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function ViewChemicals() {
 
@@ -24,7 +25,7 @@ export default function ViewChemicals() {
     sdsURL: string;
   }
 
-
+  const isFocused = useIsFocused();
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedData, setScannedData] = useState<string | null>(null);
@@ -99,19 +100,20 @@ export default function ViewChemicals() {
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} onBarcodeScanned={({ data }) => {
-        if (!modalVisible && data !== scannedData) {
-          setScannedData(data);
-          fetchChemicalData(data);
-        }
-      }}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
-
+      {isFocused && (
+        <CameraView style={styles.camera} facing={facing} onBarcodeScanned={({ data }) => {
+          if (!modalVisible && data !== scannedData) {
+            setScannedData(data);
+            fetchChemicalData(data);
+          }
+        }}>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
+      )}
       <ChemicalDetails
         selectedChemical={selectedChemical}
         toggleSDSBottomSheet={toggleSDSBottomSheet}
