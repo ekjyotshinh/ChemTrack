@@ -178,7 +178,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             title={'Download QR Label'}
                             icon={<QrCodeIcon color={Colors.black} strokeWidth='4' />}
                             textColor={Colors.black}
-                            onPress={() => downloadFile(`https://storage.googleapis.com/chemtrack-testing2/QRcodes/HisW8WYTGR9UB5TEGMbC.png`)}
+                            onPress={() => downloadFile(`https://storage.googleapis.com/chemtrack-testing2/label/${selectedChemical.id}.pdf`)}
                             color={Colors.white}
                             width={270}
                             height={47}
