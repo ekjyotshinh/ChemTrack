@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
@@ -24,94 +25,93 @@ import (
 // @Failure 500 {object} map[string]interface{}
 // @Router /label/{chemicalIdNumber} [post]
 func AddLabel(c *gin.Context) {
-	ctx := context.Background()
-
-	// Initialize Google Cloud Storage client
-	storageClient, err := storage.NewClient(ctx)
+	chemicalId := c.Param("chemicalIdNumber")
+	err := GenerateAndUploadLabel(chemicalId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initialize storage client"})
-		return
-	}
-	defer storageClient.Close()
-
-	// Firestore stuff
-	chemicalIdNumber := c.Param("chemicalIdNumber")
-	doc, err := client.Collection("chemicals").Doc(chemicalIdNumber).Get(ctx)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Chemical not found"})
-		return
-	}
-	chemID := doc.Ref.ID
-
-	// Fetch the QR code using the new QR code API
-	qrCodeURL := fmt.Sprintf("http://localhost:8080/api/v1/files/qrcode/%s", chemID) // Replace with the actual API URL
-	resp, err := http.Get(qrCodeURL)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch QR code from API"})
-		return
-	}
-	defer resp.Body.Close()
-
-	// Read the QR code image from the API response
-	var qrCodeBuffer bytes.Buffer
-	if _, err := io.Copy(&qrCodeBuffer, resp.Body); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read QR code from API response"})
-		return
-	}
-
-	// PDF dimensions
-	width := 4 * 25.4  // 101.6 mm
-	height := 2 * 25.4 // 50.8 mm
-
-	// Create the PDF
-	pdf := fpdf.NewCustom(&fpdf.InitType{
-		Size: fpdf.SizeType{Wd: width, Ht: height},
-	})
-	pdf.AddPage()
-
-	// Layout
-	margin := 10.0               // Margin from edges in mm
-	imgWidth := width/2 - margin // Half width minus margin
-	imgHeight := 40.0            // Set image height
-	imgY := (height - imgHeight) / 2
-
-	// QR code
-	imgOptions := fpdf.ImageOptions{ImageType: "png", ReadDpi: true}
-	pdf.RegisterImageOptionsReader("qrcode", imgOptions, &qrCodeBuffer)
-
-	// Place the QR code on the label
-	pdf.ImageOptions("qrcode", margin, imgY, imgWidth, 0, false, imgOptions, 0, "")
-
-	// Chemical name
-	textX := width/2 + margin
-	textY := height / 2 // Center vertically
-	pdf.SetFont("Arial", "B", 14)
-	pdf.Text(textX, textY-5, chemID)
-
-	// Generate the PDF
-	var buf bytes.Buffer
-	if err := pdf.Output(&buf); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate PDF"})
-		return
-	}
-
-	// Upload the PDF to cloud storage
-	bucketName := "chemtrack-testing2"
-	labelObject := storageClient.Bucket(bucketName).Object("label/" + chemID + ".pdf")
-	writer := labelObject.NewWriter(ctx)
-	if _, err := io.Copy(writer, &buf); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload PDF to cloud storage"})
-		return
-	}
-	if err := writer.Close(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to close PDF writer"})
+		status := http.StatusInternalServerError
+		if strings.Contains(err.Error(), "not found") {
+			status = http.StatusNotFound
+		}
+		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Label created and uploaded successfully",
-		"file":    "label/" + chemID + ".pdf",
+		"file":    fmt.Sprintf("label/%s.pdf", chemicalId),
 	})
+}
+
+
+func GenerateAndUploadLabel(chemicalId string) error {
+	ctx := context.Background()
+
+	// Initialize Google Cloud Storage client
+	storageClient, err := storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to init storage client: %w", err)
+	}
+	defer storageClient.Close()
+
+	// Fetch the document to confirm existence
+	doc, err := client.Collection("chemicals").Doc(chemicalId).Get(ctx)
+	if err != nil {
+		return fmt.Errorf("chemical not found: %w", err)
+	}
+	chemID := doc.Ref.ID
+
+	// Fetch the QR code
+	qrCodeURL := fmt.Sprintf("http://localhost:8080/api/v1/files/qrcode/%s", chemID)
+	resp, err := http.Get(qrCodeURL)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to fetch QR code: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var qrCodeBuffer bytes.Buffer
+	if _, err := io.Copy(&qrCodeBuffer, resp.Body); err != nil {
+		return fmt.Errorf("failed to read QR code image: %w", err)
+	}
+
+	// Create the PDF
+	width := 3 * 25.4
+	height := 2 * 25.4
+	pdf := fpdf.NewCustom(&fpdf.InitType{
+		Size: fpdf.SizeType{Wd: width, Ht: height},
+	})
+	pdf.AddPage()
+
+	imgOptions := fpdf.ImageOptions{ImageType: "png", ReadDpi: true}
+	pdf.RegisterImageOptionsReader("qrcode", imgOptions, &qrCodeBuffer)
+
+	imgWidth := 30.0
+	imgHeight := 30.0
+	imgX := (width - imgWidth) / 2
+	imgY := 8.0
+	pdf.ImageOptions("qrcode", imgX, imgY, imgWidth, imgHeight, false, imgOptions, 0, "")
+
+	pdf.SetFont("Arial", "B", 12)
+	text := chemID
+	textWidth := pdf.GetStringWidth(text)
+	textX := (width - textWidth) / 2
+	textY := imgY + imgHeight + 8
+	pdf.Text(textX, textY, text)
+
+	var buf bytes.Buffer
+	if err := pdf.Output(&buf); err != nil {
+		return fmt.Errorf("failed to generate PDF: %w", err)
+	}
+
+	objectName := fmt.Sprintf("label/%s.pdf", chemID)
+	writer := storageClient.Bucket("chemtrack-testing2").Object(objectName).NewWriter(ctx)
+	if _, err := io.Copy(writer, &buf); err != nil {
+		return fmt.Errorf("failed to upload PDF: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("failed to close writer: %w", err)
+	}
+
+	return nil
 }
 
 // GetLabel godoc
