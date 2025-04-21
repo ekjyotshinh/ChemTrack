@@ -116,6 +116,7 @@ const InviteUserPage: React.FC = () => {
                     const data = await res.json();
                     console.log(data);
                     const id = data.user.id;
+                    const link = "exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}"
                     try {
                         // Make the request to send an invite email
                         const response = await fetch(
@@ -129,10 +130,51 @@ const InviteUserPage: React.FC = () => {
                                     to: email,
                                     subject: "ChemTrack User Invitation",
                                     // Ajays Link
-                                    body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Download the app from the Play Store, then tap the link below to complete your sign-up.<br><br> exp://a4sykbo-ajay_12-8081.exp.direct/--/customSignup1?id=${id}`,
+                                    //body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Download the app from the Play Store, then tap the link below to complete your sign-up.<br><br> exp://a4sykbo-ajay_12-8081.exp.direct/--/customSignup1?id=${id}`,
                                     // EJ's Link
-                                    //body: `You have been invited to join ChemTrack at ${school} as a ${userType}.<br><br>Download the app from the Play Store, then tap the link below to complete your sign-up.<br><br><a href="exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}">Sign Up Link</a>`,
-                                }),
+                                    //TODO : update the links to the prod ones
+                                      body: `
+                                        <html>
+                                          <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                                            <h2>Welcome to ChemTrack!</h2>
+                                            <p>
+                                              You have been invited to join <strong>ChemTrack</strong> at 
+                                              <strong>${school}</strong> as a <strong>${userType}</strong> User.
+                                            </p>
+
+                                            <div style="margin: 20px 0; padding: 15px; border: 1px solid #e0e0e0; background-color: #f8f8f8; border-radius: 5px;">
+                                              <p><strong>Next Steps:</strong></p>
+                                              <ol>
+                                                <li>Download the ChemTrack app from the Play Store or App Store</li>
+                                                <li>Open the app on your device</li>
+                                                <li>Click the link below to complete your sign-up</li>
+                                              </ol>
+
+                                              <div style="margin: 15px 0;">
+                                                <a 
+                                                  href="exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}" 
+                                                  style="background-color: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                                                  Complete Your Registration
+                                                </a>
+                                              </div>
+
+                                              <div style="margin: 15px 0;">
+                                                If the button above doesn't work (this can happen in some browsers), 
+                                                please copy and paste the following link into your browser:
+                                                <br/>
+                                                <a href="exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}">
+                                                  exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}
+                                                </a>
+                                              </div>
+                                            </div>
+
+                                            <p>
+                                              If you have any questions or didn’t expect this invitation, please ignore this email.
+                                            </p>
+                                          </body>
+                                        </html>
+                                        `
+                                    })
                             }
                         );
                         const data = await response.json();
