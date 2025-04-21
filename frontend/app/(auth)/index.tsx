@@ -47,7 +47,7 @@ export default function StartPage() {
             <TextInter style={styles.blue}>built for schools.</TextInter>
           </TextInter>
 
-          <TextInter style={styles.subtitle}>DUMMY PAGEEEEE</TextInter>
+
 
           <View style={{ height: Size.height(90) }} />
 
