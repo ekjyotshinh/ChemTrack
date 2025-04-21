@@ -60,7 +60,9 @@ func GenerateAndUploadLabel(chemicalId string) error {
 	}
 	chemID := doc.Ref.ID
 
+
 	// Fetch the QR code
+	//TODO: update this 
 	qrCodeURL := fmt.Sprintf("http://localhost:8080/api/v1/files/qrcode/%s", chemID)
 	resp, err := http.Get(qrCodeURL)
 	if err != nil || resp.StatusCode != http.StatusOK {
