@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { View, ActivityIndicator, Platform, Text, StyleSheet, GestureResponderEvent } from "react-native";
+import React, { useCallback, useState } from "react";
+import { View, ActivityIndicator, Platform, Text, StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import Header from '@/components/Header';
 import BlueHeader from "@/components/BlueHeader";
 import Colors from "@/constants/Colors";
 

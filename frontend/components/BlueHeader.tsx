@@ -10,10 +10,16 @@ interface headerProps {
     onPress: (event: GestureResponderEvent) => void
 }
 
-export default function BlueHeader({ headerText, onPress } : headerProps) {
+// Add elipsis to long chemical names >= 30 characters
+const processChemName = (name: string) => {
+  name = name.toString();
+  if (name.length <= 30) {
+    return name;
+  }
+  return name.substring(0, 27) + '...';
+}
 
-    // Split header text in 2 strings: 1st is blue, 2nd is black
-    const list: string[] = headerText.split(' ')
+export default function BlueHeader({ headerText, onPress } : headerProps) {
 
     return (
         <View style={styles.container}>
@@ -21,7 +27,7 @@ export default function BlueHeader({ headerText, onPress } : headerProps) {
                 <TouchableOpacity onPress={onPress} style={styles.icon}>
                     <Ionicons style={{marginBottom: 11}} name="arrow-back" size={28} color="white" />
                 </TouchableOpacity>
-                <TextInter style={styles.header}>{headerText}</TextInter>
+                <TextInter style={styles.header}>{processChemName(headerText)}</TextInter>
             </View>
         </View>
     )
@@ -60,8 +66,6 @@ const styles = StyleSheet.create({
         color: Colors.white,
         fontWeight: 'bold',
         textAlign: 'center',
-        // make sure this matches margin for
-        // the screen so the text lines up
-        marginHorizontal: Size.width(33),
+        marginHorizontal: Size.width(50),
     }
 });
