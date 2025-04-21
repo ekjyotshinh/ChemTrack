@@ -241,6 +241,7 @@ export default function ViewChemicals() {
   const isValidDate = (dateString: string) => !isNaN(Date.parse(dateString));
   
   const filterChemicals = (search : string) => {
+    if (!chemicalsData) return;
     let filteredList = chemicalsData.filter((chemical: Chemical) => {
     // 1. Enhanced Search Filter
     const searchMatches = [
@@ -308,7 +309,7 @@ export default function ViewChemicals() {
 
   // Sorting function
   const sortChemicals = ({option, sortedList} : {option: string, sortedList: []}) => {
-
+    if (!sortedList) return;
     switch (option) {
       case "Status (Low to High)":
         sortedList.sort((a, b) => {
@@ -453,7 +454,7 @@ export default function ViewChemicals() {
         <View style={styles.innerContainer}>
 
           {/* Chemicals List */}
-          {filteredAndSortedData.length > 0 ? (
+          {filteredAndSortedData && filteredAndSortedData.length > 0 ? (
             filteredAndSortedData.map((chemical: Chemical, index) => (
               <TouchableOpacity
                 key={index}
