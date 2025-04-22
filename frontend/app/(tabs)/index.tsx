@@ -89,13 +89,13 @@ export default function HomePageView() {
 
       {/* TODO: Make sure to remove in prod */}
      
-      <CustomButton 
+      {/* <CustomButton 
         title="Only for testing " 
         onPress={() => router.push('/profile/newPassword')} 
         width={337} 
         icon={<QRCodeIcon width={24} height={24} />}
         iconPosition='left'
-      />
+      /> */}
       
 
       {/* Test Deep Link Button - for testing purposes only */}

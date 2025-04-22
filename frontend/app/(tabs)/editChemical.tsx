@@ -34,15 +34,14 @@ export default function EditChemicals() {
   const [purchaseDate, setPurchaseDate] = useState<Date>();
   const [expirationDate, setExpirationDate] = useState<Date>();
   const [uploaded, setUploaded] = useState<boolean>(false);
+  const [pdfName, setPdfName] = useState<string>('');
   const [changedPdf, setChangedPdf] = useState<boolean>(false);
   const [existingPdf, setExistingPdf] = useState<boolean>(false);
-  const [editChemical, setEditChemical] = useState<any>(null);
 
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const chemicalIdString = Array.isArray(id) ? id[0] : id;
   const { userInfo } = useUser();
-  const [uploadText, setUploadText] = useState<string>('');
   const sdsForm = useRef<FormData | null>(null);
 
   const [schoolList, setSchoolList] = useState<any>([{ label: '', value: '' }]);
@@ -61,6 +60,19 @@ export default function EditChemicals() {
     { label: 'g', value: 'g' },
     { label: 'kg', value: 'kg' },
   ];
+
+  // Add elipsis to long file names >= 20 characters
+  const processFileName = (name: string) => {
+    name = name.toString();
+    name = name.split('.').slice(0, -1).join('.'); // remove pdf extension
+    if (name.length <= 20) {
+      setPdfName(name);
+    } else if (name.length > 20) {
+      setPdfName(name.substring(0, 20) + '...');
+    } else {
+      setPdfName('File Uploaded');
+    }
+  }
 
   const replacePdf = async () => {
     if (!(userInfo && (userInfo.is_admin || userInfo.is_master))) return;
@@ -84,7 +96,7 @@ export default function EditChemicals() {
           name: pickedPdf.assets[0].name,
           type: pickedPdf.assets[0].mimeType,
         } as any);
-        setUploadText(pickedPdf.assets[0].name);
+        processFileName(pickedPdf.assets[0].name);
         setUploaded(true);
         setChangedPdf(true);
         Alert.alert('PDF Uploaded!');
@@ -102,7 +114,6 @@ export default function EditChemicals() {
 
   // Fetch every time this page comes into focus
   // Fixes issue of a user selecting a chemical, making edits, leaving the page, then selecting  // the same chemical and still seeing the edited version rather than what's in the database
-
   // Fetch the chemical data from the API based on the chemicalId
   const fetchChemicalData = async (id: string) => {
     try {
@@ -111,7 +122,6 @@ export default function EditChemicals() {
       console.log(data)
 
       if (response.ok) {
-        setEditChemical(data);
         setName(data.name || '');
         setRoom(data.room || '');
         setShelf(data.shelf?.toString() || '');
@@ -129,8 +139,17 @@ export default function EditChemicals() {
 
         setPurchaseDate(data.purchase_date ? new Date(data.purchase_date) : undefined);
         setExpirationDate(data.expiration_date ? new Date(data.expiration_date) : undefined);
-        setUploaded(!!data.sdsURL);
-        setExistingPdf(!!data.sdsURL);
+
+        if (data.sdsURL) {
+          setUploaded(true);
+          setExistingPdf(true);
+          setPdfName('File Uploaded');
+        } else {
+          setUploaded(false);
+          setExistingPdf(false);
+          setPdfName('Upload');
+        }
+        
       } else {
         console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
@@ -159,9 +178,6 @@ export default function EditChemicals() {
   };
 
   // Handle form validation
-  const stringInputs: string[] = [name, room, shelf, cabinet, school, status, quantity, unit];
-  const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate];
-  const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded];
   const [isFilled, setIsFilled] = useState<boolean>(false);
 
   useEffect(() => {
@@ -322,10 +338,6 @@ export default function EditChemicals() {
     }
   };
 
-  const onUpload = () => {
-    setUploaded(!uploaded);
-  };
-
   return (
     <>
       {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
@@ -432,7 +444,7 @@ export default function EditChemicals() {
                 <CustomTextHeader headerText="SDS" />
                 <View style={{ alignItems: 'center' }}>
                   <CustomButton
-                    title={uploaded ? 'File Uploaded' : 'Replace PDF'}
+                    title={pdfName}
                     onPress={replacePdf}
                     width={337}
                     icon={uploaded ? <ResetIcon width={24} height={24} color="white" /> :

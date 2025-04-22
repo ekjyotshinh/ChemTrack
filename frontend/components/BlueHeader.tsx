@@ -1,6 +1,6 @@
 import Colors from '@/constants/Colors'
 import React from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, GestureResponderEvent} from 'react-native'
+import { StyleSheet, View, TouchableOpacity, GestureResponderEvent} from 'react-native'
 import TextInter from './TextInter'
 import Size from '@/constants/Size'
 import { Ionicons } from '@expo/vector-icons'
@@ -10,10 +10,16 @@ interface headerProps {
     onPress: (event: GestureResponderEvent) => void
 }
 
-export default function BlueHeader({ headerText, onPress } : headerProps) {
+// Add elipsis to long chemical names >= 30 characters
+const processChemName = (name: string) => {
+  name = name.toString();
+  if (name.length <= 30) {
+    return name;
+  }
+  return name.substring(0, 27) + '...';
+}
 
-    // Split header text in 2 strings: 1st is blue, 2nd is black
-    const list: string[] = headerText.split(' ')
+export default function BlueHeader({ headerText, onPress } : headerProps) {
 
     return (
         <View style={styles.container}>
@@ -21,7 +27,7 @@ export default function BlueHeader({ headerText, onPress } : headerProps) {
                 <TouchableOpacity onPress={onPress} style={styles.icon}>
                     <Ionicons style={{marginBottom: 11}} name="arrow-back" size={28} color="white" />
                 </TouchableOpacity>
-                <TextInter style={styles.header}>{headerText}</TextInter>
+                <TextInter style={styles.header}>{processChemName(headerText)}</TextInter>
             </View>
         </View>
     )
@@ -51,15 +57,15 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        left: Size.width(24)
+        left: Size.width(24),
+        zIndex: 1,
     },
     header: {
         marginBottom: Size.height(15),
         fontSize: 22,
         color: Colors.white,
         fontWeight: 'bold',
-        // make sure this matches margin for
-        // the screen so the text lines up
-        marginHorizontal: Size.width(33),
+        textAlign: 'center',
+        marginHorizontal: Size.width(50),
     }
 });

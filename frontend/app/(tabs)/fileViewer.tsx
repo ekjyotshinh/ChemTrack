@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, ActivityIndicator, Platform, Text, StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
-import { useLocalSearchParams } from "expo-router";
-import Header from '@/components/Header';
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import BlueHeader from "@/components/BlueHeader";
+import Colors from "@/constants/Colors";
 
 export default function PdfViewer() {
+  const router = useRouter();
   const { fileUrl, title } = useLocalSearchParams(); 
 
   const fileUrlUpdated = Array.isArray(fileUrl) ? fileUrl[0] : fileUrl;
@@ -14,9 +16,12 @@ export default function PdfViewer() {
   const [loading, setLoading] = useState(true); 
   const [key, setKey] = useState(0); 
 
-  useEffect(() => {
-    setKey(prevKey => prevKey + 1); 
-  }, [fileUrlUpdated, titleNameUpdated]);
+  useFocusEffect(
+    useCallback(() => {
+      // Triggers re-render every time we gain focus
+      setKey(prevKey => prevKey + 1);
+    }, [])
+  );
 
   const handleWebViewLoad = () => {
     setLoading(false); 
@@ -25,7 +30,7 @@ export default function PdfViewer() {
   if (!fileUrlUpdated ) {
     return (
       <View style={styles.centeredView}>
-        <Header headerText={titleNameUpdated} />
+        <BlueHeader headerText={titleNameUpdated} onPress={()=>{router.push('/viewChemicals')}} />
         <Text style={styles.errorText}>
           No File available. Unable to load the document.
         </Text>
@@ -35,7 +40,7 @@ export default function PdfViewer() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header headerText={titleNameUpdated} />
+      <BlueHeader headerText={titleNameUpdated} onPress={()=>{router.push('/viewChemicals')}} />
 
       {loading && (
         <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
@@ -66,10 +71,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.offwhite,
   },
   errorText: {
+    padding: 20,
     fontSize: 18,
-    color: 'red',
+    textAlign: 'center',
+    color: Colors.black,
   },
   loadingIndicator: {
     position: 'absolute',
