@@ -336,7 +336,23 @@ export default function Profile() {
                 title="Log Out"
                 color={Colors.red}
                 textColor={Colors.white}
-                onPress={() => setConfirmModalVisible(true)}
+                // onPress={() => setConfirmModalVisible(true)}
+                onPress={() => {
+                  Alert.alert(
+                    'Log Out',
+                    'Are you sure you want to log out?',
+                    [
+                      {
+                        text: 'Yes',
+                        onPress: () => {router.replace('/(auth)/login')},
+                      },
+                      {
+                        text: 'No',
+                        style: 'cancel',
+                      },
+                    ]
+                  )
+                }}
                 width={337}
                 icon={<LoginIcon width={24} height={24} color={Colors.white} />}
                 iconPosition="left"
@@ -347,7 +363,7 @@ export default function Profile() {
       </ScrollView>
 
       {/* Confirmation Modal */}
-      <Modal
+      {/* <Modal
         animationType="slide"
         transparent
         visible={confirmModalVisible}
@@ -373,7 +389,7 @@ export default function Profile() {
 
           </View>
         </View>
-      </Modal>
+      </Modal> */}
     </View>
   );
 }

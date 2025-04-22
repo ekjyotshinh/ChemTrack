@@ -1,12 +1,10 @@
-import { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Keyboard, Linking, Platform, Alert } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Keyboard, Alert } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import AscendingSortIcon from '@/assets/icons/AscendingSortIcon';
 import DescendingSortIcon from '@/assets/icons/DescendingSortIcon';
 import CustomButton from '@/components/CustomButton';
-import Accordion from 'react-native-collapsible/Accordion'; // Add Accordion component
 import Colors from '@/constants/Colors';
 import { useIsFocused } from '@react-navigation/native';
 import ChemicalDetails from '@/components/viewChemicalModals/ChemicalDetails';
@@ -19,8 +17,6 @@ import processCAS from '@/functions/ProcessCAS';
 import TextInter from '@/components/TextInter';
 import ChevronRight from '@/assets/icons/ChevronRightIcon';
 import { useUser } from '@/contexts/UserContext';
-import * as WebBrowser from 'expo-web-browser';
-import { WebView } from "react-native-webview";
 
 // Is the chemical expired?
 const isExpired = (expirationDate: string) => {
@@ -86,18 +82,15 @@ export default function ViewChemicals() {
     sdsURL: string;
   }
 
-
   const [modalVisible, setModalVisible] = useState(false);
   const [sortModalVisible, setSortModalVisible] = useState(false); // Added for Sort By Modal
   const [sortOption, setSortOption] = useState('Chemical Name'); // Added for sorting logic
   const [sortOrder, setSortOrder] = useState('Ascending'); // Added for sorting logic
   const [filtersVisible, setFiltersVisible] = useState(false); // State for controlling filter modal
-  const [expanded, setExpanded] = useState<number[]>([]);
   const [chemicalsData, setChemicalsData] = useState([]);
   const [selectedChemical, setSelectedChemical] = useState<Chemical | null>(null);
   const router = useRouter();
-  const [selectedSort, setSelectedSort] = useState("Newest first (by date)"); // Default sorting option
-  const [sortedChemicals, setSortedChemicals] = useState<Chemical[]>([]);
+  const [selectedSort, setSelectedSort] = useState("Newest (Purchase Date)"); // Default sorting option
 
   // Add these above your component return statement
   const getIsSelected = (sectionTitle: string, option: string) => {
@@ -137,13 +130,13 @@ export default function ViewChemicals() {
 
   //Search functionality
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredChemicals, setFilteredChemicals] = useState<Chemical[]>([]);
   const [isSearching, setIsSearching] = useState(false); // New state to track search status
 
   // Add state variables for selected filter options
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const [selectedPurchaseDate, setSelectedPurchaseDate] = useState<string[]>([]);
   const [selectedExpirationDate, setSelectedExpirationDate] = useState<string[]>([]);
+  const [isFilterSelected, setIsFilteredSelected] = useState<boolean>(false);
 
   // Function to handle search button click
   const handleSearch = () => {
@@ -163,18 +156,15 @@ export default function ViewChemicals() {
     setSelectedChemical(chemical); // Set the selected chemical
     setModalVisible(true); // Open the modal
   };
-  const closeModal = () => setModalVisible(false);
-  const openSortModal = () => setSortModalVisible(true);
+ 
   const closeSortModal = () => setSortModalVisible(false);
   const openFilterModal = () => setFiltersVisible(true);
   const closeFilterModal = () => setFiltersVisible(false);
-  const toggleFilterSheet = () => setFiltersVisible(!filtersVisible);
 
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const toggleSDSBottomSheet = () => {
     setIsSDSBottomSheetOpen(!isSDSBottomSheetOpen);
     viewPdf();
-
   };
 
   // Function to view safety data sheet (SDS) in web browser
@@ -233,21 +223,13 @@ export default function ViewChemicals() {
       }
       const data = await response.json();
       setChemicalsData(data);
-      console.log(data)
     } catch (error) {
       console.error(error);
     }
   };
 
-
   const isFocused = useIsFocused();
   const hasFetched = useRef(false);
-  useEffect(() => {
-    if (isFocused && !hasFetched.current) {
-      fetchChemicals(); // Fetch only if it hasn't been fetched before
-      hasFetched.current = true; // Mark as fetched
-    }
-  }, [isFocused]);
 
   //type-safe helper function
   const safeString = (value: any): string => {
@@ -257,71 +239,56 @@ export default function ViewChemicals() {
 
   // Helper function for date validation
   const isValidDate = (dateString: string) => !isNaN(Date.parse(dateString));
-
-
-  // Filter logic
-  useEffect(() => {
+  
+  const filterChemicals = (search : string) => {
     if (!chemicalsData) return;
-
-    const searchLower = searchQuery.toLowerCase().trim();
-
-    const filtered = chemicalsData.filter((chemical: Chemical) => {
-      // 1. Enhanced Search Filter
-      const searchMatches = [
-        chemical.name,
-        chemical.CAS,
-        (userInfo && userInfo.is_master) && chemical.school,
-        `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
-      ].some(field => {
-        const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
-        const cleanSearch = searchLower.replace(/[^a-z0-9]/g, '');
-        return cleanField.includes(cleanSearch);
-      });
-
-      // 2. Status Filter with Priority
-      const statusMatches = selectedStatus.length === 0 ||
-        selectedStatus.includes(chemical.status);
-
-      // 3. Date Handling with Validation
-      const purchaseDate = isValidDate(chemical.purchase_date) ?
-        new Date(chemical.purchase_date) : null;
-      const expirationDate = isValidDate(chemical.expiration_date) ?
-        new Date(chemical.expiration_date) : null;
-
-      // Date Filter Logic
-      const purchaseDateMatches = selectedPurchaseDate.length === 0 || (
-        (selectedPurchaseDate.includes('Before 2020') && purchaseDate && purchaseDate < new Date('2020-01-01')) ||
-        (selectedPurchaseDate.includes('2020-2024') && purchaseDate &&
-          purchaseDate >= new Date('2020-01-01') &&
-          purchaseDate <= new Date('2024-12-31')) ||
-        (selectedPurchaseDate.includes('After 2024') && purchaseDate && purchaseDate > new Date('2024-12-31'))
-      );
-
-      const expirationDateMatches = selectedExpirationDate.length === 0 || (
-        (selectedExpirationDate.includes('Before 2025') && expirationDate && expirationDate < new Date('2025-01-01')) ||
-        (selectedExpirationDate.includes('2025-2030') && expirationDate &&
-          expirationDate >= new Date('2025-01-01') &&
-          expirationDate <= new Date('2030-12-31')) ||
-        (selectedExpirationDate.includes('After 2030') && expirationDate && expirationDate > new Date('2030-12-31'))
-      );
-
-      return searchMatches &&
-        statusMatches &&
-        purchaseDateMatches &&
-        expirationDateMatches;
+    let filteredList = chemicalsData.filter((chemical: Chemical) => {
+    // 1. Enhanced Search Filter
+    const searchMatches = [
+      chemical.name,
+      chemical.CAS,
+      (userInfo && userInfo.is_master) && chemical.school,
+      `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
+    ].some(field => {
+      const cleanField = safeString(field).replace(/[^a-z0-9]/g, '');
+      const cleanSearch = search.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return cleanField.includes(cleanSearch);
     });
 
-    setFilteredChemicals(filtered);
-    // Reset searching status after filtering is complete  
-    setIsSearching(false);
-  }, [searchQuery, chemicalsData, selectedStatus,
-    selectedPurchaseDate, selectedExpirationDate]);
+    // 2. Status Filter with Priority
+    const statusMatches = selectedStatus.length === 0 ||
+      selectedStatus.includes(chemical.status);
 
-  useEffect(() => {
-    if (!isFocused) {
-      hasFetched.current = false; // Reset when leaving the screen
-    }
-  }, [isFocused]);
+    // 3. Date Handling with Validation
+    const purchaseDate = isValidDate(chemical.purchase_date) ?
+      new Date(chemical.purchase_date) : null;
+    const expirationDate = isValidDate(chemical.expiration_date) ?
+      new Date(chemical.expiration_date) : null;
+
+    // Date Filter Logic
+    const purchaseDateMatches = selectedPurchaseDate.length === 0 || (
+      (selectedPurchaseDate.includes('Before 2020') && purchaseDate && purchaseDate < new Date('2020-01-01')) ||
+      (selectedPurchaseDate.includes('2020-2024') && purchaseDate &&
+        purchaseDate >= new Date('2020-01-01') &&
+        purchaseDate <= new Date('2024-12-31')) ||
+      (selectedPurchaseDate.includes('After 2024') && purchaseDate && purchaseDate > new Date('2024-12-31'))
+    );
+
+    const expirationDateMatches = selectedExpirationDate.length === 0 || (
+      (selectedExpirationDate.includes('Before 2025') && expirationDate && expirationDate < new Date('2025-01-01')) ||
+      (selectedExpirationDate.includes('2025-2030') && expirationDate &&
+        expirationDate >= new Date('2025-01-01') &&
+        expirationDate <= new Date('2030-12-31')) ||
+      (selectedExpirationDate.includes('After 2030') && expirationDate && expirationDate > new Date('2030-12-31'))
+    );
+
+    return searchMatches &&
+      statusMatches &&
+      purchaseDateMatches &&
+      expirationDateMatches;
+  })
+    return filteredList;
+  }
 
   const filterSections = [
     { title: 'Status', data: ['Low', 'Fair', 'Good', 'Off-site'] },
@@ -331,20 +298,18 @@ export default function ViewChemicals() {
 
   const [sortVisible, setSortVisible] = useState(false);
   const sortOptions = [
-    "Newest first (by date)",
-    "Oldest first (by date)",
+    "Near Expiration",
     "Status (High to Low)",
     "Status (Low to High)",
-    "Lowest quantity first",
-    "A-Z",
-    "Z-A",
-    "By expiration",
+    "Newest (Purchase Date)",
+    "Oldest (Purchase Date)",
+    "Chemical Name (A-Z)",
+    "Chemical Name (Z-A)",
   ];
 
   // Sorting function
-  const sortChemicals = (option: string) => {
-    let sortedList = [...chemicalsData];
-
+  const sortChemicals = ({option, sortedList} : {option: string, sortedList: []}) => {
+    if (!sortedList) return;
     switch (option) {
       case "Status (Low to High)":
         sortedList.sort((a, b) => {
@@ -358,23 +323,23 @@ export default function ViewChemicals() {
           return (priority[a['status']] || 4) - (priority[b['status']] || 4);
         });
         break;
-      case "Newest first (by date)":
+      case "Newest (Purchase Date)":
         sortedList.sort(
           (a, b) => new Date(b['purchase_date']).getTime() - new Date(a['purchase_date']).getTime()
         );
         break;
-      case "Oldest first (by date)":
+      case "Oldest (Purchase Date)":
         sortedList.sort(
           (a, b) => new Date(a['purchase_date']).getTime() - new Date(b['purchase_date']).getTime()
         );
         break;
-      case "A-Z":
+      case "Chemical Name (A-Z)":
         sortedList.sort((a, b) => (a['name'] > b['name'] ? 1 : -1));
         break;
-      case "Z-A":
+      case "Chemical Name (Z-A)":
         sortedList.sort((a, b) => (a['name'] < b['name'] ? 1 : -1));
         break;
-      case "By expiration":
+      case "Near Expiration":
         sortedList.sort(
           (a, b) => new Date(a['expiration_date']).getTime() - new Date(b['expiration_date']).getTime()
         );
@@ -385,23 +350,46 @@ export default function ViewChemicals() {
     return sortedList; // Return the sorted array instead of modifying state here
   };
 
-
-
   // Handle option selection
   const handleSortSelection = (option: string) => {
     setSelectedSort(option); // Move checkmark
-    sortChemicals(option); // Sort list dynamically
     setSortVisible(false);
   };
 
-  useEffect(() => {
-    if (chemicalsData && chemicalsData.length > 0) {
-      let sortedList = sortChemicals(selectedSort); // Get sorted array
+  // Filter/Sort Data Logic
+  // We want to filter first, since this based on fetched data
+  // Once we have the filtered list, then we sort it
+  // Returned list rendered to the user
+  // Using useMemo for some potential performance benefits
+  const filteredAndSortedData = useMemo(() => {
+    let filteredData = filterChemicals(searchQuery);
+    setIsSearching(false);
+    return sortChemicals({option: selectedSort, sortedList: filteredData as []});
+  }, [searchQuery, chemicalsData, selectedStatus,
+    selectedPurchaseDate, selectedExpirationDate, selectedSort]);
 
-      setSortedChemicals(sortedList); // Update sorted list state
-      setFilteredChemicals(sortedList); // Ensure displayed list is sorted
+  // Focus Logic
+  useEffect(() => {
+    if (isFocused && !hasFetched.current) {
+      fetchChemicals(); // Fetch only if it hasn't been fetched before
+      hasFetched.current = true; // Mark as fetched
     }
-  }, [chemicalsData, selectedSort]); // Trigger sorting when data or selection changes
+    
+    if (!isFocused) {
+      hasFetched.current = false; // Reset when leaving the screen
+    }
+  }, [isFocused]);
+
+  // Let's us know when any filter is selected
+  // Used to update whether filter buttons will be active or not
+  useEffect(() => {
+    setIsFilteredSelected(
+      selectedStatus.length > 0 ||
+      selectedPurchaseDate.length > 0 ||
+      selectedExpirationDate.length > 0
+    );
+  }, [selectedStatus, selectedPurchaseDate, 
+    selectedExpirationDate]);
 
   return (
     <View style={styles.container}>
@@ -417,7 +405,7 @@ export default function ViewChemicals() {
               "Chemical name, CAS, or school..." : "Chemical name or CAS"}
             placeholderTextColor={Colors.previewText}
             value={searchQuery}
-            onChangeText={(text) => setSearchQuery(text)}
+            onChangeText={(text) => setSearchQuery(text.trim())}
             onSubmitEditing={handleSearch} // trigger search on submit/enter
           />
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
@@ -466,8 +454,8 @@ export default function ViewChemicals() {
         <View style={styles.innerContainer}>
 
           {/* Chemicals List */}
-          {filteredChemicals.length > 0 ? (
-            filteredChemicals.map((chemical: Chemical, index) => (
+          {filteredAndSortedData && filteredAndSortedData.length > 0 ? (
+            filteredAndSortedData.map((chemical: Chemical, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.chemicalItem}
@@ -629,17 +617,19 @@ export default function ViewChemicals() {
 
                 {/* Footer Buttons */}
                 <View style={sharedStyles.footer}>
+                  {/* Include conditionals so buttons will be active only when we have a filter selected */}
                   <CustomButton
                     title="Reset All"
-                    onPress={handleResetFilters}
-                    color={Colors.lightgrey}
-                    textColor={Colors.black}
+                    onPress={isFilterSelected ? handleResetFilters : ()=>{}}
+                    color={Colors.white}
+                    textColor={isFilterSelected ? Colors.black : Colors.grey}
                     width={160}
                   />
                   <CustomButton
                     title="Apply Filters"
-                    onPress={closeFilterModal}
-                    color={Colors.blue}
+                    onPress={isFilterSelected ? closeFilterModal : ()=>{}}
+                    color={isFilterSelected ? Colors.blue : Colors.white}
+                    textColor={isFilterSelected ? Colors.white : Colors.grey}
                     width={160}
                   />
                 </View>
@@ -898,7 +888,7 @@ const sharedStyles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: Colors.offwhite,
     borderRadius: 16,
     padding: 20,
     maxHeight: '80%',

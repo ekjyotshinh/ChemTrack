@@ -29,7 +29,7 @@ export default function TabLayout() {
           backgroundColor: Colors.blue,
           paddingBottom: isAndroid ? 10 : 25,
           height: isAndroid ? 70 : 85,
-          paddingTop: 10
+          paddingTop: 15
         },
 
         tabBarActiveTintColor: 'black',
