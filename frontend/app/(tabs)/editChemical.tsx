@@ -18,6 +18,7 @@ import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
 import TrashIcon from '@/assets/icons/TrashIcon';
+import Loader from '@/components/Loader';
 
 
 
@@ -35,6 +36,7 @@ export default function EditChemicals() {
   const [expirationDate, setExpirationDate] = useState<Date>();
   const [uploaded, setUploaded] = useState<boolean>(false);
   const [editChemical, setEditChemical] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   let sdsName: string = "placeholderName";
 
   const router = useRouter();
@@ -181,6 +183,7 @@ export default function EditChemicals() {
         shelf: parseInt(shelf, 10),
         cabinet: parseInt(cabinet, 10),
       };
+      setLoading(true);
 
       try {
         const response = await fetch(
@@ -197,14 +200,17 @@ export default function EditChemicals() {
         const responseData = await response.json();
 
         if (response.ok) {
+          setLoading(false); // Stop loader
           console.log('Chemical updated successfully:', responseData);
           Alert.alert('Success', 'Chemical information updated');
           router.push('/');
         } else {
+          setLoading(false); // Stop loader
           console.log('Failed to update chemical:', responseData);
           Alert.alert('Error', 'Error occurred while updating chemical');
         }
       } catch (error) {
+        setLoading(false); // Stop loader
         console.error('Error updating chemical:', error);
         Alert.alert('Error', 'Error occurred while updating chemical');
       }
@@ -238,7 +244,7 @@ export default function EditChemicals() {
       Alert.alert('Error', 'You don\'t have permissions');
       return;
     }
-
+    setLoading(true);
     try {
       const response = await fetch(
         `${API_URL}/api/v1/chemicals/${chemicalIdString}`,
@@ -253,13 +259,16 @@ export default function EditChemicals() {
       const responseData = await response.json();
 
       if (response.ok) {
+        setLoading(false); // Stop loader
         Alert.alert('Success', 'Chemical successfully deleted');
         router.push('/');
       } else {
+        setLoading(false); // Stop loader
         console.log('Failed to delete chemical:', responseData);
         Alert.alert('Error', 'Error occurred while deleting chemical');
       }
     } catch (error) {
+      setLoading(false); // Stop loader
       console.error('Error deleting chemical:', error);
       Alert.alert('Error', 'Error occurred while deleting chemical');
     }
@@ -273,6 +282,7 @@ export default function EditChemicals() {
     <>
       {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
         <View style={styles.container}>
+          <Loader visible={loading} message="" />
           <BlueHeader headerText={name || 'Chemical Name'} onPress={handleBackPress} />
           <Text>Edit Chemical</Text> 
           <ScrollView style={styles.scroll}>

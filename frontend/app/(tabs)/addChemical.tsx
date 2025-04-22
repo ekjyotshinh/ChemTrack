@@ -18,6 +18,7 @@ import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
+import Loader from '@/components/Loader';
 
 export default function AddChemical() {
   const { userInfo } = useUser()
@@ -36,6 +37,7 @@ export default function AddChemical() {
   const [expirationDate, setExpirationDate] = useState<Date>()
 
   const [uploaded, setUploaded] = useState<boolean>(false)
+  const [loading, setLoading] = useState(false);
 
   // will be used later for updating the text to match file name
   const [uploadText, setUploadText] = useState<string>('')
@@ -162,7 +164,7 @@ export default function AddChemical() {
         shelf: parseInt(shelf, 10), // Convert shelf to integer (if it's a number)
         cabinet: parseInt(cabinet, 10), // Convert cabinet to integer (if it's a number)
       };
-
+      setLoading(true);
       try {
         // Send the data to the backend
         console.log('Request data:', JSON.stringify(data, null, 2));
@@ -187,22 +189,27 @@ export default function AddChemical() {
           });
           if (pdfResponse.ok) {
             onClear();
+            setLoading(false); // Stop loader
             Alert.alert('Success', 'Chemical information added');
             router.push('/');
           } else {
+            setLoading(false); // Stop loader
             console.log('Failed to add pdf:', pdfResponse);
             Alert.alert('Error', 'Error occured');
           }
         } else {
+          setLoading(false); // Stop loader
           // Handle server errors
           console.log('Failed to add chemical:', responseData);
           Alert.alert('Error', 'Error occured');
         }
       } catch (error) {
+        setLoading(false); // Stop loader
         console.error('Error adding chemical:', error);
         Alert.alert('Error', 'Error occured');
       }
     } else {
+      setLoading(false); // Stop loader
       console.log('Please fill in all fields!');
       Alert.alert('Error', 'Please fill in all fields!');
     }
@@ -230,6 +237,7 @@ export default function AddChemical() {
     <>
       {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
         <View style={styles.container}>
+          <Loader visible={loading} message="Adding Chemical..." />
           <Header headerText='Add Chemical' />
           <ScrollView style={styles.scroll}>
             <View style={styles.innerContainer}>

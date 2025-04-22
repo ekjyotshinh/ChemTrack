@@ -23,6 +23,7 @@ import emailRegex from "@/functions/EmailRegex";
 import { useUser } from "@/contexts/UserContext";
 import ErrorPage from "../errorPage";
 import fetchSchoolList from '@/functions/fetchSchool';
+import Loader from '@/components/Loader';
 
 
 const InviteUserPage: React.FC = () => {
@@ -32,6 +33,7 @@ const InviteUserPage: React.FC = () => {
     const [selectedSchool, setSelectedSchool] = useState('');
     const [otherSchool, setOtherSchool] = useState('');
     const [userType, setUserType] = useState<"Master" | "Admin" | null>(null);
+  const [loading, setLoading] = useState(false);
 
     const [isValidEmail, setIsValidEmail] = useState(false);
     emailRegex({ email, setIsValidEmail });
@@ -69,12 +71,15 @@ const InviteUserPage: React.FC = () => {
                 setEmail("");
                 setSchool("");
                 setUserType(null);
+                setLoading(false); // Stop loader
                 Alert.alert("Error", "Failed to Invite user");
             } else {
+                setLoading(false); // Stop loader
                 Alert.alert("Error", "User account created but couldn't send email. Please manually convey the user to log in with that email and use forget password.");
             }
         } catch (error) {
-                Alert.alert("Error", "User account created but couldn't send email. Please manually convey the user to log in with that email and use forget password.");
+            setLoading(false); // Stop loader
+            Alert.alert("Error", "User account created but couldn't send email. Please manually convey the user to log in with that email and use forget password.");
 
         }
     };
@@ -103,6 +108,7 @@ const InviteUserPage: React.FC = () => {
                 );
                 return;
             }
+            setLoading(true);
             try {
                 const res = await fetch(`${API_URL}/api/v1/users`, {
                     method: "POST",
@@ -179,6 +185,7 @@ const InviteUserPage: React.FC = () => {
                         );
                         const data = await response.json();
                         if (response.ok) {
+                            setLoading(false); // Stop loader
                             Alert.alert(
                                 "Success",
                                 "Invitation sent successfully!",
@@ -193,14 +200,17 @@ const InviteUserPage: React.FC = () => {
                         deleteUserOnUnsuccessfulInvite(id)
                     }
                 } else if (res.status === 409) {
+                    setLoading(false); // Stop loader
                     Alert.alert(
                         "Account already exists",
                         "An account already exists with this email."
                     );
                 } else {
+                    setLoading(false); // Stop loader
                     Alert.alert("Error creating Account for the invited user!");
                 }
             } catch (error) {
+                setLoading(false); // Stop loader
                 Alert.alert("Error creating Account for the invited user!");
             }
         } else {
@@ -221,6 +231,7 @@ const InviteUserPage: React.FC = () => {
         <>
             {userInfo && userInfo.is_master ? (
                 <View style={styles.safeArea}>
+                    <Loader visible={loading} message="Sending Invite..." />
                     {/* Title */}
                     <BlueHeader
                         headerText={"Invite User"}

@@ -8,9 +8,11 @@ import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Size from '@/constants/Size';
 import CustomButton from '@/components/CustomButton';
 import Colors from '@/constants/Colors';
+import Loader from '@/components/Loader';
 
 export default function customSignup2() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { id, password} = useLocalSearchParams();
 
@@ -29,7 +31,7 @@ export default function customSignup2() {
       last: lastName,
       password: passwordValue,
     };
-
+    setLoading(true);
     try {
       const res = await fetch(url, {
         method: "PUT",
@@ -38,6 +40,7 @@ export default function customSignup2() {
       });
 
       if (res.ok) {
+        setLoading(false); // Stop loader
         const data = await res.json();
         updateUserInfo({
 		    	name: `${firstName} ${lastName}`,
@@ -52,9 +55,11 @@ export default function customSignup2() {
 		  
         router.replace('/(tabs)');
       } else {
+        setLoading(false); // Stop loader
         Alert.alert("Error creating account!");
       }
     } catch (error) {
+      setLoading(false); // Stop loader
       Alert.alert("Error creating account!");
     }
   };
@@ -70,6 +75,7 @@ export default function customSignup2() {
 
   return (
     <View style={styles.container}>
+      <Loader visible={loading} message="Creating Account..." />
       <BlueHeader headerText={'Sign Up'} onPress={handleBackPress} />
       <ScrollView style={{ width: '100%' }}>
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>

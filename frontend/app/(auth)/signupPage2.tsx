@@ -11,6 +11,7 @@ import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
 import Size from '@/constants/Size';
 import CustomButton from '@/components/CustomButton';
 import Colors from '@/constants/Colors';
+import Loader from '@/components/Loader';
 
 
 // Define the SignUpPage2 component
@@ -18,6 +19,7 @@ export default function SignUpPage2() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { email, password, selectedSchool } = useLocalSearchParams();
 
@@ -45,7 +47,7 @@ export default function SignUpPage2() {
       return;
     }
       
-    console.log(API_URL); // Log the API_URL for debugging
+    setLoading(true);
 
     const url = `${API_URL}/api/v1/users`;
     const userData = {
@@ -81,15 +83,19 @@ export default function SignUpPage2() {
           allow_email: false,
           allow_push: false,
         });
+        setLoading(false); // Stop loader
         router.replace('/(tabs)');
       } else if (res.status === 409) {
+        setLoading(false); // Stop loader
       Alert.alert("Account already exists", "An account already exists with this email.");
       } else {
         const data = await res.json();
+        setLoading(false); // Stop loader
         Alert.alert(data.error);
         router.push('/signupPage1');
       }
     } catch (error) {
+      setLoading(false); // Stop loader
       Alert.alert("Error creating Account!");
       router.push('/signupPage1'); // Navigate back to the first signup page on error
     }
@@ -103,6 +109,7 @@ export default function SignUpPage2() {
   return (
 
     <View style={styles.container}>
+      <Loader visible={loading} message="Creating an Account..." />
       {/* Top bar with a "Back" button and title */}
       <BlueHeader headerText={'Sign Up'} onPress={handleBackPress} />
       <ScrollView style={{ width: '100%' }}>

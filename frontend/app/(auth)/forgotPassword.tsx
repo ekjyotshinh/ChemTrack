@@ -10,6 +10,7 @@ import TextInter from '@/components/TextInter';
 import BlueHeader from '@/components/BlueHeader';
 import LoginIcon from '@/assets/icons/LoginIcon';
 import passwordRegex from '@/functions/PasswordRegex';
+import Loader from '@/components/Loader';
 
 // Make sure this file is saved at the correct path: app/(auth)/forgotPassword.tsx
 export default function ForgotPassword() {
@@ -82,19 +83,20 @@ export default function ForgotPassword() {
       console.log('Response data:', data);
 
       if (response.ok) {
+        setIsLoading(false);
         Alert.alert(
           'Success',
           'Your password has been reset successfully. PLease login with the newer password',
           [{ text: 'Login', onPress: () => router.push('/login') }]
         );
       } else {
+        setIsLoading(false);
         Alert.alert('Error', data.error || 'Failed to reset password. The token may be invalid or expired.');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error resetting password:', error);
       Alert.alert('Error', 'Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -104,6 +106,7 @@ export default function ForgotPassword() {
 
   return (
     <View style={styles.container}>
+      <Loader visible={isLoading} message="Updating Password..." />
       <BlueHeader headerText={'Set New Password'} onPress={() => router.push('/login')} />
 
       <ScrollView style={styles.scrollContainer}>

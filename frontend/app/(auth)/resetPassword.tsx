@@ -10,6 +10,7 @@ import TextInter from '@/components/TextInter';
 import LoginIcon from '@/assets/icons/LoginIcon';
 import BlueHeader from '@/components/BlueHeader';
 import emailRegex from '@/functions/EmailRegex';
+import Loader from '@/components/Loader';
 
 export default function ResetPassword() {  
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
@@ -51,17 +52,18 @@ export default function ResetPassword() {
       const data = await response.json(); 
       console.log('Response data:', data);
 
-      if (response.ok) { 
+      if (response.ok) {
+        setIsLoading(false);
         Alert.alert('Email Sent', 'Check your email for reset instructions.', [{ text: 'OK', onPress: () => setInputToken(true) }]);
       } else {
+        setIsLoading(false);
         Alert.alert('Error', data.error || 'Something went wrong. Please try again.');
       }
     } catch (error) {
+      setIsLoading(false);
       console.error('Error sending reset request:', error);
       Alert.alert('Error', 'Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const handleManualToken = async () => {
@@ -98,6 +100,7 @@ export default function ResetPassword() {
         const data = await response.json();
         
         if (response.ok) {
+          setIsLoading(false);
           // Token is valid, proceed to password reset
           console.log("Token verified successfully");
           router.push({
@@ -105,18 +108,18 @@ export default function ResetPassword() {
             params: { token: trimmedToken }
           });
         } else {
+          setIsLoading(false);
           // Token is invalid
           console.log("Token verification failed:", data.error);
           Alert.alert('Invalid Token', data.error || 'The reset token is not valid or has expired. Please check your email or request a new reset link.');
         }
       } catch (error) {
+        setIsLoading(false);
         console.error("Token verification error:", error);
         Alert.alert(
           "Verification Error",
           "Could not verify the reset token. Please try again or request a new reset link."
         );
-      } finally {
-        setIsLoading(false);
       }
     } else {
       Alert.alert('Error', 'Please enter a reset token.');
@@ -125,6 +128,7 @@ export default function ResetPassword() {
 
   return (  
     <View style={styles.container}>  
+      <Loader visible={isLoading} message="" />
       <BlueHeader headerText={'Reset Password'} onPress={() => router.push('/login')} />  
 
       <ScrollView style={styles.scrollContainer}>  
