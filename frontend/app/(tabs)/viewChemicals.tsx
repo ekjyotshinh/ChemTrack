@@ -247,6 +247,7 @@ export default function ViewChemicals() {
     const searchMatches = [
       chemical.name,
       chemical.CAS,
+      chemical.id,
       (userInfo && userInfo.is_master) && chemical.school,
       `${chemical.room} ${chemical.cabinet} ${chemical.shelf}`
     ].some(field => {
@@ -402,11 +403,12 @@ export default function ViewChemicals() {
           <TextInput
             style={styles.searchInput}
             placeholder={(userInfo && userInfo.is_master) ?
-              "Chemical name, CAS, or school..." : "Chemical name or CAS"}
+              "Chemical name, CAS, ID, or school..." : "Chemical name, CAS, or ID"}
             placeholderTextColor={Colors.previewText}
             value={searchQuery}
             onChangeText={(text) => setSearchQuery(text.trim())}
             onSubmitEditing={handleSearch} // trigger search on submit/enter
+            autoCorrect={false} // so chemical id won't get autocorrected
           />
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <SearchIcon />

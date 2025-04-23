@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop: 0,
         fontSize: 15,
+        overflow: 'hidden'
     },
     icon: {
         marginRight: 15,
