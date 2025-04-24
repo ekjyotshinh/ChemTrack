@@ -76,40 +76,6 @@ export default function HomePageView() {
         iconPosition="left"
       />
 
-      {/* TODO: Make sure to remove in prod */}
-      {/* 
-      <CustomButton 
-        title="Only for testing purpose" 
-        onPress={() => router.push('/checkDownload')} 
-        width={337} 
-        icon={<QRCodeIcon width={24} height={24} />}
-        iconPosition='left'
-      />
-      */}
-
-      {/* TODO: Make sure to remove in prod */}
-     
-      {/* <CustomButton 
-        title="Only for testing " 
-        onPress={() => router.push('/profile/newPassword')} 
-        width={337} 
-        icon={<QRCodeIcon width={24} height={24} />}
-        iconPosition='left'
-      /> */}
-      
-
-      {/* Test Deep Link Button - for testing purposes only */}
-      {/*
-      <CustomButton 
-        title="Test Deep Link" 
-        onPress={testDeepLink} 
-        width={337} 
-        icon={<UserIcon width={24} height={24} />}
-        iconPosition="left"
-      />
-      */}
-      
-
       <View style={{ height: Size.height(65) }} />
     </View>
   );

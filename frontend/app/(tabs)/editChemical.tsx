@@ -18,6 +18,7 @@ import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
 import TrashIcon from '@/assets/icons/TrashIcon';
+import Loader from '@/components/Loader';
 
 
 
@@ -37,6 +38,7 @@ export default function EditChemicals() {
   const [pdfName, setPdfName] = useState<string>('');
   const [changedPdf, setChangedPdf] = useState<boolean>(false);
   const [existingPdf, setExistingPdf] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -208,6 +210,7 @@ export default function EditChemicals() {
         shelf: parseInt(shelf, 10),
         cabinet: parseInt(cabinet, 10),
       };
+      setLoading(true);
 
       try {
         const response = await fetch(
@@ -244,9 +247,11 @@ export default function EditChemicals() {
               });
 
               if (!pdfDeleteResponse.ok || !pdfPostResponse.ok) {
+                setLoading(false); // Stop loader
                 console.log('Failed to update pdf:', sdsForm.current);
                 Alert.alert('Error', 'Error occurred while updating Pdf over original');
               } else {
+                setLoading(false); // Stop loader
                 console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
                 Alert.alert('Success', 'Chemical and SDS information updated');
                 router.push('/');
@@ -258,9 +263,11 @@ export default function EditChemicals() {
                 body: sdsForm.current!,
               });
               if (!pdfPostResponse.ok) {
+                setLoading(false); // Stop loader
                 console.log('Failed to update pdf:', sdsForm.current);
                 Alert.alert('Error', 'Error occurred while updating Pdf');
               } else {
+                setLoading(false); // Stop loader
                 console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
                 Alert.alert('Success', 'Chemical and SDS information updated');
                 router.push('/');
@@ -268,15 +275,18 @@ export default function EditChemicals() {
             }
 
           } else {
+            setLoading(false); // Stop loader
             console.log('Chemical updated successfully:', responseData);
             Alert.alert('Success', 'Chemical information updated');
             router.push('/');
           }
         } else {
+          setLoading(false); // Stop loader
           console.log('Failed to update chemical:', responseData);
           Alert.alert('Error', 'Error occurred while updating chemical');
         }
       } catch (error) {
+        setLoading(false); // Stop loader
         console.error('Error updating chemical:', error);
         Alert.alert('Error', 'Error occurred while updating chemical');
       }
@@ -310,7 +320,7 @@ export default function EditChemicals() {
       Alert.alert('Error', 'You don\'t have permissions');
       return;
     }
-
+    setLoading(true);
     try {
       const response = await fetch(
         `${API_URL}/api/v1/chemicals/${chemicalIdString}`,
@@ -326,13 +336,16 @@ export default function EditChemicals() {
       const responseData = await response.json();
 
       if (response.ok) {
+        setLoading(false); // Stop loader
         Alert.alert('Success', 'Chemical successfully deleted');
         router.push('/');
       } else {
+        setLoading(false); // Stop loader
         console.log('Failed to delete chemical:', responseData);
         Alert.alert('Error', 'Error occurred while deleting chemical');
       }
     } catch (error) {
+      setLoading(false); // Stop loader
       console.error('Error deleting chemical:', error);
       Alert.alert('Error', 'Error occurred while deleting chemical');
     }
@@ -342,6 +355,7 @@ export default function EditChemicals() {
     <>
       {userInfo && (userInfo.is_admin || userInfo.is_master) ? (
         <View style={styles.container}>
+          <Loader visible={loading} message="" />
           <BlueHeader headerText={name || 'Chemical Name'} onPress={handleBackPress} />
           <Text>Edit Chemical</Text>
           <ScrollView style={styles.scroll}>

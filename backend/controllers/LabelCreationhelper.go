@@ -3,9 +3,10 @@ package controllers
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
-	"time"
+	"strings"
 
 	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ import (
 
 // AddLabel godoc
 // @Summary Create a PDF label with a QR code and text
-// @Description Creates a PDF label with a QR code (retrieved from cloud storage) and chemical name, then uploads it to Google Cloud Storage under the "label" folder
+// @Description Creates a PDF label with a QR code (retrieved via the QR code API) and chemical name, then uploads it to Google Cloud Storage under the "label" folder
 // @Tags Label
 // @Produce json
 // @Param chemicalIdNumber path string true "Chemical ID Number"
@@ -24,23 +25,118 @@ import (
 // @Failure 500 {object} map[string]interface{}
 // @Router /label/{chemicalIdNumber} [post]
 func AddLabel(c *gin.Context) {
+	chemicalId := c.Param("chemicalIdNumber")
+	err := GenerateAndUploadLabel(chemicalId)
+	if err != nil {
+		status := http.StatusInternalServerError
+		if strings.Contains(err.Error(), "not found") {
+			status = http.StatusNotFound
+		}
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Label created and uploaded successfully",
+		"file":    fmt.Sprintf("label/%s.pdf", chemicalId),
+	})
+}
+
+
+func GenerateAndUploadLabel(chemicalId string) error {
 	ctx := context.Background()
 
-	// firestore stuff
-	chemicalIdNumber := c.Param("chemicalIdNumber")
-	doc, err := client.Collection("chemicals").Doc(chemicalIdNumber).Get(ctx)
+	// Initialize Google Cloud Storage client
+	storageClient, err := storage.NewClient(ctx)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Chemical not found"})
-		return
+		return fmt.Errorf("failed to init storage client: %w", err)
+	}
+	defer storageClient.Close()
+
+	// Fetch the document to confirm existence
+	doc, err := client.Collection("chemicals").Doc(chemicalId).Get(ctx)
+	if err != nil {
+		return fmt.Errorf("chemical not found: %w", err)
 	}
 	chemID := doc.Ref.ID
-	Chemname, ok := doc.Data()["name"].(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve chemical name"})
-		return
+
+
+	// Fetch the QR code
+	//TODO: update this 
+	qrCodeURL := fmt.Sprintf("http://localhost:8080/api/v1/files/qrcode/%s", chemID)
+	resp, err := http.Get(qrCodeURL)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to fetch QR code: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var qrCodeBuffer bytes.Buffer
+	if _, err := io.Copy(&qrCodeBuffer, resp.Body); err != nil {
+		return fmt.Errorf("failed to read QR code image: %w", err)
 	}
 
-	
+	// Create the PDF
+	width := 3 * 25.4
+	height := 2 * 25.4
+	pdf := fpdf.NewCustom(&fpdf.InitType{
+		Size: fpdf.SizeType{Wd: width, Ht: height},
+	})
+	pdf.AddPage()
+
+	imgOptions := fpdf.ImageOptions{ImageType: "png", ReadDpi: true}
+	pdf.RegisterImageOptionsReader("qrcode", imgOptions, &qrCodeBuffer)
+
+	imgWidth := 30.0
+	imgHeight := 30.0
+	imgX := (width - imgWidth) / 2
+	imgY := 8.0
+	pdf.ImageOptions("qrcode", imgX, imgY, imgWidth, imgHeight, false, imgOptions, 0, "")
+
+	pdf.SetFont("Arial", "B", 12)
+	text := chemID
+	textWidth := pdf.GetStringWidth(text)
+	textX := (width - textWidth) / 2
+	textY := imgY + imgHeight + 8
+	pdf.Text(textX, textY, text)
+
+	var buf bytes.Buffer
+	if err := pdf.Output(&buf); err != nil {
+		return fmt.Errorf("failed to generate PDF: %w", err)
+	}
+
+	objectName := fmt.Sprintf("label/%s.pdf", chemID)
+	writer := storageClient.Bucket("chemtrack-testing2").Object(objectName).NewWriter(ctx)
+	if _, err := io.Copy(writer, &buf); err != nil {
+		return fmt.Errorf("failed to upload PDF: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("failed to close writer: %w", err)
+	}
+
+	return nil
+}
+
+// GetLabel godoc
+// @Summary Retrieve a label PDF
+// @Description Fetches a label PDF from Google Cloud Storage for a given chemical ID
+// @Tags Label
+// @Produce application/pdf
+// @Param chemicalIdNumber path string true "Chemical ID Number"
+// @Success 200 {file} file "Label PDF"
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /label/{chemicalIdNumber} [get]
+func GetLabel(c *gin.Context) {
+	ctx := context.Background()
+
+	// Get the chemicalIdNumber from the request parameter
+	chemicalIdNumber := c.Param("chemicalIdNumber")
+
+	// Define the bucket and object name
+	bucketName := "chemtrack-testing2" // Replace with your bucket name
+	objectName := "label/" + chemicalIdNumber + ".pdf"
+
+	// Create a new storage client
 	storageClient, err := storage.NewClient(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create storage client"})
@@ -48,71 +144,71 @@ func AddLabel(c *gin.Context) {
 	}
 	defer storageClient.Close()
 
-	bucketName := "chemtrack-testing2"
-
-	// getting the qr code from cloud storage
-	qrObject := storageClient.Bucket(bucketName).Object("qrcodes/" + chemID + ".png")
-	qrReader, err := qrObject.NewReader(ctx)
+	// Get the object from the bucket
+	labelObject := storageClient.Bucket(bucketName).Object(objectName)
+	reader, err := labelObject.NewReader(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch QR code image from cloud storage"})
+		if err == storage.ErrObjectNotExist {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Label not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch label from cloud storage"})
+		}
 		return
 	}
-	defer qrReader.Close()
+	defer reader.Close()
 
-	// pdf dimensions
-	width := 4 * 25.4  // 101.6 mm
-	height := 2 * 25.4 // 50.8 mm
+	// Set the content type to application/pdf and stream the label back to the client
+	c.Header("Content-Type", "application/pdf")
+	c.Status(http.StatusOK)
+	if _, err := io.Copy(c.Writer, reader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to stream label PDF"})
+		return
+	}
+}
 
-	// creatioonnn!
-	pdf := fpdf.NewCustom(&fpdf.InitType{
-		Size: fpdf.SizeType{Wd: width, Ht: height},
-	})
-	pdf.AddPage()
+// DeleteLabel godoc
+// @Summary Delete a label PDF
+// @Description Deletes a label PDF from Google Cloud Storage for a given chemical ID
+// @Tags Label
+// @Param chemicalIdNumber path string true "Chemical ID Number"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /label/{chemicalIdNumber} [delete]
+func DeleteLabel(c *gin.Context) {
+	ctx := context.Background()
 
-	// layoout 
-	margin := 10.0               // margin from edges in mm
-	imgWidth := width/2 - margin // half width minus margin
-	imgHeight := 40.0            // set image height
-	imgY := (height - imgHeight) / 2
+	// Get the chemicalIdNumber from the request parameter
+	chemicalIdNumber := c.Param("chemicalIdNumber")
 
-	// qr code
-	imgOptions := fpdf.ImageOptions{ImageType: "png", ReadDpi: true}
-	pdf.RegisterImageOptionsReader("qrcode", imgOptions, qrReader)
+	// Define the bucket and object name
+	bucketName := "chemtrack-testing2" // Replace with your bucket name
+	objectName := "label/" + chemicalIdNumber + ".pdf"
 
-	// place it on the label
-	pdf.ImageOptions("qrcode", margin, imgY, imgWidth, 0, false, imgOptions, 0, "")
+	// Create a new storage client
+	storageClient, err := storage.NewClient(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create storage client"})
+		return
+	}
+	defer storageClient.Close()
 
-	// chemical name
-	textX := width/2 + margin
-	textY := height / 2 // Center vertically
-	pdf.SetFont("Arial", "B", 14)
-	pdf.Text(textX, textY-5, Chemname)
+	// Get the object from the bucket
+	labelObject := storageClient.Bucket(bucketName).Object(objectName)
 
-	//make the pdf
-	var buf bytes.Buffer
-	if err := pdf.Output(&buf); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate PDF"})
+	// Attempt to delete the object
+	err = labelObject.Delete(ctx)
+	if err != nil {
+		if err == storage.ErrObjectNotExist {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Label not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete label from cloud storage"})
+		}
 		return
 	}
 
-	// in case it takes too long
-	ctx, cancel := context.WithTimeout(ctx, time.Second*50)
-	defer cancel()
-
-	// upload the pdf to cloud storage
-	labelObject := storageClient.Bucket(bucketName).Object("label/" + chemID + ".pdf")
-	writer := labelObject.NewWriter(ctx)
-	if _, err := io.Copy(writer, &buf); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload PDF to cloud storage"})
-		return
-	}
-	if err := writer.Close(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to close PDF writer"})
-		return
-	}
-
+	// Respond with success
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Label created and uploaded successfully",
-		"file":    "label/" + chemID + ".pdf",
+		"message": "Label deleted successfully",
 	})
 }

@@ -206,19 +206,6 @@ const NotificationsScreen = () => {
                             if (success) setIsAppNotif(value);
                         }}
                     />
-                    <Setting
-                        title={'Notify for expirations'}
-                        description={'Receive notifications for expiring chemicals.'}
-                        isBool={isExpirationNotif}
-                        setIsBool={setIsExpirationNotif}
-                    />
-                    <Setting
-                        title={'Notify for low quantity'}
-                        description={'Receive notifications for chemicals with low quantity.'}
-                        isBool={isLowQuantityNotif}
-                        setIsBool={setIsLowQuantityNotif}
-                    />
-
                 </View>
             </ScrollView>
         </View>

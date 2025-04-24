@@ -9,11 +9,13 @@ import TextInter from '@/components/TextInter';
 import Size from '@/constants/Size';
 import Colors from '@/constants/Colors';
 import emailRegex from '@/functions/EmailRegex';
+import Loader from '@/components/Loader';
 
 export default function LoginPage() {
   const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const [isValidEmail, setIsValidEmail] = useState(false);
@@ -26,6 +28,7 @@ export default function LoginPage() {
       Alert.alert('Please enter a valid email and password');
       return;
     }
+    setLoading(true);
 
     const url = `${API_URL}/api/v1/login`;
 
@@ -42,6 +45,7 @@ export default function LoginPage() {
       // Check if response status is OK (200-299)
       if (!response.ok) {
         const data = await response.json();
+        setLoading(false); // Stop loader
         Alert.alert(data.error || 'Invalid credentials');
         return;
       }
@@ -61,14 +65,12 @@ export default function LoginPage() {
         allow_email: data.user.allow_email,
         allow_push: data.user.allow_push,
       });
+      setLoading(false); // Stop loader
 
       // Successfully logged in, redirect to the main page
       router.replace('/(tabs)');
-
-      // Optionally, store user info for future use (e.g., AsyncStorage)
-      console.log('User info:', data);
-
     } catch (error) {
+      setLoading(false); // Stop loader
       // Handle network or other errors
       console.error('Login error:', error);
       Alert.alert('Something went wrong, please try again later');
@@ -78,7 +80,7 @@ export default function LoginPage() {
 
   return (
     <View style={styles.container}>
-
+      <Loader visible={loading} message="Logging in..." />
       <ScrollView style={{ width: '100%' }}>
         <View style={styles.innerContainer}>
           <View style={{ alignSelf: 'center' }}>
