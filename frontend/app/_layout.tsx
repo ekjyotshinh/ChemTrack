@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/contexts/UserContext';
-import { Linking } from 'react-native';
+import { Linking, StatusBar } from 'react-native';
 
 import 'react-native-gesture-handler'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'; 
@@ -69,6 +69,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <UserProvider>
         <RootLayoutNav />
       </UserProvider>
