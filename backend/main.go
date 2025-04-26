@@ -3,7 +3,6 @@ package main
 
 import (
     "log"
-	"os"
     "time"
 
     "github.com/swaggo/gin-swagger"
@@ -27,7 +26,7 @@ func main() {
 
 	// Set up CORS
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{os.Getenv("FRONTEND_PORT")},
+		AllowOrigins: []string{"*"},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
 	}))
