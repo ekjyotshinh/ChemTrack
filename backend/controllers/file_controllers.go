@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"strings"
 	"time"
-	"os"
-	"fmt"
 
 	"github.com/ekjyotshinh/ChemTrack/backend/helpers"
 
@@ -58,13 +58,13 @@ func AddSDS(c *gin.Context) {
 		return
 	}
 	defer src.Close()
-	
+
 	// Skip actual uploading SDS for test env
 	if os.Getenv("ENVIRONMENT") == "test" {
-		fmt.Println("Mock Adding SDS") 
+		fmt.Println("Mock Adding SDS")
 		c.JSON(http.StatusOK, gin.H{
-		"message": "SDS uploaded successfully",
-		"url":     "testingURL",
+			"message": "SDS uploaded successfully",
+			"url":     "testingURL",
 		})
 		return
 	}
@@ -168,9 +168,9 @@ func DeleteSDS(c *gin.Context) {
 
 	// Skip actual uploading SDS for test env
 	if os.Getenv("ENVIRONMENT") == "test" {
-		fmt.Println("Mock Deleting SDS") 
+		fmt.Println("Mock Deleting SDS")
 		c.JSON(http.StatusOK, gin.H{
-		"message": "SDS file deleted successfully",
+			"message": "SDS file deleted successfully",
 		})
 		return
 	}
@@ -247,8 +247,8 @@ func AddProfilePicture(c *gin.Context) {
 
 	// Skip actual upload for the profile picture for test env
 	if os.Getenv("ENVIRONMENT") == "test" {
-		fmt.Println("Mock Adding Profile picture") 
-			// Update Firestore document with the profile picture URL
+		fmt.Println("Mock Adding Profile picture")
+		// Update Firestore document with the profile picture URL
 		_, err = client.Collection("users").Doc(userID).Update(ctx, []firestore.Update{
 			{Path: "profilePictureURL", Value: "testURL"},
 		})
@@ -258,7 +258,7 @@ func AddProfilePicture(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
-		"message": "Profile picture uploaded successfully",
+			"message": "Profile picture uploaded successfully",
 		})
 		return
 	}
@@ -274,6 +274,11 @@ func AddProfilePicture(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload profile picture"})
 		return
 	}
+
+	// Append a timestamp to the URL to prevent caching
+	// Ensures image is up to date in the frontend
+	t := time.Now()
+	uploadURL += "?t=" + t.Format("20060102150405")
 
 	// Update Firestore document with the profile picture URL
 	_, err = client.Collection("users").Doc(userID).Update(ctx, []firestore.Update{
@@ -338,10 +343,10 @@ func UpdateProfilePicture(c *gin.Context) {
 	bucketName := "chemtrack-deployment"
 	objectName := "profile_pictures/" + userID + ".jpg"
 
-		// Skip actual upload for the profile picture for test env
+	// Skip actual upload for the profile picture for test env
 	if os.Getenv("ENVIRONMENT") == "test" {
-		fmt.Println("Mock Updating Profile picture") 
-			// Update Firestore document with the profile picture URL
+		fmt.Println("Mock Updating Profile picture")
+		// Update Firestore document with the profile picture URL
 		_, err = client.Collection("users").Doc(userID).Update(ctx, []firestore.Update{
 			{Path: "profilePictureURL", Value: "testURL"},
 		})
@@ -421,10 +426,9 @@ func DeleteProfilePicture(c *gin.Context) {
 		return
 	}
 
-
 	// Skip actual delete for the profile picture for test env
 	if os.Getenv("ENVIRONMENT") == "test" {
-		fmt.Println("Mock Deleting Profile picture") 
+		fmt.Println("Mock Deleting Profile picture")
 		// Remove the profile picture URL from Firestore
 		_, err = client.Collection("users").Doc(userId).Update(ctx, []firestore.Update{
 			{Path: "profilePictureURL", Value: nil}, // Remove the profile picture URL
