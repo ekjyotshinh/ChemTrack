@@ -19,7 +19,7 @@ func InitFirestore() {
 	sa := option.WithCredentialsFile("key.json")
 
 	var err error
-	client, err = firestore.NewClient(ctx, "chemtrack-csc", sa)
+	client, err = firestore.NewClient(ctx, "chemtrack-encina", sa)
 	if err != nil {
 		log.Fatalf("Failed to create Firestore client: %v", err)
 	}

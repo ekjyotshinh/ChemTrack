@@ -70,7 +70,7 @@ func AddSDS(c *gin.Context) {
 	}
 
 	// Define GCS bucket and object name
-	bucketName := "chemtrack-testing2"
+	bucketName := "chemtrack-deployment"
 	objectName := "sds/" + chemID + ".pdf"
 
 	// Upload the file directly from memory
@@ -176,11 +176,11 @@ func DeleteSDS(c *gin.Context) {
 	}
 
 	// Extract the object name from the URL
-	// Example URL: https://storage.googleapis.com/chemtrack-testing/sds/12345.pdf
+	// Example URL: https://storage.googleapis.com/chemtrack-deployment/sds/12345.pdf
 	objectName := sdsURLStr[strings.LastIndex(sdsURLStr, "sds/"):]
 
 	// Delete the file from Google Cloud Storage
-	bucketName := "chemtrack-testing2"
+	bucketName := "chemtrack-deployment"
 	err = helpers.DeleteFileFromGCS(ctx, bucketName, objectName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete SDS file from GCS"})
@@ -264,7 +264,7 @@ func AddProfilePicture(c *gin.Context) {
 	}
 
 	// Define GCS bucket and object name
-	bucketName := "chemtrack-testing2"
+	bucketName := "chemtrack-deployment"
 	objectName := "profile_pictures/" + userID + ".jpg"
 
 	// Upload the file directly from memory
@@ -335,7 +335,7 @@ func UpdateProfilePicture(c *gin.Context) {
 	defer src.Close()
 
 	// Define GCS bucket and object name
-	bucketName := "chemtrack-testing2"
+	bucketName := "chemtrack-deployment"
 	objectName := "profile_pictures/" + userID + ".jpg"
 
 		// Skip actual upload for the profile picture for test env
@@ -440,12 +440,12 @@ func DeleteProfilePicture(c *gin.Context) {
 	}
 
 	// Extract the object name from the URL
-	// Example URL: https://storage.googleapis.com/chemtrack-testing/profile_pictures/12345.jpg
+	// Example URL: https://storage.googleapis.com/chemtrack-deployment/profile_pictures/12345.jpg
 	objectName := profilePictureURLStr[strings.LastIndex(profilePictureURLStr, "profile_pictures/"):]
 	objectName = strings.Split(objectName, "?t=")[0] // Remove the timestamp
 
 	// Delete the file from Google Cloud Storage
-	bucketName := "chemtrack-testing2"
+	bucketName := "chemtrack-deployment"
 	err = helpers.DeleteFileFromGCS(ctx, bucketName, objectName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete profile picture from GCS"})

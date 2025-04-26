@@ -105,7 +105,7 @@ func GenerateAndUploadLabel(chemicalId string) error {
 	}
 
 	objectName := fmt.Sprintf("label/%s.pdf", chemID)
-	writer := storageClient.Bucket("chemtrack-testing2").Object(objectName).NewWriter(ctx)
+	writer := storageClient.Bucket("chemtrack-deployment").Object(objectName).NewWriter(ctx)
 	if _, err := io.Copy(writer, &buf); err != nil {
 		return fmt.Errorf("failed to upload PDF: %w", err)
 	}
@@ -133,7 +133,7 @@ func GetLabel(c *gin.Context) {
 	chemicalIdNumber := c.Param("chemicalIdNumber")
 
 	// Define the bucket and object name
-	bucketName := "chemtrack-testing2" // Replace with your bucket name
+	bucketName := "chemtrack-deployment" // Replace with your bucket name
 	objectName := "label/" + chemicalIdNumber + ".pdf"
 
 	// Create a new storage client
@@ -182,7 +182,7 @@ func DeleteLabel(c *gin.Context) {
 	chemicalIdNumber := c.Param("chemicalIdNumber")
 
 	// Define the bucket and object name
-	bucketName := "chemtrack-testing2" // Replace with your bucket name
+	bucketName := "chemtrack-deployment"
 	objectName := "label/" + chemicalIdNumber + ".pdf"
 
 	// Create a new storage client

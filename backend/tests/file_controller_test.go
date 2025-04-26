@@ -149,7 +149,7 @@ func TestGetSDS_Success(t *testing.T) {
 	docRef := collection.Doc(chemicalID)
 	_, err := docRef.Set(context.Background(), map[string]interface{}{
 		"name":   "Chemical Test",
-		"sdsURL": "https://storage.googleapis.com/chemtrack-testing2/sds/12345TestGetSDS_Success.pdf", // Mock the SDS URL
+		"sdsURL": "https://storage.googleapis.com/chemtrack-deployment/sds/12345TestGetSDS_Success.pdf", // Mock the SDS URL
 	})
 	if err != nil {
 		t.Fatalf("Failed to set chemical data in Firestore: %v", err)
@@ -165,7 +165,7 @@ func TestGetSDS_Success(t *testing.T) {
 	// Validate the response
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "sdsURL")
-	assert.Contains(t, w.Body.String(), "https://storage.googleapis.com/chemtrack-testing2/sds/12345TestGetSDS_Success.pdf")
+	assert.Contains(t, w.Body.String(), "https://storage.googleapis.com/chemtrack-deployment/sds/12345TestGetSDS_Success.pdf")
 }
 
 // Test case for chemical not found when retrieving SDS URL
@@ -214,7 +214,7 @@ func TestDeleteSDS_Success(t *testing.T) {
 	docRef := collection.Doc(chemicalID)
 	_, err := docRef.Set(context.Background(), map[string]interface{}{
 		"name":   "Chemical Test",
-		"sdsURL": "https://storage.googleapis.com/chemtrack-testing2/sds/12345.pdf", // Mock the SDS URL
+		"sdsURL": "https://storage.googleapis.com/chemtrack-deployment/sds/12345.pdf", // Mock the SDS URL
 	})
 	if err != nil {
 		t.Fatalf("Failed to set chemical data in Firestore: %v", err)
