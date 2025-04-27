@@ -16,7 +16,7 @@ var client *firestore.Client
 // InitFirestore initializes the Firestore client and sets it in the controllers
 func InitFirestore() {
 	ctx := context.Background()
-	sa := option.WithCredentialsFile("key.json")
+	sa := option.WithCredentialsFile("/tmp/key.json")
 
 	var err error
 	client, err = firestore.NewClient(ctx, "chemtrack-encina", sa)
