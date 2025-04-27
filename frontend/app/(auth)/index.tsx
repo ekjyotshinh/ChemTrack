@@ -57,9 +57,11 @@ export default function StartPage() {
           </TextInter>
 
           {/* Link to sign-up page */}
+          {/* Link to sign-up page 
           <TextInter onPress={() => router.push('/signupPage1')} style={styles.link}>
             Don't have an account? Sign-up
           </TextInter>
+          */}
         </View>
       </ScrollView>
     </View>
