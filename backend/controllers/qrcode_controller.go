@@ -32,7 +32,16 @@ func GenerateQRCode(chemicalIdNumber string) {
 	// Get the chemical ID | seems redundant but we need to so the Document check above doesnt throw an cry errors
 	chemID := doc.Ref.ID
 
-	filepath := `qrcodes/` + chemID + `.png` // creating a filepath for the qr code to be saved to based on their id
+	// Create the folder if it doesn't exist
+	qrCodeFolder := `qrcodes/`
+	err = os.MkdirAll(qrCodeFolder, os.ModePerm) // Create the folder with permissions if it doesn't exist
+	if err != nil {
+		fmt.Println("Failed to create QR code folder:", err)
+		return
+	}
+
+	filepath := qrCodeFolder + chemID + `.png` // creating a filepath for the QR code to be saved to based on their id
+
 	// Generate the QR code
 	err = qrcode.WriteFile(chemID, qrcode.Medium, 256, filepath)
 	if err != nil {
@@ -52,7 +61,7 @@ func GenerateQRCode(chemicalIdNumber string) {
 	}
 
 	// Delete the QR code file
-	deletePath := `qrcodes/` + chemID + `.png`
+	deletePath := qrCodeFolder + chemID + `.png`
 	fileDelete := os.Remove(deletePath)
 	if fileDelete != nil {
 		fmt.Println("Failed to delete QR code file")
