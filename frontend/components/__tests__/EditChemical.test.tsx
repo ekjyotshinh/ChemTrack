@@ -64,7 +64,7 @@ jest.mock('expo-router', () => ({
         replace: mockReplace,
     })),
     useLocalSearchParams: jest.fn(() => ({
-        id: 'mock-id-123',
+        id: 'mockid123',
     })),
     useFocusEffect: jest.fn((callback) => callback()), // Trigger effect immediately
 }));
@@ -87,7 +87,7 @@ jest.spyOn(View.prototype, 'measureInWindow').mockImplementation((cb) => {
 
 jest.mock('@/functions/fetchSchool', () => jest.fn());
 
-global.fetch = jest.fn();
+
 
 describe('EditChemical', () => {
     let router: { replace: jest.Mock; push: jest.Mock };
@@ -96,6 +96,7 @@ describe('EditChemical', () => {
         router = { replace: jest.fn(), push: jest.fn() };
         (useRouter as jest.Mock).mockReturnValue(router);
         jest.spyOn(Alert, 'alert');
+        global.fetch = jest.fn();
     });
 
     afterEach(() => {
@@ -300,71 +301,114 @@ describe('EditChemical', () => {
     /* --TEST RENDERS WITH CHEMICAL INFORMATION -- */
 
     test('ADMIN: Test Page Renders With information', async () => {
-        /*
-        (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
+        (useUser as jest.Mock).mockReturnValue({
+            userInfo: { is_admin: true, is_master: false },
+        });
+
         (fetchSchoolList as jest.Mock).mockImplementation(({ setSchoolList }) => {
             setSchoolList([{ label: 'Test School', value: 'Test School' }]);
         });
+
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
 
-        // Simulate fetch to get chemical info with Pdf
-        const getChemicalResponse = {
-            ok: true,
-            json: jest.fn().mockResolvedValue({
-                chemical: {
-                    CAS: 123456578,
-                    cabinet: 123,
-                    expiration_date: "2031-08-11",
-                    id: "1234",
-                    name: "TestChem",
-                    purchase_date: "2010-08-11",
-                    quantity: "56 L",
-                    room: "7a",
-                    school: "Mock High School",
-                    sdsURL: "someurl",
-                    shelf: 3,
-                    status: "Low",
-                },
-            }),
+        const mockChemicalData = {
+            CAS: 123456578,
+            cabinet: 123,
+            expiration_date: '2031-08-11',
+            id: 'mockid123',
+            name: 'TestChem',
+            purchase_date: '2010-08-11',
+            quantity: '56 mL',
+            room: '7a',
+            school: 'Test School',
+            sdsURL: 'someurl',
+            shelf: 3,
+            status: 'Low',
         };
 
-        // Mock fetch reponses
-        (global.fetch as jest.Mock)
-            .mockResolvedValueOnce(() => getChemicalResponse);
-
-
-        const { getByTestId, getByText, queryByText, queryByTestId } = render(<EditChemical />);
-
-        await waitFor(() => {
-            expect(getByText('TestChem')).toBeTruthy();
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            json: jest.fn().mockResolvedValue(mockChemicalData),
         });
 
+        const { getByText, getByTestId } = render(<EditChemical />);
 
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/v1/chemicals/mockid123')
+            );
+        });
         // Name
-        expect(getByText('TestChem')).toBeTruthy();
+        expect(getByTestId('name-input')).toHaveDisplayValue('TestChem');
         // CAS
-        expect(getByText('123456')).toBeTruthy();
-        expect(getByText('57')).toBeTruthy();
-        expect(getByText('8')).toBeTruthy();
+        expect(getByTestId('cas-0')).toHaveDisplayValue('123456');
+        expect(getByTestId('cas-1')).toHaveDisplayValue('57');
+        expect(getByTestId('cas-2')).toHaveDisplayValue('8');
         // Purchase and Expiration Dates
         expect(getByText('2010-08-11')).toBeTruthy();
         expect(getByText('2031-08-11')).toBeTruthy();
         // Status
-        expect(getByText('Low')).toBeTruthy();
+        expect(getByTestId('status-dropdown')).toBe('Low');
         // Quantity
-        expect(getByText('56')).toBeTruthy();
+        expect(getByTestId('quantity-input')).toHaveDisplayValue('56');
         // Unit
         expect(getByText('L')).toBeTruthy();
         // School for Master
         //expect(getByText('Test School')).toBeTruthy();
         // Room, Cabinet, Shelf
-        expect(getByText('7a')).toBeTruthy();
-        expect(getByText('123')).toBeTruthy();
-        expect(getByText('3')).toBeTruthy();
+        expect(getByTestId('room-input')).toHaveDisplayValue('7a');
+        expect(getByTestId('cabinet-input')).toHaveDisplayValue('123');
+        expect(getByTestId('shelf-input')).toHaveDisplayValue('3');
 
         expect(getByText('File Uploaded')).toBeTruthy();
-        */
+
+    });
+    test('ADMIN: Test Page Renders With information Mocking Checks', async () => {
+
+        /*
+        (global.fetch as jest.Mock).mockImplementation((...args) => {
+            console.log('API called with args:', args);
+            return Promise.resolve(getChemicalResponse); // or your mock response
+        });*/
+
+        const { getByTestId, getByText, queryByText, queryByTestId } = render(<EditChemical />);
+        //console.log('FETCH MOCK RESOLVE:', await (global.fetch as jest.Mock).mock.results[0].value);
+
+        await waitFor(() => {
+            /*
+            expect(global.fetch).toHaveBeenCalledTimes(1);
+            
+            const expectedData = {
+                CAS: 123456578,
+                cabinet: 123,
+                expiration_date: "2031-08-11",
+                id: "1234",
+                name: "TestChem",
+                purchase_date: "2010-08-11",
+                quantity: "56 mL",
+                room: "7a",
+                school: "Test School",
+                sdsURL: "someurl",
+                shelf: 3,
+                status: "Low",
+            };
+            const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
+            const requestBody = JSON.parse(fetchCall[1].body);
+            expect(requestBody).toMatchObject(expectedData);*/
+            /*
+            console.log('All API calls:', (global.fetch as jest.Mock).mock.calls);
+            expect(global.fetch).toHaveBeenCalledTimes(1);
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/v1/chemicals/mockid123')  // You can test for path, not the full URL
+            );
+            expect(screen.getByText('TestChem')).toBeTruthy();
+            */
+        });
+
+
+
+
 
     });
 
