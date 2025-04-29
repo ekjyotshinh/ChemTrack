@@ -160,7 +160,7 @@ describe('EditChemical', () => {
         expect(getByTestId('shelf-input')).toBeTruthy();
 
         expect(getByText('SDS')).toBeTruthy();
-        expect(getByText('Replace PDF')).toBeTruthy();
+        expect(getByText('Upload')).toBeTruthy();
         expect(getByText('Save Chemical')).toBeTruthy();
 
     });
@@ -207,7 +207,7 @@ describe('EditChemical', () => {
         expect(getByTestId('shelf-input')).toBeTruthy();
 
         expect(getByText('SDS')).toBeTruthy();
-        expect(getByText('Replace PDF')).toBeTruthy();
+        expect(getByText('Upload')).toBeTruthy();
         expect(getByText('Save Chemical')).toBeTruthy();
 
     });
