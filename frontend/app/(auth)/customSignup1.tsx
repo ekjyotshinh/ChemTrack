@@ -10,7 +10,7 @@ import BlueHeader from '@/components/BlueHeader';
 import { useUser } from '@/contexts/UserContext';
 import { API_URL } from '@/constants/API';
 
-export default function customSignup1() {
+export default function CustomSignup1() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const userId = Array.isArray(id) ? id[0] : id;
@@ -94,7 +94,7 @@ export default function customSignup1() {
       <ScrollView style={{ width: '100%' }}>
         <View style={styles.formContainer}>
           {/* Email (Pre-filled and Disabled) */}
-          <HeaderTextInput testID="emailInput" headerText={'Email'} value={emailValue} hasIcon={false} disabled={true} onChangeText={() => {}} />
+          <HeaderTextInput testID="emailInput" headerText={'Email'} value={emailValue} hasIcon={false} disabled={true} onChangeText={() => {}} editable={false} />
 
           <View style={{ height: Size.height(10) }} />
 
@@ -104,12 +104,12 @@ export default function customSignup1() {
           <View style={{ height: Size.height(10) }} />
 
           {/* School (Pre-filled and Disabled) */}
-          <HeaderTextInput testID="schoolInput" headerText={'School'} value={schoolValue} hasIcon={false} disabled={true} onChangeText={() => {}} />
+          <HeaderTextInput testID="schoolInput" headerText={'School'} value={schoolValue} hasIcon={false} disabled={true} onChangeText={() => {}} editable={false} />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* User Type (Pre-filled and Disabled) */}
-          <HeaderTextInput testID="userTypeInput" headerText={'User Type'} value={isAdmin ? 'Admin' : 'Master'} hasIcon={false} disabled={true} onChangeText={() => {}} />
+          <HeaderTextInput testID="userTypeInput" headerText={'User Type'} value={isAdmin ? 'Admin' : 'Master'} hasIcon={false} disabled={true} onChangeText={() => {}} editable={false} />
 
           <View style={{ height: Size.height(250) }} />
           <CustomButton
