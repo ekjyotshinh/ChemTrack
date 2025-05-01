@@ -477,6 +477,144 @@ describe('EditChemical', () => {
 
     /* --TEST SENDING NEW INFORMATION TO BACKEND -- */
 
+    test("ADMIN: Test save chemical button", async () => {
+        (useUser as jest.Mock).mockReturnValue({
+            userInfo: { is_admin: true, is_master: false },
+        });
+
+        const newDate = new Date();
+        const date = newDate?.toISOString().split('T')[0];
+        // Mock Form Data
+        const appendMock = jest.fn();
+        global.FormData = jest.fn().mockImplementation(() => {
+            return { append: appendMock };
+        });
+
+        (fetchSchoolList as jest.Mock).mockImplementation(({ setSchoolList }) => {
+            setSchoolList([{ label: 'Test School', value: 'Test School' }]);
+        });
+
+        // Simulate get chemical data
+        const fetchChemicalResponse = {
+            ok: true,
+            json: () => Promise.resolve(mockChemicalData),
+        };
+
+        // Simulate edit chemical call
+        const editChemicalResponse = {
+            ok: true,
+            json: jest.fn().mockResolvedValue({
+                message: 'Chemical updated successfully',
+                chemical: { id: '123' },
+            }),
+        };
+
+        // Simulate delete sds call
+        const deletePdfResponse = {
+            ok: true,
+            json: () => Promise.resolve({ message: "SDS file deleted successfully" }),
+        };
+
+        // Simulate adding sds call
+        const addPdfResponse = {
+            ok: true,
+            json: () => Promise.resolve({ message: "SDS uploaded successfully" }),
+        };
+
+        // Mock fetch responses
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => fetchChemicalResponse)
+            .mockImplementationOnce(() => editChemicalResponse)
+            .mockImplementationOnce(() => deletePdfResponse)
+            .mockImplementationOnce(() => addPdfResponse);
+
+
+
+        const { getByTestId, getByText, findByText, queryByText } = render(<EditChemical />);
+        (global.fetch as jest.Mock).mockImplementation((...args) => {
+            console.log('fetch called with', args);
+            return Promise.resolve(fetchChemicalResponse);
+        });
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/v1/chemicals/mockid123')
+            );
+            expect(getByText('File Uploaded')).toBeTruthy();
+        });
+        //expect(getByText('File Uploaded')).toBeTruthy();
+
+        fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
+        fireEvent.changeText(getByTestId('cas-0'), '123456');
+        fireEvent.changeText(getByTestId('cas-1'), '56');
+        fireEvent.changeText(getByTestId('cas-2'), '7');
+
+        fireEvent.press(getByTestId("purchase-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("expiration-date"));
+        fireEvent.press(getByText("Confirm"));
+
+        fireEvent.press(getByTestId("status-dropdown"));
+        const selectedStatus = getByText('Good');
+        await waitFor(() => expect(selectedStatus).toBeDefined());
+        fireEvent.press(selectedStatus);
+        await waitFor(() => expect.objectContaining({
+            label: 'Good',
+            value: 'Good'
+        }));
+
+        fireEvent.changeText(getByTestId('quantity-input'), '1');
+
+        fireEvent.press(getByTestId("unit-dropdown"));
+        const selectedUnit = getByText('kg');
+        await waitFor(() => expect(selectedUnit).toBeDefined());
+        fireEvent.press(selectedUnit);
+        await waitFor(() => expect.objectContaining({
+            label: 'kg',
+            value: 'kg'
+        }));
+
+        fireEvent.changeText(getByTestId('room-input'), '102A');
+        fireEvent.changeText(getByTestId('cabinet-input'), '1');
+        fireEvent.changeText(getByTestId('shelf-input'), '420');
+
+        (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({
+            canceled: false,
+            assets: [
+                {
+                    name: 'test.pdf',
+                    uri: 'file:///test.pdf',
+                    mimeType: 'application/pdf',
+                    size: 12345,
+                },
+            ],
+        });
+
+        fireEvent.press(getByText('File Uploaded'));
+        await waitFor(() => {
+            expect(DocumentPicker.getDocumentAsync).toHaveBeenCalled();
+            expect(appendMock).toHaveBeenCalledWith(
+                'sds',
+                expect.objectContaining({
+                    uri: 'file:///test.pdf',
+                    name: 'test.pdf',
+                    type: 'application/pdf',
+                })
+            );
+        });
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('PDF Uploaded!');
+        });
+        //expect(await findByText('test.pdf')).toBeTruthy();
+
+        fireEvent.press(getByText('Save Chemical'));
+        await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+
+        // Check for success alert and re-routing
+        expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical and SDS information updated');
+        expect(router.push).toHaveBeenCalledWith('/');
+    });
+
     test('MASTER: Test Changing Information', async () => {
         /*
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
