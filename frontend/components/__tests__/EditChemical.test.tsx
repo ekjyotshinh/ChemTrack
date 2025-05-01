@@ -477,7 +477,7 @@ describe('EditChemical', () => {
 
     /* --TEST SENDING NEW INFORMATION TO BACKEND -- */
 
-    test("ADMIN: Test save chemical button", async () => {
+    test('ADMIN: Test Changing Information', async () => {
         (useUser as jest.Mock).mockReturnValue({
             userInfo: { is_admin: true, is_master: false },
         });
@@ -614,10 +614,12 @@ describe('EditChemical', () => {
 
     test('MASTER: Test Changing Information', async () => {
         /*
-        (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
+        (useUser as jest.Mock).mockReturnValue({
+            userInfo: { school: 'Test School', is_admin: true, is_master: true },
+        });
         (fetchSchoolList as jest.Mock).mockImplementation(({ setSchoolList }) => {
             setSchoolList([{ label: 'Mock High School', value: 'Mock High School' },
-            {label: 'Test School', value: 'Test School'}]);
+            { label: 'Test School', value: 'Test School' }]);
         });
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
@@ -627,33 +629,28 @@ describe('EditChemical', () => {
             return { append: appendMock };
         });
 
-        // Simulate fetches
-        const getChemicalResponse = {
+        (fetchSchoolList as jest.Mock).mockImplementation(({ setSchoolList }) => {
+            setSchoolList([{ label: 'Test School', value: 'Test School' }]);
+        });
+
+        // Simulate get chemical data
+        const fetchChemicalResponse = {
             ok: true,
-            json: jest.fn().mockResolvedValue({
-                chemical: {
-                    CAS: 123456578,
-                    cabinet: 1,
-                    expiration_date: "2031-08-11",
-                    id: "1234",
-                    name: "TestChem",
-                    purchase_date: "2010-08-11",
-                    quantity: "56 L",
-                    room: "23",
-                    school: "1",
-                    sdsURL: "someurl",
-                    shelf: 3,
-                    status: "Off-site",
-                },
-            }),
+            json: () => Promise.resolve(mockChemicalData),
         };
+
+        // Simulate edit chemical call
         const editChemicalResponse = {
             ok: true,
             json: jest.fn().mockResolvedValue({
                 message: 'Chemical updated successfully',
-                chemical: { id: '123' },
-
             }),
+        };
+
+        // Simulate delete sds call
+        const deletePdfResponse = {
+            ok: true,
+            json: () => Promise.resolve({ message: "SDS file deleted successfully" }),
         };
 
         // Simulate adding sds call
@@ -662,15 +659,24 @@ describe('EditChemical', () => {
             json: () => Promise.resolve({ message: "SDS uploaded successfully" }),
         };
 
-
         // Mock fetch responses
         (global.fetch as jest.Mock)
-            .mockImplementation(() => getChemicalResponse)
+            .mockImplementationOnce(() => fetchChemicalResponse)
             .mockImplementationOnce(() => editChemicalResponse)
+            .mockImplementationOnce(() => deletePdfResponse)
             .mockImplementationOnce(() => addPdfResponse);
 
 
-        const { getByTestId, getByText } = render(<EditChemical />);
+        const { getByTestId, getByText, findByText, queryByText } = render(<EditChemical />);
+        (global.fetch as jest.Mock).mockImplementation((...args) => {
+            console.log('fetch called with', args);
+        });
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/v1/chemicals/mockid123')
+            );
+            expect(getByText('File Uploaded')).toBeTruthy();
+        });
 
         fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
         fireEvent.changeText(getByTestId('cas-0'), '123456');
@@ -703,8 +709,6 @@ describe('EditChemical', () => {
             value: 'kg'
         }));
 
-        await waitFor(() => expect(fetchSchoolList).toHaveBeenCalled());
-
         fireEvent.press(getByTestId("school-dropdown"));
         const selectedSchool = getByText('Mock High School');
         await waitFor(() => expect(selectedSchool).toBeDefined());
@@ -730,7 +734,7 @@ describe('EditChemical', () => {
             ],
         });
 
-        fireEvent.press(getByText('Replace PDF'));
+        fireEvent.press(getByText('File Uploaded'));
         await waitFor(() => {
             expect(DocumentPicker.getDocumentAsync).toHaveBeenCalled();
             expect(appendMock).toHaveBeenCalledWith(
@@ -743,31 +747,11 @@ describe('EditChemical', () => {
             );
         });
         await waitFor(() => {
-            expect(Alert.alert).toHaveBeenCalledWith('File Uploaded');
+            expect(Alert.alert).toHaveBeenCalledWith('PDF Uploaded!');
         });
-        expect(await getByText('test')).toBeTruthy();
-
 
         fireEvent.press(getByText('Save Chemical'));
-        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
-
-        const expectedData = {
-            name: 'Mock Chemical',
-            cas: 123456567,
-            purchase_date: date,
-            expiration_date: date,
-            status: 'Good',
-            quantity: '1 kg',
-            room: '102A',
-            cabinet: 1,
-            shelf: 420,
-            school: 'Mock High School',
-        }
-
-        // Does the data match the expected data?
-        const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
-        const requestBody = JSON.parse(fetchCall[1].body);
-        expect(requestBody).toMatchObject(expectedData);
+        await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 
         // Check for success alert and re-routing
         expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical and SDS information updated');
