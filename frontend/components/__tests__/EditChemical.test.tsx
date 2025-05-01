@@ -505,7 +505,6 @@ describe('EditChemical', () => {
             ok: true,
             json: jest.fn().mockResolvedValue({
                 message: 'Chemical updated successfully',
-                chemical: { id: '123' },
             }),
         };
 
@@ -541,7 +540,6 @@ describe('EditChemical', () => {
             );
             expect(getByText('File Uploaded')).toBeTruthy();
         });
-        //expect(getByText('File Uploaded')).toBeTruthy();
 
         fireEvent.changeText(getByTestId('name-input'), 'Mock Chemical');
         fireEvent.changeText(getByTestId('cas-0'), '123456');
@@ -605,7 +603,6 @@ describe('EditChemical', () => {
         await waitFor(() => {
             expect(Alert.alert).toHaveBeenCalledWith('PDF Uploaded!');
         });
-        //expect(await findByText('test.pdf')).toBeTruthy();
 
         fireEvent.press(getByText('Save Chemical'));
         await waitFor(() => expect(global.fetch).toHaveBeenCalled());
