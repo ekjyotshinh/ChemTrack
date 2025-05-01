@@ -9,9 +9,9 @@ import Size from '@/constants/Size';
 import CustomButton from '@/components/CustomButton';
 import Colors from '@/constants/Colors';
 import Loader from '@/components/Loader';
+import { API_URL } from '@/constants/API';
 
 export default function customSignup2() {
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { id, password} = useLocalSearchParams();

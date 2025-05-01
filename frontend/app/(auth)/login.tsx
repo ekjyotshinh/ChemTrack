@@ -10,9 +10,9 @@ import Size from '@/constants/Size';
 import Colors from '@/constants/Colors';
 import emailRegex from '@/functions/EmailRegex';
 import Loader from '@/components/Loader';
+import { API_URL } from '@/constants/API';
 
 export default function LoginPage() {
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

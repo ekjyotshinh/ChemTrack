@@ -8,9 +8,9 @@ import Colors from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
 import BlueHeader from '@/components/BlueHeader';
 import { useUser } from '@/contexts/UserContext';
+import { API_URL } from '@/constants/API';
 
 export default function customSignup1() {
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const userId = Array.isArray(id) ? id[0] : id;

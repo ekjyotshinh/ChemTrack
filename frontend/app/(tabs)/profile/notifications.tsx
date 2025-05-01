@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react'
 import { View, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import { useUser } from '@/contexts/UserContext';
+import { API_URL } from '@/constants/API';
 import {
   registerForPushNotifications,
   setNotificationHandler,
@@ -60,7 +61,6 @@ const Setting = ({ title, description, isBool, setIsBool }: SettingProps) => {
 
 // Notifications screen
 const NotificationsScreen = () => {
-    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const router = useRouter()
     const { userInfo, updateUserInfo } = useUser();
     const [isEmailNotif, setIsEmailNotif] = useState(userInfo.allow_email)

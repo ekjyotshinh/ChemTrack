@@ -24,10 +24,10 @@ import { useUser } from "@/contexts/UserContext";
 import ErrorPage from "../errorPage";
 import fetchSchoolList from '@/functions/fetchSchool';
 import Loader from '@/components/Loader';
+import { API_URL } from '@/constants/API';
 
 
 const InviteUserPage: React.FC = () => {
-    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const [email, setEmail] = useState<string>("");
     const [school, setSchool] = useState<string>("");
     const [selectedSchool, setSelectedSchool] = useState('');
