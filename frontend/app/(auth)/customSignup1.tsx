@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import HeaderTextInput from '@/components/inputFields/HeaderTextInput';
@@ -20,7 +20,7 @@ export default function customSignup1() {
   const [schoolValue, setSchoolValue] = useState('');
   const [isMaster, setIsMaster] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { updateUserInfo,userInfo } = useUser();
+  const { updateUserInfo, userInfo } = useUser();
 
   // Fetch user data
   useEffect(() => {
@@ -94,7 +94,7 @@ export default function customSignup1() {
       <ScrollView style={{ width: '100%' }}>
         <View style={styles.formContainer}>
           {/* Email (Pre-filled and Disabled) */}
-          <HeaderTextInput testID="emailInput" headerText={'Email'} value={emailValue} hasIcon={false} editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="emailInput" headerText={'Email'} value={emailValue} hasIcon={false} disabled={true} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
@@ -104,12 +104,12 @@ export default function customSignup1() {
           <View style={{ height: Size.height(10) }} />
 
           {/* School (Pre-filled and Disabled) */}
-          <HeaderTextInput testID="schoolInput" headerText={'School'} value={schoolValue} hasIcon={false} editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="schoolInput" headerText={'School'} value={schoolValue} hasIcon={false} disabled={true} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(10) }} />
 
           {/* User Type (Pre-filled and Disabled) */}
-          <HeaderTextInput testID="userTypeInput" headerText={'User Type'} value={isAdmin ? 'Admin' : 'Master'} hasIcon={false} editable={false} onChangeText={() => {}} />
+          <HeaderTextInput testID="userTypeInput" headerText={'User Type'} value={isAdmin ? 'Admin' : 'Master'} hasIcon={false} disabled={true} onChangeText={() => {}} />
 
           <View style={{ height: Size.height(250) }} />
           <CustomButton
@@ -117,7 +117,7 @@ export default function customSignup1() {
             color={password ? Colors.blue : Colors.white}
             textColor={password ? Colors.white : Colors.grey}
             icon={<Ionicons name="arrow-forward" size={24} color={password ? Colors.white : Colors.grey} />}
-            onPress={handleNextPress}
+            onPress={password ? handleNextPress : () => {}}
             width={337}
           />
         </View>

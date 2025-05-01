@@ -102,7 +102,7 @@ export default function customSignup2() {
             color={(firstName && lastName) ? Colors.blue : Colors.white}
             textColor={(firstName && lastName) ? Colors.white : Colors.grey}
             icon={<Ionicons name="checkmark" size={24} color={(firstName && lastName) ? Colors.white : Colors.grey} />}
-            onPress={handleCreateAccountPress}
+            onPress={(firstName && lastName) ? handleCreateAccountPress : () => {}}
             width={337}
           />
         </View>

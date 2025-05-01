@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { UserProvider } from '@/contexts/UserContext';
-import { Linking, StatusBar } from 'react-native';
+import { AppState, Linking, StatusBar } from 'react-native';
 
 import 'react-native-gesture-handler'; 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'; 
@@ -62,6 +62,20 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // Re-apply dark status bar when tabbing back in
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        StatusBar.setBarStyle('dark-content');
+        StatusBar.setBackgroundColor('transparent', true);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   if (!loaded) {
     return null;
