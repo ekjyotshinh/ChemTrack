@@ -87,7 +87,20 @@ jest.spyOn(View.prototype, 'measureInWindow').mockImplementation((cb) => {
 
 jest.mock('@/functions/fetchSchool', () => jest.fn());
 
-
+const mockChemicalData = {
+    CAS: 123456578,
+    cabinet: 123,
+    expiration_date: '2031-08-11',
+    id: 'mockid123',
+    name: 'TestChem',
+    purchase_date: '2010-08-11',
+    quantity: '56 mL',
+    room: '7a',
+    school: 'Test School',
+    sdsURL: 'someurl',
+    shelf: 3,
+    status: 'Low',
+};
 
 describe('EditChemical', () => {
     let router: { replace: jest.Mock; push: jest.Mock };
@@ -97,6 +110,7 @@ describe('EditChemical', () => {
         (useRouter as jest.Mock).mockReturnValue(router);
         jest.spyOn(Alert, 'alert');
         global.fetch = jest.fn();
+
     });
 
     afterEach(() => {
@@ -311,26 +325,13 @@ describe('EditChemical', () => {
 
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
-
-        const mockChemicalData = {
-            CAS: 123456578,
-            cabinet: 123,
-            expiration_date: '2031-08-11',
-            id: 'mockid123',
-            name: 'TestChem',
-            purchase_date: '2010-08-11',
-            quantity: '56 mL',
-            room: '7a',
-            school: 'Test School',
-            sdsURL: 'someurl',
-            shelf: 3,
-            status: 'Low',
+        const fetchChemicalResponse = {
+            ok: true,
+            json: () => Promise.resolve(mockChemicalData),
         };
 
-        global.fetch = jest.fn().mockResolvedValue({
-            ok: true,
-            json: jest.fn().mockResolvedValue(mockChemicalData),
-        });
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => fetchChemicalResponse);
 
         const { getByText, getByTestId } = render(<EditChemical />);
 
