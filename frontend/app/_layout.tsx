@@ -69,6 +69,7 @@ export default function RootLayout() {
       if (nextAppState === 'active') {
         StatusBar.setBarStyle('dark-content');
         StatusBar.setBackgroundColor('transparent', true);
+        StatusBar.setTranslucent(true);
       }
     });
 
