@@ -57,9 +57,13 @@ describe('NewPassword Screen', () => {
     ) as jest.Mock;
   });
 
-  it('renders without crashing', () => {
+  test('Renders all components without crashing', () => {
     // Just verify that the component renders without throwing an error
-    const { getAllByText } = render(<NewPassword />);
-    expect(getAllByText(/Reset/i).length).toBeGreaterThan(0);
+    const { getByText, getByTestId } = render(<NewPassword />);
+    expect(getByText("Reset Password")).toBeTruthy();
+    expect(getByText("Email")).toBeTruthy();
+    expect(getByTestId("email-input")).toBeTruthy();
+    expect(getByText("Send Reset Link")).toBeTruthy();
+    expect(getByText("Clear")).toBeTruthy();
   });
 });

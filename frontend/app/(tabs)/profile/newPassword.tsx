@@ -84,6 +84,7 @@ export default function ResetPassword() {
               keyboardType='email-address'  
               autoCapitalize='none'  
               autoCorrect={false}
+              testID='email-input'
             />  
           </View>  
 
