@@ -118,6 +118,70 @@ type User struct {
 	AllowEmail    bool   `json:"allow_email"`
 	AllowPush     bool   `json:"allow_push"`
 }
+// Testing the hash function
+func TestHashPassword_ValidPassword(t *testing.T) {
+	password := "securePassword123"
+	hash, err := controllers.HashPassword(password)
+
+	// Ensure there is no error during hashing
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
+	}
+
+	// Ensure the hash is valid by checking the password against it
+	if !controllers.CheckPasswordHash(password, hash) {
+		t.Errorf("Expected password to match hash, but it did not")
+	}
+}
+
+// Test case 2: Test for invalid password comparison
+func TestCheckPasswordHash_InvalidPassword(t *testing.T) {
+	password := "securePassword123"
+	incorrectPassword := "wrongPassword123"
+	hash, err := controllers.HashPassword(password)
+
+	// Ensure there is no error during hashing
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
+	}
+
+	// Ensure the incorrect password does not match the hash
+	if controllers.CheckPasswordHash(incorrectPassword, hash) {
+		t.Errorf("Expected incorrect password to not match hash, but it did")
+	}
+}
+
+func TestHashPassword_Consistency(t *testing.T) {
+	password := "consistentPassword"
+	hash1, err := controllers.HashPassword(password)
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
+	}
+
+	hash2, err := controllers.HashPassword(password)
+	if err != nil {
+		t.Errorf("Expected no error, but got: %v", err)
+	}
+
+	// Hashes should not be the same due to the salt, but the password should still match
+	if !controllers.CheckPasswordHash(password, hash1) || !controllers.CheckPasswordHash(password, hash2) {
+		t.Errorf("Expected both hashes to be valid for the same password, but they were not")
+	}
+
+	if hash1 == hash2 {
+		t.Errorf("Expected the hashes to be different, but they were the same")
+	}
+}
+
+func TestCheckPasswordHash_InvalidHash(t *testing.T) {
+	password := "validPassword"
+	invalidHash := "$2a$14$invalidhash1234567890abcdefghij" // Some invalid hash
+
+	// Ensure the invalid hash returns false
+	if controllers.CheckPasswordHash(password, invalidHash) {
+		t.Errorf("Expected password comparison to fail with invalid hash, but it passed")
+	}
+}
 
 func TestAddUser_Success(t *testing.T) {
 	user := User{
