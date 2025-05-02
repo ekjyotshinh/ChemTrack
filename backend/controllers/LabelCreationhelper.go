@@ -142,6 +142,13 @@ func GetLabel(c *gin.Context) {
 	bucketName := "chemtrack-deployment" // Replace with your bucket name
 	objectName := "label/" + chemicalIdNumber + ".pdf"
 
+	// for testing early retrieval
+	if os.Getenv("ENVIRONMENT") == "test" {
+	    fmt.Println("Mock getting QR Label")
+	    c.Header("Content-Type", "application/pdf")
+	    c.Status(http.StatusOK)
+	}
+
 	// Create a new storage client
 	storageClient, err := storage.NewClient(ctx)
 	if err != nil {
@@ -190,6 +197,15 @@ func DeleteLabel(c *gin.Context) {
 	// Define the bucket and object name
 	bucketName := "chemtrack-deployment"
 	objectName := "label/" + chemicalIdNumber + ".pdf"
+
+	// for testing early retrieval
+	if os.Getenv("ENVIRONMENT") == "test" {
+	    fmt.Println("Mock deleting QR Label")
+	    // mock success res
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Label deleted successfully",
+		})
+	}
 
 	// Create a new storage client
 	storageClient, err := storage.NewClient(ctx)
