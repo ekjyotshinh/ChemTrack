@@ -469,13 +469,11 @@ func ForgotPassword(c *gin.Context) {
 		return
 	}
 	
-	//TODO: Update the reset password before deployment to the correct URL
 	// Create reset URL
 	// Create reset URL (still needed for the token in the email instructions)
 	//resetURL := "chemtrack://resetPassword?token=" + resetToken
-	// this is EJ's private expo go app URL
 	// for testing it you can update it to yours
-	resetURL := "exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/resetPassword?token=" + resetToken
+	resetURL := "chemtrack://resetPassword?token=" + resetToken
 
 	// Email body with reset link - Format the email in HTML for better presentation
 	emailBody := `

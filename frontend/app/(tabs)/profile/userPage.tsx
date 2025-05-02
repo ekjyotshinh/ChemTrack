@@ -122,7 +122,7 @@ const InviteUserPage: React.FC = () => {
                     const data = await res.json();
                     //console.log(data);
                     const id = data.user.id;
-                    const link = "exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}"
+                    const link = `chemtrack://customSignup1?id=${id}`;
                     try {
                         // Make the request to send an invite email
                         const response = await fetch(
