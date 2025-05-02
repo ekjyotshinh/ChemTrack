@@ -365,6 +365,7 @@ describe('EditChemical', () => {
         expect(getByText('File Uploaded')).toBeTruthy();
 
     });
+    /*
     test('MASTER: Test Page Renders With information', async () => {
         /*
         (useUser as jest.Mock).mockReturnValue({
@@ -428,54 +429,10 @@ describe('EditChemical', () => {
         expect(getByTestId('shelf-input')).toHaveDisplayValue('3');
 
         expect(getByText('File Uploaded')).toBeTruthy();
-        */
+        
 
     });
-    /*
-    test('ADMIN: Test Page Renders With information Mocking Checks', async () => {
-
-        
-        (global.fetch as jest.Mock).mockImplementation((...args) => {
-            console.log('API called with args:', args);
-            return Promise.resolve(getChemicalResponse); // or your mock response
-        });
-
-        const { getByTestId, getByText, queryByText, queryByTestId } = render(<EditChemical />);
-        //console.log('FETCH MOCK RESOLVE:', await (global.fetch as jest.Mock).mock.results[0].value);
-
-        await waitFor(() => {
-            
-            expect(global.fetch).toHaveBeenCalledTimes(1);
-            
-            const expectedData = {
-                CAS: 123456578,
-                cabinet: 123,
-                expiration_date: "2031-08-11",
-                id: "1234",
-                name: "TestChem",
-                purchase_date: "2010-08-11",
-                quantity: "56 mL",
-                room: "7a",
-                school: "Test School",
-                sdsURL: "someurl",
-                shelf: 3,
-                status: "Low",
-            };
-            const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
-            const requestBody = JSON.parse(fetchCall[1].body);
-            expect(requestBody).toMatchObject(expectedData);
-            
-            console.log('All API calls:', (global.fetch as jest.Mock).mock.calls);
-            expect(global.fetch).toHaveBeenCalledTimes(1);
-            expect(global.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/v1/chemicals/mockid123')  // You can test for path, not the full URL
-            );
-            expect(screen.getByText('TestChem')).toBeTruthy();
-            
-        });
-        
-
-    });*/
+    */
 
     /* --TEST SENDING NEW INFORMATION TO BACKEND -- */
 
@@ -613,7 +570,7 @@ describe('EditChemical', () => {
         expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical and SDS information updated');
         expect(router.push).toHaveBeenCalledWith('/');
     });
-
+    /*
     test('MASTER: Test Changing Information', async () => {
         /*
         (useUser as jest.Mock).mockReturnValue({
@@ -758,7 +715,7 @@ describe('EditChemical', () => {
         // Check for success alert and re-routing
         expect(Alert.alert).toHaveBeenCalledWith('Success', 'Chemical and SDS information updated');
         expect(router.push).toHaveBeenCalledWith('/');
-        */
-    });
+        
+    });*/
 
 });
