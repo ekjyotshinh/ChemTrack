@@ -26,6 +26,7 @@ import { useUser } from '@/contexts/UserContext';
 import emailRegex from '@/functions/EmailRegex';
 import CloseIcon from '@/assets/icons/CloseIcon';
 import * as ImagePicker from 'expo-image-picker';
+import { API_URL } from '@/constants/API';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -40,7 +41,6 @@ export default function Profile() {
 
   const router = useRouter();
   const { userInfo, updateUserInfo } = useUser();
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   // Get profile picture from backend
   const fetchAvatarImage = async () => {

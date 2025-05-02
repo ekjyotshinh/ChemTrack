@@ -9,9 +9,9 @@ import Size from '@/constants/Size';
 import CustomButton from '@/components/CustomButton';
 import Colors from '@/constants/Colors';
 import Loader from '@/components/Loader';
+import { API_URL } from '@/constants/API';
 
 export default function customSignup2() {
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { id, password} = useLocalSearchParams();
@@ -102,7 +102,7 @@ export default function customSignup2() {
             color={(firstName && lastName) ? Colors.blue : Colors.white}
             textColor={(firstName && lastName) ? Colors.white : Colors.grey}
             icon={<Ionicons name="checkmark" size={24} color={(firstName && lastName) ? Colors.white : Colors.grey} />}
-            onPress={handleCreateAccountPress}
+            onPress={(firstName && lastName) ? handleCreateAccountPress : () => {}}
             width={337}
           />
         </View>

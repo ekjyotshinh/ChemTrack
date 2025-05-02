@@ -12,11 +12,10 @@ import Size from '@/constants/Size';
 import CustomButton from '@/components/CustomButton';
 import Colors from '@/constants/Colors';
 import Loader from '@/components/Loader';
-
+import { API_URL } from '@/constants/API';
 
 // Define the SignUpPage2 component
 export default function SignUpPage2() {
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);

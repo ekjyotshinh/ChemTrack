@@ -17,6 +17,7 @@ import processCAS from '@/functions/ProcessCAS';
 import TextInter from '@/components/TextInter';
 import ChevronRight from '@/assets/icons/ChevronRightIcon';
 import { useUser } from '@/contexts/UserContext';
+import { API_URL } from '@/constants/API';
 
 // Is the chemical expired?
 const isExpired = (expirationDate: string) => {
@@ -208,7 +209,6 @@ export default function ViewChemicals() {
   };
 
   const { userInfo } = useUser();
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const fetchChemicals = async () => {
     if (!userInfo) return;
     try {
