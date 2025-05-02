@@ -100,6 +100,8 @@ func setupRouter() *gin.Engine {
 
 	// label routes
 	r.POST("/api/v1/files/label/:chemicalIdNumber", controllers.AddLabel) // Create a new label
+	r.GET("/api/v1/files/label/:chemicalIdNumber", controllers.GetLabel) // Retrieve label URL
+	r.DELETE("/api/v1/files/label/:chemicalIdNumber", controllers.DeleteLabel) // Delete label
 
 
 	return r
