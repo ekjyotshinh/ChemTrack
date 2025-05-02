@@ -1,9 +1,9 @@
 // Reusable function to fetch schools from the backend API
 
 import { Alert } from "react-native";
+import { API_URL } from '@/constants/API';
 
 const fetchSchools = async () => {
-    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     try {
         const response = await fetch(`${API_URL}/api/v1/users/schools`);
         const schools = await response.json();

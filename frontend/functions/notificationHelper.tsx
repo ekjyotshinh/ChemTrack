@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
+import { API_URL } from '@/constants/API';
 
 // Configure how notifications are presented when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -88,7 +89,6 @@ async function storeDeviceToken(token: NotificationToken, userId: string) {
   }
   console.log('Stored device tokens:', deviceTokens);
   try {
-    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

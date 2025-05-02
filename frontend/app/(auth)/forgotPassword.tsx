@@ -11,10 +11,10 @@ import BlueHeader from '@/components/BlueHeader';
 import LoginIcon from '@/assets/icons/LoginIcon';
 import passwordRegex from '@/functions/PasswordRegex';
 import Loader from '@/components/Loader';
+import { API_URL } from '@/constants/API';
 
 // Make sure this file is saved at the correct path: app/(auth)/forgotPassword.tsx
 export default function ForgotPassword() {
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [token, setToken] = useState('');

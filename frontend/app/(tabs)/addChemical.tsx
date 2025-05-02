@@ -19,6 +19,7 @@ import { useUser } from '@/contexts/UserContext';
 import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
 import Loader from '@/components/Loader';
+import { API_URL } from '@/constants/API';
 
 export default function AddChemical() {
   const { userInfo } = useUser()
@@ -48,7 +49,6 @@ export default function AddChemical() {
   const dateInputs: (Date | undefined)[] = [purchaseDate, expirationDate]
   const allInputs: any = [...stringInputs, ...dateInputs, ...casParts, uploaded]
   const sdsForm = useRef<FormData | null>(null);
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   const router = useRouter();
 

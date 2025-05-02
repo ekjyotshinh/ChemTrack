@@ -11,9 +11,9 @@ import LoginIcon from '@/assets/icons/LoginIcon';
 import BlueHeader from '@/components/BlueHeader';
 import emailRegex from '@/functions/EmailRegex';
 import Loader from '@/components/Loader';
+import { API_URL } from '@/constants/API';
 
 export default function ResetPassword() {  
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isValidEmail, setIsValidEmail] = useState(false);

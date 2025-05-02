@@ -24,7 +24,7 @@ export default function BlueHeader({ headerText, onPress } : headerProps) {
     return (
         <View style={styles.container}>
             <View style={styles.content}>
-                <TouchableOpacity onPress={onPress} style={styles.icon}>
+                <TouchableOpacity onPress={onPress} style={styles.icon} testID='back-btn'>
                     <Ionicons style={{marginBottom: 11}} name="arrow-back" size={28} color="white" />
                 </TouchableOpacity>
                 <TextInter style={styles.header}>{processChemName(headerText)}</TextInter>

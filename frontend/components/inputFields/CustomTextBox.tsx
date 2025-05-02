@@ -30,7 +30,7 @@ const CustomTextBox = forwardRef<TextInput, TextProps>(
                     ref={ref}
                 />
                 {hasIcon &&
-                    <View style={styles.icon}>
+                    <View style={styles.icon} testID='pencil-icon'>
                         <PencilIcon width={15} height={15} color={Colors.grey} />
                     </View>
                 }
