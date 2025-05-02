@@ -42,7 +42,7 @@ export default function ResetPassword() {
     setIsLoading(true);
 
     try {
-      console.log(`Sending request to ${API_URL}/api/v1/auth/forgot-password`);
+      //console.log(`Sending request to ${API_URL}/api/v1/auth/forgot-password`);
       const response = await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,7 +50,7 @@ export default function ResetPassword() {
       }); 
 
       const data = await response.json(); 
-      console.log('Response data:', data);
+      //console.log('Response data:', data);
 
       if (response.ok) {
         setIsLoading(false);
@@ -85,7 +85,7 @@ export default function ResetPassword() {
       setIsLoading(true);
       
       try {
-        console.log("Verifying token with server:", trimmedToken);
+        //console.log("Verifying token with server:", trimmedToken);
         
         const response = await fetch(`${API_URL}/api/v1/auth/verify-token`, {
           method: 'POST',
@@ -102,7 +102,7 @@ export default function ResetPassword() {
         if (response.ok) {
           setIsLoading(false);
           // Token is valid, proceed to password reset
-          console.log("Token verified successfully");
+          //console.log("Token verified successfully");
           router.push({
             pathname: "/(auth)/forgotPassword",
             params: { token: trimmedToken }
@@ -110,7 +110,7 @@ export default function ResetPassword() {
         } else {
           setIsLoading(false);
           // Token is invalid
-          console.log("Token verification failed:", data.error);
+          //console.log("Token verification failed:", data.error);
           Alert.alert('Invalid Token', data.error || 'The reset token is not valid or has expired. Please check your email or request a new reset link.');
         }
       } catch (error) {

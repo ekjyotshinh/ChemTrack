@@ -28,9 +28,9 @@ export default function SignUpPage2() {
   const selectedSchoolValue = Array.isArray(selectedSchool) ? selectedSchool[0] : selectedSchool;  // Handle the case if selectedSchool is an array
 
   // Log the values to check them
-  console.log('Email:', emailValue);
-  console.log('Password:', passwordValue);
-  console.log('Selected School:', selectedSchoolValue);
+  //console.log('Email:', emailValue);
+  //console.log('Password:', passwordValue);
+  //console.log('Selected School:', selectedSchoolValue);
 
   const { updateUserInfo } = useUser(); // Use the updateUserInfo function from context
 
@@ -71,7 +71,7 @@ export default function SignUpPage2() {
       if (res.ok) {
         // After successfully creating the user, update context and navigate
         const data = await res.json();
-        console.log(data);
+        //console.log(data);
         updateUserInfo({
           name: `${firstName} ${lastName}`,
           email: emailValue,

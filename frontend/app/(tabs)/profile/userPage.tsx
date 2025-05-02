@@ -120,7 +120,7 @@ const InviteUserPage: React.FC = () => {
                 if (res.ok) {
                     // After successfully creating the user, update context and navigate
                     const data = await res.json();
-                    console.log(data);
+                    //console.log(data);
                     const id = data.user.id;
                     const link = "exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}"
                     try {

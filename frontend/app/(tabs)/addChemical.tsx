@@ -108,9 +108,9 @@ export default function AddChemical() {
       if (pickedPdf && !pickedPdf.canceled) {
         // Check success
         const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
-        console.log('Got the pdf: ', pickedPdf);
-        console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
-        console.log('File Name: ', pickedPdf.assets[0].name);
+        //console.log('Got the pdf: ', pickedPdf);
+        //console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
+        //console.log('File Name: ', pickedPdf.assets[0].name);
         processFileName(pickedPdf.assets[0].name);
         sdsForm.current = new FormData();
         sdsForm.current.append('sds', {
@@ -123,12 +123,12 @@ export default function AddChemical() {
         Alert.alert('PDF Uploaded!');
       } else {
         Alert.alert("Pdf selection canceled.");
-        console.log("Pdf selection canceled.");
+        //console.log("Pdf selection canceled.");
       }
 
 
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     };
   };
   // Add elipsis to long file names >= 20 characters
@@ -167,7 +167,7 @@ export default function AddChemical() {
       setLoading(true);
       try {
         // Send the data to the backend
-        console.log('Request data:', JSON.stringify(data, null, 2));
+        //console.log('Request data:', JSON.stringify(data, null, 2));
 
         const response = await fetch(`${API_URL}/api/v1/chemicals`, {
           method: 'POST',
@@ -181,8 +181,8 @@ export default function AddChemical() {
 
         if (response.ok) {
           // Handle successful response
-          console.log('Chemical added successfully:', responseData);
-          console.log(sdsForm);
+          //console.log('Chemical added successfully:', responseData);
+          //console.log(sdsForm);
           const pdfResponse = await fetch(`${API_URL}/api/v1/files/sds/${responseData.chemical.id}`, {
             method: 'POST',
             body: sdsForm.current!,
@@ -194,13 +194,13 @@ export default function AddChemical() {
             router.push('/');
           } else {
             setLoading(false); // Stop loader
-            console.log('Failed to add pdf:', pdfResponse);
+            //console.log('Failed to add pdf:', pdfResponse);
             Alert.alert('Error', 'Error occured');
           }
         } else {
           setLoading(false); // Stop loader
           // Handle server errors
-          console.log('Failed to add chemical:', responseData);
+          //console.log('Failed to add chemical:', responseData);
           Alert.alert('Error', 'Error occured');
         }
       } catch (error) {
@@ -210,13 +210,13 @@ export default function AddChemical() {
       }
     } else {
       setLoading(false); // Stop loader
-      console.log('Please fill in all fields!');
+      //('Please fill in all fields!');
       Alert.alert('Error', 'Please fill in all fields!');
     }
   };
 
   const onClear = () => {
-    console.log('Clicked clear!')
+    //console.log('Clicked clear!')
     setName('')
     setRoom('')
     setShelf('')

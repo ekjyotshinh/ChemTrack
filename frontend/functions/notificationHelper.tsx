@@ -23,7 +23,7 @@ async function registerForPushNotifications(): Promise<NotificationToken | null>
 
   // Check if it's a physical device (notifications won't work in simulator)
   if (!Device.isDevice) {
-    console.log('Must use physical device for Push Notifications');
+    //console.log('Must use physical device for Push Notifications');
     return null;
   }
 
@@ -39,7 +39,7 @@ async function registerForPushNotifications(): Promise<NotificationToken | null>
 
   // If still no permission, exit
   if (finalStatus !== 'granted') {
-    console.log('Failed to get push token for push notification!');
+    //console.log('Failed to get push token for push notification!');
     return null;
   }
 
@@ -87,7 +87,7 @@ async function storeDeviceToken(token: NotificationToken, userId: string) {
   } else {
     deviceTokens.push(token);
   }
-  console.log('Stored device tokens:', deviceTokens);
+  //console.log('Stored device tokens:', deviceTokens);
   try {
     const response = await fetch(`${API_URL}/api/v1/users/${userId}`, {
       method: 'PUT',
@@ -101,7 +101,7 @@ async function storeDeviceToken(token: NotificationToken, userId: string) {
       return false
     }
 
-    console.log('User preferences updated successfully');
+    //console.log('User preferences updated successfully');
     return true
   } catch (error) {
     console.error('Error updating user preferences:', error);
@@ -115,7 +115,7 @@ function getStoredDeviceTokens(): NotificationToken[] {
 
 function removeDeviceToken() {
   deviceTokens = [];
-  console.log('Updated device tokens:', deviceTokens);
+  //console.log('Updated device tokens:', deviceTokens);
 }
 
 export {

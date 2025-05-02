@@ -89,8 +89,8 @@ export default function EditChemicals() {
       if (pickedPdf && !pickedPdf.canceled) {
         // Check success
         const successfulResult = pickedPdf as DocumentPicker.DocumentPickerSuccessResult;
-        console.log('Got the pdf: ', pickedPdf);
-        console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
+        //console.log('Got the pdf: ', pickedPdf);
+        //console.log('File assets: ', pickedPdf.assets); //file, lastModified, mimeType, name, size, uri;
         console.log('File Name: ', pickedPdf.assets[0].name);
         sdsForm.current = new FormData();
         sdsForm.current.append('sds', {
@@ -104,10 +104,10 @@ export default function EditChemicals() {
         Alert.alert('PDF Uploaded!');
       } else {
         Alert.alert("Pdf selection canceled.");
-        console.log("Pdf selection canceled.");
+        //console.log("Pdf selection canceled.");
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     };
   };
 
@@ -118,7 +118,7 @@ export default function EditChemicals() {
     try {
       const response = await fetch(`${API_URL}/api/v1/chemicals/${id}`);
       const data = await response.json();
-      console.log(data)
+      //console.log(data)
 
       if (response.ok) {
         setName(data.name || '');
@@ -150,7 +150,7 @@ export default function EditChemicals() {
         }
         
       } else {
-        console.log('Failed to fetch chemical data:', data);
+        //console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
       }
     } catch (error) {
@@ -245,11 +245,11 @@ export default function EditChemicals() {
 
               if (!pdfDeleteResponse.ok || !pdfPostResponse.ok) {
                 setLoading(false); // Stop loader
-                console.log('Failed to update pdf:', sdsForm.current);
+                //console.log('Failed to update pdf:', sdsForm.current);
                 Alert.alert('Error', 'Error occurred while updating Pdf over original');
               } else {
                 setLoading(false); // Stop loader
-                console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
+                //console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
                 Alert.alert('Success', 'Chemical and SDS information updated');
                 router.push('/');
               }
@@ -261,11 +261,11 @@ export default function EditChemicals() {
               });
               if (!pdfPostResponse.ok) {
                 setLoading(false); // Stop loader
-                console.log('Failed to update pdf:', sdsForm.current);
+                //console.log('Failed to update pdf:', sdsForm.current);
                 Alert.alert('Error', 'Error occurred while updating Pdf');
               } else {
                 setLoading(false); // Stop loader
-                console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
+                //console.log('Chemical and SDS updated successfully:', responseData, sdsForm.current);
                 Alert.alert('Success', 'Chemical and SDS information updated');
                 router.push('/');
               }
@@ -273,13 +273,13 @@ export default function EditChemicals() {
 
           } else {
             setLoading(false); // Stop loader
-            console.log('Chemical updated successfully:', responseData);
+            //console.log('Chemical updated successfully:', responseData);
             Alert.alert('Success', 'Chemical information updated');
             router.push('/');
           }
         } else {
           setLoading(false); // Stop loader
-          console.log('Failed to update chemical:', responseData);
+          //console.log('Failed to update chemical:', responseData);
           Alert.alert('Error', 'Error occurred while updating chemical');
         }
       } catch (error) {
@@ -338,7 +338,7 @@ export default function EditChemicals() {
         router.push('/');
       } else {
         setLoading(false); // Stop loader
-        console.log('Failed to delete chemical:', responseData);
+        //console.log('Failed to delete chemical:', responseData);
         Alert.alert('Error', 'Error occurred while deleting chemical');
       }
     } catch (error) {

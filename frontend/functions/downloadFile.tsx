@@ -11,7 +11,7 @@ const downloadFile = async (pdfUrl: string) => {
 
     // Download the PDF file into the app's sandboxed directory
     const { uri } = await FileSystem.downloadAsync(pdfUrl, tempUri);
-    console.log('Downloaded to:', uri);
+    //console.log('Downloaded to:', uri);
 
     // Share the file (works in Expo Go)
     if (await Sharing.isAvailableAsync()) {

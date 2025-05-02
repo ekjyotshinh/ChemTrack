@@ -52,7 +52,7 @@ export default function LoginPage() {
 
       // Parse the response data
       const data = await response.json();
-      console.log(data); // Log the complete response for debugging
+      //console.log(data); // Log the complete response for debugging
 
       // Successfully logged in, update context with user info
       updateUserInfo({

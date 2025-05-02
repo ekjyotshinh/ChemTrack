@@ -28,10 +28,10 @@ export default function ForgotPassword() {
   useEffect(() => {
     if (params.token) {
       // Log token received from params
-      console.log("Token received in forgotPassword:", params.token);
+      //console.log("Token received in forgotPassword:", params.token);
       setToken(params.token as string);
     } else {
-      console.log("No token received in URL params");
+      //console.log("No token received in URL params");
     }
   }, [params]);
 // Validate password - at least one uppercase, one lowercase, one number, and one special character
@@ -43,7 +43,7 @@ export default function ForgotPassword() {
   }, [password, confirmPassword]);
 
   const handleResetPassword = async () => {
-    console.log("Attempting password reset with token:", token);
+    //console.log("Attempting password reset with token:", token);
     //passwordRegex({ password, setIsValidPassword });
     if (!isValidPassword) {
       Alert.alert('Error', 'Password must be at least 8 characters and have at least one uppercase, one lowercase, one number, and one special character');
@@ -57,16 +57,16 @@ export default function ForgotPassword() {
 
     if (!token) {
       Alert.alert('Error', 'Reset token is missing. Please request a new password reset.');
-      console.log("No token available when attempting password reset");
+      //console.log("No token available when attempting password reset");
       return;
     }
     
-    console.log("Attempting password reset with token:", token);
+    //console.log("Attempting password reset with token:", token);
 
     setIsLoading(true);
 
     try {
-      console.log(`Sending request to ${API_URL}/api/v1/auth/reset-password`);
+      //console.log(`Sending request to ${API_URL}/api/v1/auth/reset-password`);
       const response = await fetch(`${API_URL}/api/v1/auth/reset-password`, {
         method: 'POST',
         headers: {
@@ -78,9 +78,9 @@ export default function ForgotPassword() {
         }),
       });
 
-      console.log('Response status:', response.status);
+      //console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
+      //console.log('Response data:', data);
 
       if (response.ok) {
         setIsLoading(false);

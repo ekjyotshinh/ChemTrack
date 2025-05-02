@@ -150,7 +150,7 @@ export default function ViewChemicals() {
     // The actual filtering is already handled by the useEffect below
     // This function mainly focuses on UI feedback (hiding keyboard, etc.)
 
-    console.log("Search performed for:", searchQuery);
+    //console.log("Search performed for:", searchQuery);
   };
 
   const openModal = (chemical: Chemical) => {
@@ -170,7 +170,7 @@ export default function ViewChemicals() {
 
   // Function to view safety data sheet (SDS) in web browser
   const viewPdf = async () => {
-    console.log("Click registered for View Pdf");
+    //console.log("Click registered for View Pdf");
 
     try {
       // GET API for SDS
@@ -188,15 +188,15 @@ export default function ViewChemicals() {
       // If API successful, show pdf
       if (response.ok) {
         // Handle successful response
-        console.log('Chemical SDS found:', responseData);
-        console.log('SDS URL: ', responseData.sdsURL);
+        //console.log('Chemical SDS found:', responseData);
+        //console.log('SDS URL: ', responseData.sdsURL);
         router.push({
           pathname: '/fileViewer',
           params: responseData.sdsURL
         });
       } else {
         // Handle server errors
-        console.log('Failed to get SDS:', responseData);
+        //console.log('Failed to get SDS:', responseData);
         Alert.alert('Error', 'Error occured');
       }
     }

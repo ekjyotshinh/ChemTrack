@@ -13,7 +13,7 @@ export default function StartPage() {
 
   useEffect(() => {
       const handleDeepLink = (event: { url: string }) => {
-          console.log("Received deep link:", event.url);
+          //console.log("Received deep link:", event.url);
           let { path, queryParams } = Linking.parse(event.url);
 
           if (path === 'signup' && queryParams?.email) {

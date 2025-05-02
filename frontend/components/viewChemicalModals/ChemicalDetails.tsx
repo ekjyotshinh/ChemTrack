@@ -95,10 +95,10 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                 }
             } else {
                 setQRCodeImageURL('');
-                console.log('Failed to fetch QR code:', response.statusText);
+                //console.log('Failed to fetch QR code:', response.statusText);
             }
         } catch (error) {
-            console.log('Error fetching QR code:', error);
+            //console.log('Error fetching QR code:', error);
         }
     }
 

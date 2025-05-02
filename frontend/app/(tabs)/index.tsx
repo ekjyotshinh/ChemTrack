@@ -22,7 +22,7 @@ export default function HomePageView() {
 
     try {
       const supported = await Linking.canOpenURL(deepLink);
-      console.log("Deep Link Supported:", supported);
+      //console.log("Deep Link Supported:", supported);
 
       if (supported) {
         await Linking.openURL(deepLink);
