@@ -206,6 +206,7 @@ func DeleteLabel(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Label deleted successfully",
 		})
+		return
 	}
 
 	// Create a new storage client
