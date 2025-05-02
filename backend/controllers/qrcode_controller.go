@@ -18,6 +18,11 @@ import (
 
 // GenerateQRCode generates a QR code for a chemical
 func GenerateQRCode(chemicalIdNumber string) {
+	// Skip actual qr generation and uploading if its test cases
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock creating QR while adding chemical")
+		return
+	}
 	ctx := context.Background()
 
 	// more of a check to verify the chemical exists

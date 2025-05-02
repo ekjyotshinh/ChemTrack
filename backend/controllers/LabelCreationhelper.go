@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"os"
 
 	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
@@ -44,6 +45,11 @@ func AddLabel(c *gin.Context) {
 
 
 func GenerateAndUploadLabel(chemicalId string) error {
+	// Skip actual qr label generation and uploading if its test cases
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock creating QR Label while adding chemical")
+		return nil
+	}
 	ctx := context.Background()
 
 	// Initialize Google Cloud Storage client
