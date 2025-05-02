@@ -90,37 +90,42 @@ jest.mock('@/functions/fetchSchool', () => jest.fn());
 const mockChemicalData = {
     CAS: 123456578,
     cabinet: 123,
-    expiration_date: '2031-08-11',
+    expiration_date: '2025-12-31',
     id: 'mockid123',
-    name: 'TestChem',
-    purchase_date: '2010-08-11',
-    quantity: '56 mL',
-    room: '7a',
+    name: 'Test Chemical',
+    purchase_date: '2023-01-01',
+    quantity: '500 mL',
+    room: '101',
     school: 'Test School',
     sdsURL: 'someurl',
     shelf: 3,
     status: 'Low',
 };
-
+const fetchChemicalResponse = {
+    ok: true,
+    json: () => Promise.resolve(mockChemicalData),
+};
+/*
 // Mock the global fetch to return test data quickly
 global.fetch = jest.fn(() =>
     Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
-            name: 'Test Chemical',
-            CAS: '67-64-1',
-            purchase_date: '2023-01-01',
+            CAS: 123456578,
+            cabinet: 123,
             expiration_date: '2025-12-31',
-            school: 'Test School',
+            id: 'mockid123',
+            name: 'Test Chemical',
+            purchase_date: '2023-01-01',
+            quantity: '500 mL',
             room: '101',
-            cabinet: 'C1',
-            shelf: 'S1',
-            status: 'Good',
-            quantity: '500 ml',
-            sdsURL: '',
+            school: 'Test School',
+            sdsURL: 'someurl',
+            shelf: 3,
+            status: 'Low',
         }),
     })
-) as jest.Mock;
+) as jest.Mock;*/
 
 // Mock Alert.alert to make it synchronous for testing
 jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
@@ -296,7 +301,8 @@ describe('EditChemical', () => {
 
     test('ADMIN: Test purchase date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
-
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => fetchChemicalResponse);
         const { getByTestId, getByText } = render(<EditChemical />);
 
         await waitFor(() => expect(getByTestId('purchase-date')).toBeTruthy(), { timeout: 2000 });
@@ -312,7 +318,8 @@ describe('EditChemical', () => {
 
     test('MASTER: Test date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
-
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => fetchChemicalResponse);
         const { getByTestId, getByText } = render(<EditChemical />);
 
         await waitFor(() => expect(getByTestId('purchase-date')).toBeTruthy(), { timeout: 2000 });
@@ -331,7 +338,8 @@ describe('EditChemical', () => {
 
     test('ADMIN: Test expiration date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockAdmin });
-
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => fetchChemicalResponse);
         const { getByTestId, getByText } = render(<EditChemical />);
 
         await waitFor(() => expect(getByTestId('expiration-date')).toBeTruthy(), { timeout: 2000 });
@@ -347,7 +355,8 @@ describe('EditChemical', () => {
 
     test('MASTER: Test expiration date picker modal', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
-
+        (global.fetch as jest.Mock)
+            .mockImplementationOnce(() => fetchChemicalResponse);
         const { getByTestId, getByText } = render(<EditChemical />);
 
         await waitFor(() => expect(getByTestId('expiration-date')).toBeTruthy(), { timeout: 2000 });
@@ -374,10 +383,6 @@ describe('EditChemical', () => {
 
         const newDate = new Date();
         const date = newDate?.toISOString().split('T')[0];
-        const fetchChemicalResponse = {
-            ok: true,
-            json: () => Promise.resolve(mockChemicalData),
-        };
 
         (global.fetch as jest.Mock)
             .mockImplementationOnce(() => fetchChemicalResponse);
@@ -390,24 +395,24 @@ describe('EditChemical', () => {
             );
         });
         // Name
-        expect(getByTestId('name-input')).toHaveDisplayValue('TestChem');
+        expect(getByTestId('name-input')).toHaveDisplayValue('Test Chemical');
         // CAS
         expect(getByTestId('cas-0')).toHaveDisplayValue('123456');
         expect(getByTestId('cas-1')).toHaveDisplayValue('57');
         expect(getByTestId('cas-2')).toHaveDisplayValue('8');
         // Purchase and Expiration Dates
-        expect(getByText('2010-08-11')).toBeTruthy();
-        expect(getByText('2031-08-11')).toBeTruthy();
+        expect(getByText('2023-01-01')).toBeTruthy();
+        expect(getByText('2025-12-31')).toBeTruthy();
         // Status
         await waitFor(() => expect(getByText('Low')).toBeTruthy());
         // Quantity
-        expect(getByTestId('quantity-input')).toHaveDisplayValue('56');
+        expect(getByTestId('quantity-input')).toHaveDisplayValue('500');
         // Unit
         expect(getByText('mL')).toBeTruthy();
         // School for Master
         //expect(getByText('Test School')).toBeTruthy();
         // Room, Cabinet, Shelf
-        expect(getByTestId('room-input')).toHaveDisplayValue('7a');
+        expect(getByTestId('room-input')).toHaveDisplayValue('101');
         expect(getByTestId('cabinet-input')).toHaveDisplayValue('123');
         expect(getByTestId('shelf-input')).toHaveDisplayValue('3');
 
