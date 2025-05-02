@@ -12,7 +12,7 @@ import processCAS from '@/functions/ProcessCAS';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
 import downloadFile from '../../functions/downloadFile';
-
+import { API_URL } from '@/constants/API';
 
 interface chemicalDetailProps {
     property: string
@@ -69,7 +69,6 @@ interface props {
 }
 
 const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible, closeModal, router }: props) => {
-    const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
     const gapSize = Size.height(12);
     const [QRCodeImageURL, setQRCodeImageURL] = useState('');
 

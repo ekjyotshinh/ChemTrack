@@ -6,6 +6,7 @@ import ChemicalDetails from '@/components/viewChemicalModals/ChemicalDetails';
 import * as WebBrowser from 'expo-web-browser';
 import { useRouter } from 'expo-router';
 import { useIsFocused } from '@react-navigation/native';
+import { API_URL } from '@/constants/API';
 
 export default function ViewChemicals() {
 
@@ -34,7 +35,6 @@ export default function ViewChemicals() {
   const [isSDSBottomSheetOpen, setIsSDSBottomSheetOpen] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const router = useRouter();
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
   const viewPdf = async (pdfUrl: string) => {
     console.log('Opening PDF:', pdfUrl);
     await WebBrowser.openBrowserAsync(pdfUrl);

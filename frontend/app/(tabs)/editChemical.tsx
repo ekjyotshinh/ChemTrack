@@ -19,7 +19,7 @@ import ErrorPage from './errorPage';
 import fetchSchoolList from '@/functions/fetchSchool';
 import TrashIcon from '@/assets/icons/TrashIcon';
 import Loader from '@/components/Loader';
-
+import { API_URL } from '@/constants/API';
 
 
 export default function EditChemicals() {
@@ -110,9 +110,6 @@ export default function EditChemicals() {
       console.log(error);
     };
   };
-
-  // API URL
-  const API_URL = `http://${process.env.EXPO_PUBLIC_API_URL}`;
 
   // Fetch every time this page comes into focus
   // Fixes issue of a user selecting a chemical, making edits, leaving the page, then selecting  // the same chemical and still seeing the edited version rather than what's in the database
