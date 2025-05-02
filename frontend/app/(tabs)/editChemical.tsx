@@ -35,7 +35,7 @@ export default function EditChemicals() {
   const [purchaseDate, setPurchaseDate] = useState<Date>();
   const [expirationDate, setExpirationDate] = useState<Date>();
   const [uploaded, setUploaded] = useState<boolean>(false);
-  const [pdfName, setPdfName] = useState<string>('');
+  const [pdfName, setPdfName] = useState<string>('Upload');
   const [changedPdf, setChangedPdf] = useState<boolean>(false);
   const [existingPdf, setExistingPdf] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
@@ -148,7 +148,7 @@ export default function EditChemicals() {
           setExistingPdf(false);
           setPdfName('Upload');
         }
-        
+
       } else {
         console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
