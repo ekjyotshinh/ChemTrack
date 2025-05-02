@@ -147,6 +147,7 @@ func GetLabel(c *gin.Context) {
 	    fmt.Println("Mock getting QR Label")
 	    c.Header("Content-Type", "application/pdf")
 	    c.Status(http.StatusOK)
+		return
 	}
 
 	// Create a new storage client
