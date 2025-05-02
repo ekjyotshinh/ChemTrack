@@ -523,3 +523,25 @@ func TestAddLabel_Success(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "Label created and uploaded successfully")
 }
+
+func TestGetLabel_Success(t *testing.T) {
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/files/label/12345TestGetLabel_Success", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// Assert that the response status code is 200 OK and content type is PDF
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "application/pdf", w.Header().Get("Content-Type"))
+}
+
+func TestDeleteLabel_Success(t *testing.T) {
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/v1/files/label/12345TestDeleteLabel_Success", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// Assert that the response status code is 200 OK
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "Label deleted successfully")
+}
