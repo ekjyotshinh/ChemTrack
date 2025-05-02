@@ -55,6 +55,13 @@ jest.mock('expo-router', () => ({
 
 jest.spyOn(Alert, 'alert');
 
+// Simulate pressing buttons inside an alert
+const simulateAlertPress = (buttonText: string) => {
+    jest.spyOn(Alert, 'alert').mockImplementation((_, __, buttons) => {
+        const yesButton = buttons?.find((btn) => btn.text === buttonText);
+        yesButton?.onPress?.();
+    });
+};
 
 // Tests
 describe('Profile', () => {
@@ -340,10 +347,14 @@ describe('Profile', () => {
     test('Routing for User to Log Out', async () => {
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
         const { getByText } = render(<Profile />);
+
+        // Simulate pressing yes on alert
+        simulateAlertPress('Yes');
+
         await waitFor(async () => {
             // Simulate button clicks
             fireEvent.press(getByText('Log Out'));
-            fireEvent.press(getByText('Yes'));
+            expect(Alert.alert).toHaveBeenCalledWith('Log Out', 'Are you sure you want to log out?', expect.any(Array));
             expect(router.replace).toHaveBeenCalledWith('/(auth)/login');
         });
     });
@@ -352,38 +363,40 @@ describe('Profile', () => {
     test('Logout Modal Renders for Master', async () => {
         // Setup master user
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockMaster });
-        const { getByText, queryByText } = render(<Profile />);
+        const { getByText } = render(<Profile />);
+
+        // Simulate pressing no on alert
+        simulateAlertPress('No');
+
         await waitFor(async () => {
             // Simulate Log out clicks
             fireEvent.press(getByText('Log Out'));
-            expect(getByText('Are you sure you want to log out?')).toBeOnTheScreen();
-            expect(getByText('Yes')).toBeOnTheScreen();
-            expect(getByText('Cancel')).toBeOnTheScreen();
+
             // Decline to go back to profile
-            fireEvent.press(getByText('Cancel'));
-            // Check modal is gone
-            expect(queryByText('Are you sure you want to log out?')).not.toBeOnTheScreen();
-            expect(queryByText('Yes')).not.toBeOnTheScreen();
-            expect(queryByText('Cancel')).not.toBeOnTheScreen();
+            expect(Alert.alert).toHaveBeenCalledWith('Log Out', 'Are you sure you want to log out?', expect.any(Array));
+
+            // No navigation to login page
+            expect(router.replace).not.toHaveBeenCalled();
         });
     });
 
     test('Logout Modal Renders for Regular User', async () => {
         // Setup master user
         (useUser as jest.Mock).mockReturnValue({ userInfo: mockUser });
-        const { getByText, queryByText } = render(<Profile />);
+        const { getByText } = render(<Profile />);
+
+        // Simulate pressing no on alert
+        simulateAlertPress('No');
+
         await waitFor(async () => {
             // Simulate Log out clicks
             fireEvent.press(getByText('Log Out'));
-            expect(getByText('Are you sure you want to log out?')).toBeOnTheScreen();
-            expect(getByText('Yes')).toBeOnTheScreen();
-            expect(getByText('Cancel')).toBeOnTheScreen();
+
             // Decline to go back to profile
-            fireEvent.press(getByText('Cancel'));
-            // Check modal is gone
-            expect(queryByText('Are you sure you want to log out?')).not.toBeOnTheScreen();
-            expect(queryByText('Yes')).not.toBeOnTheScreen();
-            expect(queryByText('Cancel')).not.toBeOnTheScreen();
+            expect(Alert.alert).toHaveBeenCalledWith('Log Out', 'Are you sure you want to log out?', expect.any(Array));
+
+            // No navigation to login page
+            expect(router.replace).not.toHaveBeenCalled();
         });
     });
 
