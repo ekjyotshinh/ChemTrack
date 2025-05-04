@@ -76,7 +76,9 @@ By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, eff
 
 App running on production build on an iOS device with master access.
 
-<img src="https://i.imgur.com/DiIkMBT.gif" alt="App Demo" width="35%">
+<img src="./assets/demo.gif" alt="App Demo">
+
+Better quality version: [here](https://imgur.com/a/chemtrack-demo-h9Tlx1o)
 
 ## Contributors
 
