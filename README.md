@@ -1,30 +1,40 @@
 <p align="center">
-   <img src="./assets/banner.png"/>
+   <img src="./assets/banner.png" alt="ChemTrack A chemical inventory manager with QR code scanning built for schools"/>
 </p>
 
 # ChemTrack
 
-A chemical inventory manager with QR code scanning built for schools.
+ChemTrack is a mobile app for managing chemical inventory in schools, featuring built-in QR code scanning. It was designed, developed, and tested from the ground up for the chemistry department at Encina High School to streamline their inventory management process.
 
 ## Table of Contents
 
 -   [Introduction](#introduction)
+    - [Tech Stack](#technologies-used)
+        - [Frontend](#frontend)
+        - [Backend](#backend)
+        - [Additional Tools](#additional-tools)
+-   [Application Demo](#application-demo)
 -   [Contributors](#contributors)
 -   [Prerequisites](#prerequisites)
 -   [Setup](#setup)
-    -   [Backend](#backend)
-    -   [Frontend](#frontend)
+    -   [Backend](#backend-1)
+    -   [Frontend](#frontend-1)
 -   [Running the Project](#running-the-project)
     -   [Backend](#running-the-backend)
     -   [Frontend](#running-the-frontend)
 -   [Testing](#testing)
+    -   [Backend Testing Environment](#setting-up-the-backend-testing-environment)
+        -   [Clear Firestore Emulator Data](#clear-firestore-emulator-data-before-consecuitive-runs)
+    -   [Backend Testing](#backend-testing)
+    -   [Frontend Testing](#frontend-testing)
 -   [Deployment](#deployment)
+    -   [Frontend Deployment](#frontend-deployment-mobile-app-via-expo-eas)
+    -   [Backend Deployment](#backend-deployment-docker--google-cloud-run)
+-   [Secrets Management](#secrets-management)
 -   [API Endpoints](#api-endpoints)
--   [UI Images](#ui-images)
--   [Key Milestones](#key-milestones-for-191)
 -   [Additional Information](#additional-information)
 
-<img src="./assets/appIcon.png" alt="App Icon image" width="10%"/>
+<!-- <img src="./assets/appIcon.png" alt="App Icon image" width="10%"/> -->
 
 ## Introduction
 
@@ -62,16 +72,22 @@ Docker: To containerize the application, ensuring consistent environments across
 GitHub: For version control and collaboration, enabling seamless teamwork and code management.
 By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, efficient, and user-friendly experience for managing chemical inventories in educational institutions.
 
+## Application Demo
+
+App running on production build on an iOS device with master access.
+
+<img src="https://i.imgur.com/DiIkMBT.gif" alt="App Demo" width="35%">
+
 ## Contributors
 
--   Rahul Gupta
--   Ekjyot Shinh
--   Ajaydeep Singh
--   Katy Chan
--   Mari Moslehi
--   Harmanjot Singh
--   Romin Akoliya
--   Kevin Esquivel
+-   **Team Lead:** Ekjyot Shinh ([@ekjyotshinh](https://github.com/ekjyotshinh))
+-   Rahul Gupta ([@rahulio96](https://github.com/rahulio96))
+-   Ajaydeep Singh ([@Ajay1-me](https://github.com/Ajay1-me))
+-   Katy Chan ([@Kren1375](https://github.com/Kren1375))
+-   Mari Moslehi ([@marimoslehi](https://github.com/marimoslehi))
+-   Harmanjot Singh ([@harmanharry96](https://github.com/harmanharry96))
+-   Romin Akoliya ([@Romin-6522](https://github.com/Romin-6522))
+-   Kevin Esquivel ([@AggressiveGas](https://github.com/AggressiveGas))
 
 ## Prerequisites
 
@@ -336,18 +352,8 @@ docker push gcr.io/<project-id>/<image-name>
 
 Refer to the `http://localhost:8080/swagger/index.html#/` when running the backend for a list of available API endpoints and their usage.
 
-<p align="center">
+<p>
     <img src="./assets/Animation.gif" alt="Swagger API Gif"/>
-</p>
-
-## UI Images
-
-Created in Figma
-
-<p align="center">
-  <img src="./assets/figma/home.png" alt="Home screen image" width="30%">
-  <img src="./assets/figma/add.png" alt="Add chemical screen image" width="30%">
-  <img src="./assets/figma/view.png" alt="View chemical screen image" width="30%">
 </p>
 
 ## Additional Information
