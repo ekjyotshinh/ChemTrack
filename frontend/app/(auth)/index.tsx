@@ -16,10 +16,10 @@ export default function StartPage() {
           //console.log("Received deep link:", event.url);
           let { path, queryParams } = Linking.parse(event.url);
 
-          if (path === 'signup' && queryParams?.email) {
+          if (path === 'customSignup1' && queryParams?.id) {
               router.push({
-                  pathname: '/signupPage1',
-                  params: { email: queryParams.email, userType: queryParams.userType },
+                  pathname: '/customSignup1',
+                  params: { id: queryParams.id }, 
               });
           }
       };
