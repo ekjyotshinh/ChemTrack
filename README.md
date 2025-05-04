@@ -18,11 +18,13 @@ A chemical inventory manager with QR code scanning built for schools.
     -   [Backend](#running-the-backend)
     -   [Frontend](#running-the-frontend)
 -   [Testing](#testing)
--   [Deployment](#deployment-to-do)
+-   [Deployment](#deployment)
 -   [API Endpoints](#api-endpoints)
 -   [UI Images](#ui-images)
 -   [Key Milestones](#key-milestones-for-191)
 -   [Additional Information](#additional-information)
+
+<img src="./assets/appIcon.png" alt="App Icon image" width="10%"/>
 
 ## Introduction
 
@@ -203,10 +205,132 @@ By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, eff
     npm test
     ```
 
-## Deployment (To Do)
+# Deployment
 
-1. Requirements
-2. Steps for Deployment
+## Frontend Deployment (Mobile App via Expo EAS)
+
+The frontend mobile application is deployed using **Expo Application Services (EAS)** for both building and submitting the iOS app.
+
+### Steps to Deploy: iOS
+
+1. **Log in to Expo**
+
+    ```bash
+    expo login
+    ```
+
+    - Use the provided Expo Developer Account credentials:
+        ```
+        Email: <your-email-id>
+        ```
+
+2. **Build the iOS App**
+
+    ```bash
+    eas build --platform ios
+    ```
+
+    - This creates a production-ready `.ipa` file for iOS.
+
+3. **Submit the Build to the Apple App Store**
+    ```bash
+    eas submit --platform ios
+    ```
+    - You will be prompted to log in with the Apple Developer Account:
+        ```
+        Email: <your-email-id>
+        ```
+    - Ensure **2FA (Two-Factor Authentication)** is accessible during submission.
+
+### Post Submission Steps: iOS
+
+-   Go to the [Apple Developer Portal](https://developer.apple.com/)
+-   Navigate to **App Store Connect**
+-   Select your app
+-   Add:
+    -   Release notes
+    -   Screenshots
+    -   Version metadata
+-   Submit the app for **App Review**
+
+---
+
+## Backend Deployment (Docker + Google Cloud Run)
+
+The backend is containerized using **Docker** and deployed to **Google Cloud Run** using a container image uploaded to **Google Container Registry (GCR)**.
+
+### Prerequisite: Google Cloud Login
+
+To log in to Google Cloud (GCP) via the terminal, use the **Google Cloud SDK (gcloud)**.
+
+#### Steps to Log In to GCP via Terminal
+
+1. **Install Google Cloud SDK**  
+   [Install SDK →](https://cloud.google.com/sdk/docs/install)
+
+2. **Authenticate with GCP**
+
+    ```bash
+    gcloud auth login
+    ```
+
+    - This will open a browser prompting login.
+    - Log in using your GCP account:
+        ```
+        Email: <your-email-id>
+        ```
+
+3. **Set Your Project ID**
+    ```bash
+    gcloud config set project <your-project-id>
+    ```
+
+---
+
+### Steps to Deploy
+
+#### 1. Build Docker Image
+
+```sh
+cd backend
+```
+
+If you're on an Apple M-series or ARM-based system, use the platform flag for compatibility:
+
+```bash
+docker build --platform linux/amd64 -t gcr.io/<project-id>/<image-name> .
+```
+
+#### 2. Push Docker Image to Google Container Registry (GCR)
+
+```bash
+docker push gcr.io/<project-id>/<image-name>
+```
+
+#### 3. Redeploy on Google Cloud Run
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Navigate to **Cloud Run**
+3. Select the `<project-id>` service
+4. Click **"Edit & Deploy New Revision"**
+5. Under **Container Image**, select the newly pushed image (e.g., `:latest` or your tag)
+6. Click **Deploy**
+
+---
+
+### Secrets Management
+
+1. While editing your Cloud Run revision, go to **"Variables & Secrets"**
+2. Add or update required secrets
+3. Click **Deploy** after saving changes
+
+> ⚠️ **Note:**
+>
+> -   Always maintain an internal, secure record of updated secrets (API keys, tokens, etc.)
+> -   **Never hardcode credentials** into the codebase
+> -   Use GCP's **Secret Manager** for adding the keys
+
+---
 
 ## API Endpoints
 
@@ -225,14 +349,6 @@ Created in Figma
   <img src="./assets/figma/add.png" alt="Add chemical screen image" width="30%">
   <img src="./assets/figma/view.png" alt="View chemical screen image" width="30%">
 </p>
-
-## Key Milestones for 191
-
--   SDS viewing & uploading
--   Inviting user backend functionality
--   User type implementation
--   QR code scanning and routing
--   Label printing & generation
 
 ## Additional Information
 

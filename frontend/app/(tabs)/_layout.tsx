@@ -177,13 +177,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Hidden Reset Password Tab */}
-      <Tabs.Screen
-        name="profile/resetPassword"
-        options={{
-          href: null,
-        }}
-      />
 
       {/* Hidden Notifications Tab */}
       <Tabs.Screen
@@ -192,23 +185,6 @@ export default function TabLayout() {
           href: null,
         }}
       />
-
-      {/* Hidden testing Tab */}
-      <Tabs.Screen
-        name="checkDownload"
-        options={{
-          href: null,
-        }}
-      />
-
-      {/* Hidden Edit Chemical Tab*/}
-      <Tabs.Screen
-        name="editChemical"
-        options={{
-          href: null,
-        }}
-      />
-
       {/* newPassword Tab */}
       <Tabs.Screen
         name="profile/newPassword"
@@ -217,16 +193,9 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Reset Password Screens - hidden from tabs */}
+      {/* Hidden Edit Chemical Tab*/}
       <Tabs.Screen
-        name="reset-password"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="new-password"
+        name="editChemical"
         options={{
           href: null,
         }}

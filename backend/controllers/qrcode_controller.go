@@ -18,6 +18,11 @@ import (
 
 // GenerateQRCode generates a QR code for a chemical
 func GenerateQRCode(chemicalIdNumber string) {
+	// Skip actual qr generation and uploading if its test cases
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock creating QR while adding chemical")
+		return
+	}
 	ctx := context.Background()
 
 	// more of a check to verify the chemical exists
@@ -32,7 +37,16 @@ func GenerateQRCode(chemicalIdNumber string) {
 	// Get the chemical ID | seems redundant but we need to so the Document check above doesnt throw an cry errors
 	chemID := doc.Ref.ID
 
-	filepath := `qrcodes/` + chemID + `.png` // creating a filepath for the qr code to be saved to based on their id
+	// Create the folder if it doesn't exist
+	qrCodeFolder := `qrcodes/`
+	err = os.MkdirAll(qrCodeFolder, os.ModePerm) // Create the folder with permissions if it doesn't exist
+	if err != nil {
+		fmt.Println("Failed to create QR code folder:", err)
+		return
+	}
+
+	filepath := qrCodeFolder + chemID + `.png` // creating a filepath for the QR code to be saved to based on their id
+
 	// Generate the QR code
 	err = qrcode.WriteFile(chemID, qrcode.Medium, 256, filepath)
 	if err != nil {
@@ -42,7 +56,7 @@ func GenerateQRCode(chemicalIdNumber string) {
 	}
 
 	// Upload the QR code to Google Cloud Storage
-	bucketName := "chemtrack-testing2"
+	bucketName := "chemtrack-deployment"
 	objectName := "QRcodes/" + chemID + ".png"
 
 	err = helpers.UploadFileToGCS(ctx, bucketName, objectName, filepath)
@@ -52,7 +66,7 @@ func GenerateQRCode(chemicalIdNumber string) {
 	}
 
 	// Delete the QR code file
-	deletePath := `qrcodes/` + chemID + `.png`
+	deletePath := qrCodeFolder + chemID + `.png`
 	fileDelete := os.Remove(deletePath)
 	if fileDelete != nil {
 		fmt.Println("Failed to delete QR code file")
@@ -78,7 +92,7 @@ func GetQRCode(c *gin.Context) {
 	chemicalIdNumber := c.Param("chemicalIdNumber")
 
 	// Define the bucket and object name
-	bucketName := "chemtrack-testing2" // Replace with your bucket name
+	bucketName := "chemtrack-deployment" // Replace with your bucket name
 	objectName := "QRcodes/" + chemicalIdNumber + ".png"
 
 	// Create a new storage client
@@ -123,13 +137,13 @@ func GetQRCode(c *gin.Context) {
 func GetQRCodeURL(c *gin.Context) {
 	chemicalIdNumber := c.Param("chemicalIdNumber")
 
-	bucketName := "chemtrack-testing2"
+	bucketName := "chemtrack-deployment"
 	objectName := "QRcodes/" + chemicalIdNumber + ".png"
 
 	doesQRExist := helpers.DoesFileExistGCS(context.Background(), bucketName, objectName)
 
 	// Empty string if QR code does not exist, otherwise the URL to the QR code
-	// Example URL: https://storage.googleapis.com/chemtrack-testing2/QRcodes/12345.png
+	// Example URL: https://storage.googleapis.com/chemtrack-deployment/QRcodes/12345.png
 	QRCodeURL := ""
 
 	if doesQRExist {

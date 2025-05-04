@@ -149,7 +149,7 @@ func TestGetSDS_Success(t *testing.T) {
 	docRef := collection.Doc(chemicalID)
 	_, err := docRef.Set(context.Background(), map[string]interface{}{
 		"name":   "Chemical Test",
-		"sdsURL": "https://storage.googleapis.com/chemtrack-testing2/sds/12345TestGetSDS_Success.pdf", // Mock the SDS URL
+		"sdsURL": "https://storage.googleapis.com/chemtrack-deployment/sds/12345TestGetSDS_Success.pdf", // Mock the SDS URL
 	})
 	if err != nil {
 		t.Fatalf("Failed to set chemical data in Firestore: %v", err)
@@ -165,7 +165,7 @@ func TestGetSDS_Success(t *testing.T) {
 	// Validate the response
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "sdsURL")
-	assert.Contains(t, w.Body.String(), "https://storage.googleapis.com/chemtrack-testing2/sds/12345TestGetSDS_Success.pdf")
+	assert.Contains(t, w.Body.String(), "https://storage.googleapis.com/chemtrack-deployment/sds/12345TestGetSDS_Success.pdf")
 }
 
 // Test case for chemical not found when retrieving SDS URL
@@ -214,7 +214,7 @@ func TestDeleteSDS_Success(t *testing.T) {
 	docRef := collection.Doc(chemicalID)
 	_, err := docRef.Set(context.Background(), map[string]interface{}{
 		"name":   "Chemical Test",
-		"sdsURL": "https://storage.googleapis.com/chemtrack-testing2/sds/12345.pdf", // Mock the SDS URL
+		"sdsURL": "https://storage.googleapis.com/chemtrack-deployment/sds/12345.pdf", // Mock the SDS URL
 	})
 	if err != nil {
 		t.Fatalf("Failed to set chemical data in Firestore: %v", err)
@@ -501,4 +501,47 @@ func TestDeleteProfilePicture_InvalidProfilePictureURLFormat(t *testing.T) {
 
 	// Check that the response contains the error message
 	assert.Contains(t, w.Body.String(), "Invalid profile picture URL format")
+}
+
+// Label tests
+func TestAddLabel_Success(t *testing.T) {
+	// Set up the Firestore collection with a chemical record for testing
+	chemicalID := "12345TestAddLabel_Success"
+	collection := client.Collection("chemicals")
+	docRef := collection.Doc(chemicalID)
+	_, err := docRef.Set(context.Background(), map[string]interface{}{"name": "Chemical Test"})
+	if err != nil {
+		t.Fatalf("Failed to set chemical data in Firestore: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/files/label/12345TestAddLabel_Success", nil)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// Assert that the response status code is 200 OK
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "Label created and uploaded successfully")
+}
+
+func TestGetLabel_Success(t *testing.T) {
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/files/label/12345TestGetLabel_Success", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// Assert that the response status code is 200 OK and content type is PDF
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "application/pdf", w.Header().Get("Content-Type"))
+}
+
+func TestDeleteLabel_Success(t *testing.T) {
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/v1/files/label/12345TestDeleteLabel_Success", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// Assert that the response status code is 200 OK
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), "Label deleted successfully")
 }

@@ -100,22 +100,22 @@ function RootLayoutNav() {
     // Function to handle deep links
     const handleDeepLink = (event: { url: string }) => {
       const url = event.url;
-      console.log("Deep link received:", url);
+      //console.log("Deep link received:", url);
       
       if (url.includes('reset-password')) {
         // Extract token from URL
         const tokenMatch = url.match(/token=([^&]+)/);
         if (tokenMatch && tokenMatch[1]) {
           const token = tokenMatch[1];
-          console.log("Password reset token:", token);
+          //console.log("Password reset token:", token);
           
           // Try multiple navigation approaches
           try {
             // Use a simple string approach for navigation
-            console.log("Attempting to navigate with token:", token);
+            //console.log("Attempting to navigate with token:", token);
             router.push(`/(tabs)/profile/newPassword?token=${encodeURIComponent(token)}`);
           } catch (e) {
-            console.error("First navigation attempt failed:", e);
+            //console.error("First navigation attempt failed:", e);
             try {
               // Second approach
               router.push({
@@ -123,7 +123,7 @@ function RootLayoutNav() {
                 params: { token }
               });
             } catch (e2) {
-              console.error("Second navigation attempt failed:", e2);
+              //console.error("Second navigation attempt failed:", e2);
               // Last resort approach
               setTimeout(() => {
                 router.push(`/(tabs)/profile/newPassword?token=${encodeURIComponent(token)}`);
@@ -142,7 +142,7 @@ function RootLayoutNav() {
       try {
         const initialUrl = await Linking.getInitialURL();
         if (initialUrl) {
-          console.log("App opened with URL:", initialUrl);
+          //console.log("App opened with URL:", initialUrl);
           handleDeepLink({ url: initialUrl });
         }
       } catch (e) {

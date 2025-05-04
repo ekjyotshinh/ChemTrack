@@ -8,32 +8,11 @@ import EyeIcon from '@/assets/icons/EyeIcon';
 import Colors from '@/constants/Colors';
 import TextInter from '@/components/TextInter';
 import { useUser } from '@/contexts/UserContext'; // import the hook to get user info
-import * as Linking from 'expo-linking';
 import Size from '@/constants/Size';
 
 export default function HomePageView() {
   const router = useRouter(); // Initialize the router
   const { userInfo } = useUser(); // Get the username from context
-
-  // Function to test deep linking - delete once the testing is done
-  const testDeepLink = async () => {
-    //const deepLink = "http://localhost:8081/customSignup1?email=ajays@gmail.com&userType=master&school=Sacramento%20High%20School";
-    const deepLink = "exp://a4sykbo-ajay_12-8082.exp.direct/--/customSignup1?email=deepajay0713@gmail.com&userType=Admin&school=Encina%20High%20School";
-
-    try {
-      const supported = await Linking.canOpenURL(deepLink);
-      console.log("Deep Link Supported:", supported);
-
-      if (supported) {
-        await Linking.openURL(deepLink);
-      } else {
-        Alert.alert("Error", "Deep linking is not supported on this device.");
-      }
-    } catch (error) {
-      console.error("Deep Link Error:", error);
-      Alert.alert("Error", "An error occurred while testing the deep link.");
-    }
-  };
 
   return (
     <View style={styles.container}>

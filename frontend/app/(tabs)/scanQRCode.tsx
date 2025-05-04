@@ -36,7 +36,7 @@ export default function ViewChemicals() {
   const [isFetching, setIsFetching] = useState(false);
   const router = useRouter();
   const viewPdf = async (pdfUrl: string) => {
-    console.log('Opening PDF:', pdfUrl);
+    //console.log('Opening PDF:', pdfUrl);
     await WebBrowser.openBrowserAsync(pdfUrl);
   };
   const toggleSDSBottomSheet = () => {
@@ -63,11 +63,11 @@ export default function ViewChemicals() {
         setSelectedChemical(data);
         setModalVisible(true);
       } else {
-        console.log('Failed to fetch chemical data:', data);
+        //console.log('Failed to fetch chemical data:', data);
         Alert.alert('Error', 'Failed to fetch chemical data');
       }
     } catch (error) {
-      console.log('Error fetching chemical data:', error);
+      //console.log('Error fetching chemical data:', error);
       Alert.alert('Error', 'Invalid QR or Error fetching chemical data');
     } finally {
       setIsFetching(false);

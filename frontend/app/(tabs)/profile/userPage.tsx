@@ -120,9 +120,9 @@ const InviteUserPage: React.FC = () => {
                 if (res.ok) {
                     // After successfully creating the user, update context and navigate
                     const data = await res.json();
-                    console.log(data);
+                    //console.log(data);
                     const id = data.user.id;
-                    const link = "exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}"
+                    const link = `chemtrack://customSignup1?id=${id}`;
                     try {
                         // Make the request to send an invite email
                         const response = await fetch(
@@ -135,16 +135,12 @@ const InviteUserPage: React.FC = () => {
                                 body: JSON.stringify({
                                     to: email,
                                     subject: "ChemTrack User Invitation",
-                                    // Ajays Link
-                                    //body: `You have been invited to join ChemTrack at ${school} as a ${userType}. Download the app from the Play Store, then tap the link below to complete your sign-up.<br><br> exp://a4sykbo-ajay_12-8081.exp.direct/--/customSignup1?id=${id}`,
-                                    // EJ's Link
-                                    //TODO : update the links to the prod ones
                                       body: `
                                         <html>
                                           <body style="font-family: Arial, sans-serif; line-height: 1.6;">
                                             <h2>Welcome to ChemTrack!</h2>
                                             <p>
-                                              You have been invited to join <strong>ChemTrack</strong> at 
+                                              You have been invited to join <strong>ChemTrack</strong>  by ${userInfo.name} at 
                                               <strong>${school}</strong> as a <strong>${userType}</strong> User.
                                             </p>
 
@@ -158,24 +154,24 @@ const InviteUserPage: React.FC = () => {
 
                                               <div style="margin: 15px 0;">
                                                 <a 
-                                                  href="exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}" 
+                                                  href="chemtrack://customSignup1?id=${id}" 
                                                   style="background-color: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block;">
                                                   Complete Your Registration
                                                 </a>
                                               </div>
 
                                               <div style="margin: 15px 0;">
-                                                If the button above doesn't work (this can happen in some browsers), 
+                                                If the button above doesn't work (this can happen with some email services), 
                                                 please copy and paste the following link into your browser:
                                                 <br/>
-                                                <a href="exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}">
-                                                  exp://6a-kwi4-ekjyot_shinh-8081.exp.direct/--/customSignup1?id=${id}
-                                                </a>
+                                                <strong>chemtrack://customSignup1?id=${id}</strong>
+                                                <br/>
+                                                Please don't share this link with anyone else and keep it private.
                                               </div>
                                             </div>
 
                                             <p>
-                                              If you have any questions or didn’t expect this invitation, please ignore this email.
+                                              If you have any questions or didn’t expect this invitation, please contact the administrator or the person who invited you.
                                             </p>
                                           </body>
                                         </html>

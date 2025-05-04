@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"os"
 
 	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
@@ -44,6 +45,11 @@ func AddLabel(c *gin.Context) {
 
 
 func GenerateAndUploadLabel(chemicalId string) error {
+	// Skip actual qr label generation and uploading if its test cases
+	if os.Getenv("ENVIRONMENT") == "test" {
+		fmt.Println("Mock creating QR Label while adding chemical")
+		return nil
+	}
 	ctx := context.Background()
 
 	// Initialize Google Cloud Storage client
@@ -105,7 +111,7 @@ func GenerateAndUploadLabel(chemicalId string) error {
 	}
 
 	objectName := fmt.Sprintf("label/%s.pdf", chemID)
-	writer := storageClient.Bucket("chemtrack-testing2").Object(objectName).NewWriter(ctx)
+	writer := storageClient.Bucket("chemtrack-deployment").Object(objectName).NewWriter(ctx)
 	if _, err := io.Copy(writer, &buf); err != nil {
 		return fmt.Errorf("failed to upload PDF: %w", err)
 	}
@@ -133,8 +139,16 @@ func GetLabel(c *gin.Context) {
 	chemicalIdNumber := c.Param("chemicalIdNumber")
 
 	// Define the bucket and object name
-	bucketName := "chemtrack-testing2" // Replace with your bucket name
+	bucketName := "chemtrack-deployment" // Replace with your bucket name
 	objectName := "label/" + chemicalIdNumber + ".pdf"
+
+	// for testing early retrieval
+	if os.Getenv("ENVIRONMENT") == "test" {
+	    fmt.Println("Mock getting QR Label")
+	    c.Header("Content-Type", "application/pdf")
+	    c.Status(http.StatusOK)
+		return
+	}
 
 	// Create a new storage client
 	storageClient, err := storage.NewClient(ctx)
@@ -182,8 +196,18 @@ func DeleteLabel(c *gin.Context) {
 	chemicalIdNumber := c.Param("chemicalIdNumber")
 
 	// Define the bucket and object name
-	bucketName := "chemtrack-testing2" // Replace with your bucket name
+	bucketName := "chemtrack-deployment"
 	objectName := "label/" + chemicalIdNumber + ".pdf"
+
+	// for testing early retrieval
+	if os.Getenv("ENVIRONMENT") == "test" {
+	    fmt.Println("Mock deleting QR Label")
+	    // mock success res
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Label deleted successfully",
+		})
+		return
+	}
 
 	// Create a new storage client
 	storageClient, err := storage.NewClient(ctx)

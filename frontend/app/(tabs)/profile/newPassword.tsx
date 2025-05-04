@@ -30,7 +30,7 @@ export default function ResetPassword() {
 
     try {
       // Make API request to initiate password reset
-      console.log(`Sending request to ${API_URL}/api/v1/auth/forgot-password`);
+      //console.log(`Sending request to ${API_URL}/api/v1/auth/forgot-password`);
       const response = await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
         method: 'POST',
         headers: {
@@ -39,9 +39,9 @@ export default function ResetPassword() {
         body: JSON.stringify({ email }),
       }); 
 
-      console.log('Response status:', response.status);
+      //console.log('Response status:', response.status);
       const data = await response.json(); 
-      console.log('Response data:', data);
+      //console.log('Response data:', data);
 
       if (response.ok) {
         Alert.alert(

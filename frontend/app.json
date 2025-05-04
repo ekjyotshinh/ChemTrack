@@ -1,12 +1,11 @@
 {
   "expo": {
     "name": "ChemTrack",
-    "slug": "ChemTrack",
+    "slug": "chemtrack",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "chemtrack",
-    "deepLinking": true,
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -22,7 +21,8 @@
           {
             "CFBundleURLSchemes": ["chemtrack"]
           }
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -39,16 +39,14 @@
               "scheme": "chemtrack"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        },
-        "permissions", [
-          "android.permission.READ_EXTERNAL_STORAGE",
-          "android.permission.WRITE_EXTERNAL_STORAGE",
-          "android.permission.CAMERA"
-        ]
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {
@@ -93,8 +91,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "7eac3786-789d-4891-ad29-e897c756557e"
+        "projectId": "7d3088c2-10ad-4e23-9e3f-4956fd1c356c"
       }
-    }
+    },
+    "owner": "chemtrack"
   }
 }

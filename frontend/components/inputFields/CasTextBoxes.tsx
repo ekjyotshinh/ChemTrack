@@ -49,7 +49,7 @@ export default function CasTextBoxes({ casParts, setCasParts, testIDs }: CasProp
         if (index < casParts.length - 1) {
             casRefs[index + 1].current?.focus()
         } else {
-            console.log(casParts)
+            //console.log(casParts)
         }
     }
 
