@@ -13,13 +13,13 @@ export default function StartPage() {
 
   useEffect(() => {
       const handleDeepLink = (event: { url: string }) => {
-          console.log("Received deep link:", event.url);
+          //console.log("Received deep link:", event.url);
           let { path, queryParams } = Linking.parse(event.url);
 
-          if (path === 'signup' && queryParams?.email) {
+          if (path === 'customSignup1' && queryParams?.id) {
               router.push({
-                  pathname: '/signupPage1',
-                  params: { email: queryParams.email, userType: queryParams.userType },
+                  pathname: '/customSignup1',
+                  params: { id: queryParams.id }, 
               });
           }
       };
@@ -57,9 +57,11 @@ export default function StartPage() {
           </TextInter>
 
           {/* Link to sign-up page */}
+          {/* Link to sign-up page 
           <TextInter onPress={() => router.push('/signupPage1')} style={styles.link}>
             Don't have an account? Sign-up
           </TextInter>
+          */}
         </View>
       </ScrollView>
     </View>

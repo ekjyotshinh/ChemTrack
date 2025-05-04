@@ -3,8 +3,8 @@ package main
 
 import (
     "log"
-	"os"
     "time"
+    "os"
 
     "github.com/swaggo/gin-swagger"
     "github.com/swaggo/files"
@@ -15,19 +15,44 @@ import (
 	"github.com/joho/godotenv"
     //"github.com/ekjyotshinh/ChemTrack/backend/services"
 )
+func setupCredentials() {
+	// Handle GOOGLE_APPLICATION_CREDENTIALS_JSON → /tmp/bucketkey.json
+    if jsonCreds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"); jsonCreds != "" {
+        path := "/tmp/bucketkey.json"
+        err := os.WriteFile(path, []byte(jsonCreds), 0600)
+        if err != nil {
+            log.Fatalf("Failed to write GOOGLE_APPLICATION_CREDENTIALS file: %v", err)
+        }
+        log.Println("Successfully wrote GOOGLE_APPLICATION_CREDENTIALS to: ", path)
+        os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", path)
+    }
+    
+    if keyJson := os.Getenv("KEY_JSON"); keyJson != "" {
+        path := "/tmp/key.json"
+        err := os.WriteFile(path, []byte(keyJson), 0600)
+        if err != nil {
+            log.Fatalf("Failed to write KEY_JSON file: %v", err)
+        }
+        log.Println("Successfully wrote KEY_JSON to: ", path)
+    }
+
+}
+
+
 
 func main() {
 
 	// Load environment variables from .env
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+    if err := godotenv.Load(); err != nil {
+        log.Println("No .env file found, relying on environment variables.")
+    }
+    setupCredentials()
 	// Create a Gin router
     router := gin.Default()
 
 	// Set up CORS
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{os.Getenv("FRONTEND_PORT")},
+		AllowOrigins: []string{"*"},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
 	}))

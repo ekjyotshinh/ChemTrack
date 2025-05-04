@@ -58,7 +58,7 @@ export default function Profile() {
       setImageURI(data.profilePictureURL);
 
     } catch (error) {
-      console.log('Failed to fetch user\'s profile picture');
+      //console.log('Failed to fetch user\'s profile picture');
     }
   }
 

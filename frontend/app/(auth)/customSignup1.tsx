@@ -25,7 +25,7 @@ export default function CustomSignup1() {
   // Fetch user data
   useEffect(() => {
     if (!userId) return;
-    console.log("userId from URL:", userId);
+    //console.log("userId from URL:", userId);
     getUserData();
   }, [userId]);
 
@@ -40,7 +40,7 @@ export default function CustomSignup1() {
 
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
+        //console.log(data);
 
         const { email, is_master, is_admin, school } = data;
         setEmailValue(email);
@@ -56,8 +56,8 @@ export default function CustomSignup1() {
     }
   };
     
-	console.log("isMaster:", isMaster);
-	console.log("isAdmin:", isAdmin);
+	//console.log("isMaster:", isMaster);
+	//console.log("isAdmin:", isAdmin);
 
   const handleNextPress = () => {
     if (!userId) {

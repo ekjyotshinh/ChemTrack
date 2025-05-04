@@ -76,12 +76,12 @@ const NotificationsScreen = () => {
     useEffect(() => {
         notificationListener.current = setNotificationReceiver((notification) => {
             const { title, body } = notification.request.content
-            console.log('Received notification:', { title, body })
+            //console.log('Received notification:', { title, body })
         })
 
         responseListener.current = setNotificationHandler((response) => {
             const { title, body } = response.notification.request.content
-            console.log('Notification response:', { title, body })
+            //console.log('Notification response:', { title, body })
         })
 
         return () => {
@@ -96,9 +96,9 @@ const NotificationsScreen = () => {
 
     // Function to handle notification permission
     const handleNotificationSetup = async () => {
-        console.log('Starting notification setup')
+        //console.log('Starting notification setup')
         try {
-            console.log('Requesting system permission...')
+            //console.log('Requesting system permission...')
             const { status } = await Notifications.requestPermissionsAsync({
                 ios: {
                     allowAlert: true,
@@ -106,7 +106,7 @@ const NotificationsScreen = () => {
                     allowSound: true,
                 },
             })
-            console.log('Permission status after request:', status)
+            //console.log('Permission status after request:', status)
 
             if (status === 'granted') {
                 const token = await registerForPushNotifications()
@@ -166,7 +166,7 @@ const NotificationsScreen = () => {
                 allow_email: updatedPreferences.allow_email,
                 allow_push: updatedPreferences.allow_push,
             });
-            console.log('User preferences updated successfully');
+            //console.log('User preferences updated successfully');
             Alert.alert('Success', 'Your preferences have been updated!');
             return true;
         } catch (error) {

@@ -95,10 +95,10 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                 }
             } else {
                 setQRCodeImageURL('');
-                console.log('Failed to fetch QR code:', response.statusText);
+                //console.log('Failed to fetch QR code:', response.statusText);
             }
         } catch (error) {
-            console.log('Error fetching QR code:', error);
+            //console.log('Error fetching QR code:', error);
         }
     }
 
@@ -177,7 +177,7 @@ const ChemicalDetails = ({ selectedChemical, toggleSDSBottomSheet, modalVisible,
                             title={'Download QR Label'}
                             icon={<QrCodeIcon color={Colors.black} strokeWidth='4' />}
                             textColor={Colors.black}
-                            onPress={() => downloadFile(`https://storage.googleapis.com/chemtrack-testing2/label/${selectedChemical.id}.pdf`)}
+                            onPress={() => downloadFile(`https://storage.googleapis.com/chemtrack-deployment/label/${selectedChemical.id}.pdf`)}
                             color={Colors.white}
                             width={270}
                             height={47}

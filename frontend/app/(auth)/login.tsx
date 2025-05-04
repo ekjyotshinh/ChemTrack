@@ -52,7 +52,7 @@ export default function LoginPage() {
 
       // Parse the response data
       const data = await response.json();
-      console.log(data); // Log the complete response for debugging
+      //console.log(data); // Log the complete response for debugging
 
       // Successfully logged in, update context with user info
       updateUserInfo({
@@ -142,10 +142,11 @@ export default function LoginPage() {
             iconPosition='left'
           />
 
-          {/* Link to the signup page */}
+          {/* Link to the signup page 
           <TextInter onPress={() => router.push('/signupPage1')} style={styles.link}>
             Don't have an account? Sign-up
           </TextInter>
+          */}
         </View>
       </ScrollView>
     </View>
