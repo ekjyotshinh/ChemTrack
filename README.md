@@ -1,10 +1,10 @@
 <p align="center">
-   <img src="./assets/banner.png"/>
+   <img src="./assets/banner.png" alt="ChemTrack A chemical inventory manager with QR code scanning built for schools"/>
 </p>
 
 # ChemTrack
 
-A chemical inventory manager with QR code scanning built for schools.
+ChemTrack is a mobile app for managing chemical inventory in schools, featuring built-in QR code scanning. It was designed, developed, and tested from the ground up for the chemistry department at Encina High School to streamline their inventory management process.
 
 ## Table of Contents
 
@@ -20,8 +20,6 @@ A chemical inventory manager with QR code scanning built for schools.
 -   [Testing](#testing)
 -   [Deployment](#deployment-to-do)
 -   [API Endpoints](#api-endpoints)
--   [UI Images](#ui-images)
--   [Key Milestones](#key-milestones-for-191)
 -   [Additional Information](#additional-information)
 
 ## Introduction
@@ -59,6 +57,14 @@ Swagger: For API documentation, making it easy for developers to understand and 
 Docker: To containerize the application, ensuring consistent environments across development, testing, and production.
 GitHub: For version control and collaboration, enabling seamless teamwork and code management.
 By leveraging these cutting-edge technologies, ChemTrack ensures a reliable, efficient, and user-friendly experience for managing chemical inventories in educational institutions.
+
+## Application Demo
+
+App running on production build on an iOS device with master access.
+
+<p align="center">
+  <img src="https://i.imgur.com/DiIkMBT.gif" alt="App Demo" width="30%">
+</p>
 
 ## Contributors
 
@@ -215,24 +221,6 @@ Refer to the `http://localhost:8080/swagger/index.html#/` when running the backe
 <p align="center">
     <img src="./assets/Animation.gif" alt="Swagger API Gif"/>
 </p>
-
-## UI Images
-
-Created in Figma
-
-<p align="center">
-  <img src="./assets/figma/home.png" alt="Home screen image" width="30%">
-  <img src="./assets/figma/add.png" alt="Add chemical screen image" width="30%">
-  <img src="./assets/figma/view.png" alt="View chemical screen image" width="30%">
-</p>
-
-## Key Milestones for 191
-
--   SDS viewing & uploading
--   Inviting user backend functionality
--   User type implementation
--   QR code scanning and routing
--   Label printing & generation
 
 ## Additional Information
 
